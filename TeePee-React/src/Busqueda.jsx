@@ -252,7 +252,7 @@ export default function Busqueda() {
         </div>
 
         {toast && <div className={styles.toast}>{toast}</div>}
-      <NavInferior />
+        <NavInferior />
       </div>
     );
   }
@@ -485,7 +485,7 @@ export default function Busqueda() {
         </div>
 
         {toast && <div className={styles.toast}>{toast}</div>}
-      <NavInferior />
+        <NavInferior />
       </div>
     );
   }
@@ -632,7 +632,7 @@ export default function Busqueda() {
         </main>
 
         {toast && <div className={styles.toast}>{toast}</div>}
-      <NavInferior />
+        <NavInferior />
       </div>
     );
   }

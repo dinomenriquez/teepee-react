@@ -373,7 +373,7 @@ export default function Seguimiento() {
           <button
             type="button"
             className={styles.btnCalificar}
-            onClick={() => navigate("/calificacion")}
+onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(solActivo.nombre)}&solOficio=${encodeURIComponent(solActivo.oficio || "Solucionador")}&solInicial=${solActivo.inicial || solActivo.nombre?.charAt(0)}&solNivel=${encodeURIComponent(solActivo.nivel || "🥇")}`)}
           >
             <Star size={16} /> Calificar a {solActivo.nombre}
           </button>
