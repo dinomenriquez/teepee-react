@@ -371,6 +371,20 @@
   font-weight: 700;
 }
 
+.oficioBtnPrincipal {
+  background: var(--amarillo-suave);
+  border-color: var(--amarillo);
+  color: var(--tp-marron);
+  font-weight: 700;
+}
+
+.oficioBtnSecundario {
+  background: rgba(61,31,31,0.06);
+  border-color: rgba(61,31,31,0.25);
+  color: var(--tp-marron);
+  font-weight: 600;
+}
+
 /* ── ZONA ────────────────────────────────────── */
 .zonaGrid {
   display: grid;

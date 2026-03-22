@@ -127,12 +127,13 @@
 
 /* ── TRABAJO ACTIVO ──────────────────────────────── */
 .trabajoActivo {
-  background: var(--tp-marron);
+  background: var(--tp-crema-clara);
   border-radius: var(--r-xl);
   padding: var(--sp-lg);
-  color: var(--tp-crema);
+  color: var(--tp-marron);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(61,31,31,0.10);
 }
 
 .trabajoActivo::before {
@@ -142,7 +143,7 @@
   right: -40px;
   width: 140px;
   height: 140px;
-  background: rgba(240,234,214,0.05);
+  background: rgba(61,31,31,0.03);
   border-radius: var(--r-full);
 }
 
@@ -161,7 +162,7 @@
   gap: 6px;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(240,234,214,0.50);
+  color: var(--tp-marron-suave);
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -184,34 +185,35 @@
   font-size: 11px;
   font-weight: 700;
   color: var(--tp-crema);
-  background: rgba(184,64,48,0.45);
-  border: 1px solid rgba(184,64,48,0.55);
-  padding: 4px 12px;
+  background: var(--tp-rojo);
+  border: none;
+  padding: 5px 12px;
   border-radius: var(--r-full);
   transition: background var(--trans);
   cursor: pointer;
 }
 
-.trabajoActivoBtn:hover { background: rgba(184,64,48,0.70); }
+.trabajoActivoBtn:hover { background: var(--tp-rojo-oscuro); }
 
 .trabajoActivoNombre {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   margin-bottom: 4px;
   position: relative;
   z-index: 1;
+  color: var(--tp-marron);
 }
 
 .trabajoActivoDesc {
   font-size: 12px;
-  color: rgba(240,234,214,0.50);
+  color: var(--tp-marron-suave);
   margin-bottom: var(--sp-md);
   position: relative;
   z-index: 1;
 }
 
 .progreso {
-  background: rgba(240,234,214,0.12);
+  background: rgba(61,31,31,0.08);
   border-radius: var(--r-full);
   height: 5px;
   overflow: hidden;
@@ -263,54 +265,71 @@
 
 .btnSolicitar {
   width: 100%;
-  background: var(--tp-rojo);
+  background: linear-gradient(135deg, #3D1F1F 0%, #5C2E2E 60%, #3D1F1F 100%);
   color: var(--tp-crema);
-  border-radius: var(--r-lg);
-  padding: var(--sp-lg);
+  border-radius: var(--r-xl);
+  padding: 20px 18px;
   display: flex;
   align-items: center;
-  gap: var(--sp-md);
-  box-shadow: var(--sombra-rojo);
-  transition: all var(--trans);
+  gap: 16px;
+  box-shadow: 0 8px 28px rgba(61,31,31,0.40), 0 2px 8px rgba(61,31,31,0.20);
+  transition: all 0.2s ease;
   cursor: pointer;
+  border: 1.5px solid #2A1515;
+  position: relative;
+  overflow: hidden;
+}
+
+.btnSolicitar::after {
+  content: '';
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 110px;
+  height: 110px;
+  background: rgba(240,234,214,0.05);
+  border-radius: 50%;
 }
 
 .btnSolicitar:hover {
-  background: var(--tp-rojo-oscuro);
-  transform: translateY(-2px);
-  box-shadow: 0 12px 32px rgba(184,64,48,0.38);
+  transform: translateY(-3px);
+  box-shadow: 0 14px 36px rgba(61,31,31,0.50), 0 4px 12px rgba(61,31,31,0.25);
 }
 
 .btnSolicitar:active { transform: translateY(0); }
 
 .btnSolicitarIcono {
-  width: 50px;
-  height: 50px;
-  background: rgba(240,234,214,0.18);
-  border-radius: var(--r-sm);
+  width: 62px;
+  height: 62px;
+  background: rgba(240,234,214,0.12);
+  border-radius: var(--r-md);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
   flex-shrink: 0;
+  color: var(--tp-crema);
+  border: 1px solid rgba(240,234,214,0.10);
 }
 
 .btnSolicitarTexto { flex: 1; text-align: left; }
 
 .btnSolicitarTitulo {
   display: block;
-  font-size: 16px;
-  font-weight: 800;
-  margin-bottom: 2px;
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 3px;
+  letter-spacing: -0.4px;
+  color: var(--tp-crema);
 }
 
 .btnSolicitarSub {
   display: block;
   font-size: 12px;
-  opacity: 0.75;
+  color: rgba(240,234,214,0.60);
+  font-weight: 500;
 }
 
-.btnFlecha { font-size: 20px; opacity: 0.55; }
+.btnFlecha { font-size: 26px; color: var(--tp-crema); opacity: 0.60; }
 
 .btnUrgente {
   width: 100%;

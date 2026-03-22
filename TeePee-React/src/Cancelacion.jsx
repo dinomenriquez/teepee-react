@@ -241,11 +241,9 @@ export default function Cancelacion() {
             }`}
           >
             <div className={styles.politicaTop}>
-              <span className={styles.politicaIcono}>
-                {politica.pct === 100 ? "✅" : politica.pct > 0 ? "⚠️" : "❌"}
-              </span>
+              <span className={styles.politicaIcono}>{politica.icono}</span>
               <div>
-                <p className={styles.politicaTitulo}>{politica.texto}</p>
+                <p className={styles.politicaTitulo}>{politica.titulo}</p>
                 <p className={styles.politicaDesc}>{politica.desc}</p>
               </div>
             </div>

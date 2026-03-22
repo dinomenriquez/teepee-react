@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavInferior from "./NavInferior";
 import styles from "./MisTrabajosU.module.css";
 import { IconoVolver } from "./Iconos";
 import { RefreshCw, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
@@ -8,30 +9,47 @@ const TRABAJOS = {
   enCurso: [
     {
       id: 1,
-      titulo: "Tablero eléctrico",
-      solucionador: "Juan Ledesma",
-      inicial: "J",
+      solucionadorId: 1,
+      titulo: "Reparación cañería",
+      solucionador: "Carlos Méndez",
+      inicial: "C",
       nivel: "🥇",
-      oficio: "Electricista",
+      oficio: "Plomero",
       etapa: 2,
-      totalEtapas: 4,
-      progreso: 50,
-      monto: "$35.200",
-      fecha: "Hoy, 8 Mar",
+      totalEtapas: 3,
+      progreso: 65,
+      monto: "$15.000",
+      fecha: "Hoy 14:30 hs",
       estado: "en-curso",
     },
     {
       id: 2,
-      titulo: "Pintura living",
-      solucionador: "Pedro Acuña",
-      inicial: "P",
-      nivel: "🥈",
-      oficio: "Pintor",
+      solucionadorId: 2,
+      titulo: "Instalación toma corrientes",
+      solucionador: "Ana Rodríguez",
+      inicial: "A",
+      nivel: "🥇",
+      oficio: "Electricista",
       etapa: 1,
       totalEtapas: 3,
-      progreso: 25,
-      monto: "$48.000",
-      fecha: "Ayer, 7 Mar",
+      progreso: 20,
+      monto: "$22.000",
+      fecha: "Mañana 10:00 hs",
+      estado: "en-curso",
+    },
+    {
+      id: 3,
+      solucionadorId: 3,
+      titulo: "Pintura living y comedor",
+      solucionador: "Miguel Torres",
+      inicial: "M",
+      nivel: "🥈",
+      oficio: "Pintor",
+      etapa: 3,
+      totalEtapas: 4,
+      progreso: 75,
+      monto: "$45.000",
+      fecha: "Vie 09:00 hs",
       estado: "en-curso",
     },
   ],
@@ -271,14 +289,14 @@ export default function MisTrabajosU() {
                       <button
                         type="button"
                         className={styles.btnSecundario}
-                        onClick={() => navigate("/chat")}
+                        onClick={() => navigate(`/chat?solId=${trabajo.solucionadorId || 1}`)}
                       >
                         💬 Chat
                       </button>
                       <button
                         type="button"
                         className={styles.btnPrimario}
-                        onClick={() => navigate("/seguimiento")}
+                        onClick={() => navigate(`/seguimiento?solId=${trabajo.solucionadorId || trabajo.id}&trabajoId=${trabajo.id}`)}
                       >
                         Ver seguimiento →
                       </button>
@@ -310,7 +328,7 @@ export default function MisTrabajosU() {
                     <button
                       type="button"
                       className={styles.btnSecundario}
-                      onClick={() => mostrarToast("Abriendo detalle...")}
+                      onClick={() => navigate("/seguimiento")}
                     >
                       Ver detalle
                     </button>
@@ -332,6 +350,7 @@ export default function MisTrabajosU() {
       </main>
 
       {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferior />
     </div>
   );
 }

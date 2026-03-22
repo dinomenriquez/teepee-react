@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import styles from "./Notificaciones.module.css";
+import NavInferiorS from "./NavInferiorS";
+import styles from "./NotificacionesS.module.css";
 import { IconoVolver } from "./Iconos";
 
 const NOTIFICACIONES = {
@@ -146,7 +147,7 @@ const COLORES_TIPO = {
   recordatorio: { bg: "rgba(61,31,31,0.04)", border: "rgba(61,31,31,0.10)" },
 };
 
-export default function Notificaciones() {
+export default function NotificacionesS() {
   const navigate = useNavigate();
 
   const rol = "solucionador";
@@ -222,6 +223,7 @@ export default function Notificaciones() {
           </div>
         )}
       </main>
+      <NavInferiorS />
     </div>
   );
 }

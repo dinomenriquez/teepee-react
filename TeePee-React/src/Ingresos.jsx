@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavInferiorS from "./NavInferiorS";
 import styles from "./Ingresos.module.css";
 import { IconoVolver, IconoPerfil } from "./Iconos";
 
@@ -264,6 +265,7 @@ export default function Ingresos() {
           ))}
         </section>
       </main>
+      <NavInferiorS />
     </div>
   );
 }

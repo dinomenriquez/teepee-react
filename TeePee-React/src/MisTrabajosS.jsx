@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavInferiorS from "./NavInferiorS";
 import styles from "./MisTrabajosS.module.css";
 import { IconoVolver } from "./Iconos";
 import {
@@ -13,7 +14,7 @@ import {
 const TRABAJOS = {
   hoy: [
     {
-      id: 1,
+      id: 1, usuarioId: 1,
       titulo: "Tablero eléctrico",
       cliente: "Martín García",
       inicial: "M",
@@ -26,7 +27,7 @@ const TRABAJOS = {
       estado: "hoy",
     },
     {
-      id: 2,
+      id: 2, usuarioId: 2,
       titulo: "Reparación canilla",
       cliente: "Laura Pérez",
       inicial: "L",
@@ -41,7 +42,7 @@ const TRABAJOS = {
   ],
   enCurso: [
     {
-      id: 3,
+      id: 3, usuarioId: 3,
       titulo: "Pintura living",
       cliente: "Roberto Silva",
       inicial: "R",
@@ -307,14 +308,14 @@ export default function MisTrabajosS() {
                       <button
                         type="button"
                         className={styles.btnSecundario}
-                        onClick={() => navigate("/chat")}
+                        onClick={() => navigate(`/chat-s?usuarioId=${trabajo.usuarioId}&nombre=${encodeURIComponent(trabajo.cliente)}&inicial=${trabajo.inicial}&desde=trabajos-s`)}
                       >
                         💬 Chat
                       </button>
                       <button
                         type="button"
                         className={styles.btnPrimario}
-                        onClick={() => navigate("/seguimiento")}
+                        onClick={() => navigate(`/seguimiento-s?usuarioId=${trabajo.usuarioId}&trabajoId=${trabajo.id}`)}
                       >
                         Ver trabajo →
                       </button>
@@ -355,6 +356,7 @@ export default function MisTrabajosS() {
       </main>
 
       {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferiorS />
     </div>
   );
 }

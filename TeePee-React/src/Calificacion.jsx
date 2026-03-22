@@ -1,5 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavInferior from "./NavInferior";
+import {
+  CALIFICACIONES_PENDIENTES,
+  getSolucionador,
+  TRABAJOS,
+} from "./MockData";
 import styles from "./Calificacion.module.css";
 import { IconoVolver } from "./Iconos";
 import {
@@ -78,6 +84,7 @@ function Estrellas({ valor, onChange, size = "normal" }) {
 
 export default function Calificacion() {
   const navigate = useNavigate();
+  const [trabajoActivo, setTrabajoActivo] = useState(null); // null = lista, objeto = detalle
   const [estrellasPrincipal, setEstrellasPrincipal] = useState(0);
   const [estrellasAspectos, setEstrellasAspectos] = useState({
     puntualidad: 0,
@@ -99,6 +106,194 @@ export default function Calificacion() {
   function toggleTag(tag) {
     setTagsSeleccionados((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag],
+    );
+  }
+
+  // ── VISTA: LISTA DE PENDIENTES ──
+  if (!trabajoActivo) {
+    const pendientes = CALIFICACIONES_PENDIENTES.map((c) => ({
+      ...c,
+      solucionador: getSolucionador(c.solucionadorId),
+      trabajo: TRABAJOS.find((t) => t.id === c.trabajoId),
+    }));
+
+    return (
+      <div
+        style={{
+          background: "var(--tp-crema)",
+          minHeight: "100vh",
+          fontFamily: "var(--fuente)",
+        }}
+      >
+        <header
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 100,
+            background: "var(--tp-crema)",
+            borderBottom: "1px solid rgba(61,31,31,0.08)",
+            padding: "14px 16px",
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+          }}
+        >
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              padding: 4,
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+            }}
+          >
+            <IconoVolver size={20} />
+          </button>
+          <div>
+            <h1
+              style={{
+                fontSize: 16,
+                fontWeight: 800,
+                color: "var(--tp-marron)",
+                margin: 0,
+              }}
+            >
+              Calificaciones
+            </h1>
+            <p
+              style={{
+                fontSize: 11,
+                color: "var(--tp-marron-suave)",
+                margin: 0,
+              }}
+            >
+              {pendientes.length}{" "}
+              {pendientes.length === 1
+                ? "trabajo pendiente"
+                : "trabajos pendientes"}
+            </p>
+          </div>
+        </header>
+
+        <div
+          style={{
+            padding: "12px 16px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+          }}
+        >
+          {pendientes.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 20px" }}>
+              <div style={{ fontSize: 40, marginBottom: 12 }}>⭐</div>
+              <p
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: "var(--tp-marron)",
+                }}
+              >
+                Todo calificado
+              </p>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: "var(--tp-marron-suave)",
+                  marginTop: 4,
+                }}
+              >
+                No tenés calificaciones pendientes
+              </p>
+            </div>
+          ) : (
+            pendientes.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => setTrabajoActivo(item)}
+                style={{
+                  width: "100%",
+                  textAlign: "left",
+                  background: "var(--tp-crema-clara)",
+                  border: "1px solid rgba(61,31,31,0.10)",
+                  borderRadius: "var(--r-md)",
+                  padding: "14px",
+                  cursor: "pointer",
+                  fontFamily: "var(--fuente)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                {/* Avatar solucionador */}
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "50%",
+                    flexShrink: 0,
+                    background: item.solucionador?.color || "var(--tp-rojo)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: 16,
+                    fontWeight: 800,
+                    color: "white",
+                  }}
+                >
+                  {item.solucionador?.inicial || "?"}
+                </div>
+
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 14,
+                        fontWeight: 700,
+                        color: "var(--tp-marron)",
+                      }}
+                    >
+                      {item.solucionador?.nombre || "Solucionador"}
+                    </span>
+                    <span
+                      style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}
+                    >
+                      {item.fecha}
+                    </span>
+                  </div>
+                  <span
+                    style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}
+                  >
+                    {item.solucionador?.oficio} ·{" "}
+                    {item.trabajo?.descripcion || item.descripcion}
+                  </span>
+                  <div style={{ marginTop: 6 }}>
+                    <span
+                      style={{
+                        fontSize: 11,
+                        fontWeight: 700,
+                        background: "var(--tp-rojo-suave)",
+                        color: "var(--tp-rojo)",
+                        padding: "3px 8px",
+                        borderRadius: 20,
+                      }}
+                    >
+                      ⭐ Calificar →
+                    </span>
+                  </div>
+                </div>
+              </button>
+            ))
+          )}
+        </div>
+        <NavInferior />
+      </div>
     );
   }
 
@@ -151,10 +346,12 @@ export default function Calificacion() {
           <div className={styles.completadoResumen}>
             <div className={styles.completadoSolucionador}>
               <div className={styles.completadoAvatar}>
-                {SOLUCIONADOR.inicial}
+                {trabajoActivo?.solucionador?.inicial || SOLUCIONADOR.inicial}
               </div>
               <div>
-                <p className={styles.completadoNombre}>{SOLUCIONADOR.nombre}</p>
+                <p className={styles.completadoNombre}>
+                  {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}
+                </p>
                 <div className={styles.completadoEstrellas}>
                   {"⭐".repeat(estrellasPrincipal)}
                   {"☆".repeat(5 - estrellasPrincipal)}
@@ -218,7 +415,10 @@ export default function Calificacion() {
   return (
     <div className={styles.pantalla}>
       <header className={styles.header}>
-        <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+        <button
+          className={styles.btnVolver}
+          onClick={() => setTrabajoActivo(null)}
+        >
           <IconoVolver size={20} />
         </button>
         <span className={styles.headerTitulo}>Calificar servicio</span>
@@ -231,16 +431,24 @@ export default function Calificacion() {
         {/* ── RESUMEN DEL TRABAJO ── */}
         <section className={styles.trabajoCard}>
           <div className={styles.trabajoAvatar}>
-            {SOLUCIONADOR.inicial}
-            <span className={styles.trabajoNivel}>{SOLUCIONADOR.nivel}</span>
+            {trabajoActivo?.solucionador?.inicial || SOLUCIONADOR.inicial}
+            <span className={styles.trabajoNivel}>
+              {trabajoActivo?.solucionador?.nivel || SOLUCIONADOR.nivel}
+            </span>
           </div>
           <div className={styles.trabajoInfo}>
-            <p className={styles.trabajoNombre}>{SOLUCIONADOR.nombre}</p>
+            <p className={styles.trabajoNombre}>
+              {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}
+            </p>
             <p className={styles.trabajoOficio}>
-              {SOLUCIONADOR.oficio} · {TRABAJO.titulo}
+              {trabajoActivo?.solucionador?.oficio || SOLUCIONADOR.oficio} ·{" "}
+              {trabajoActivo?.trabajo?.descripcion ||
+                trabajoActivo?.descripcion ||
+                TRABAJO.titulo}
             </p>
             <p className={styles.trabajoFecha}>
-              {TRABAJO.fecha} · {TRABAJO.monto}
+              {trabajoActivo?.fecha || TRABAJO.fecha} ·{" "}
+              {trabajoActivo?.trabajo?.monto || TRABAJO.monto}
             </p>
           </div>
         </section>
@@ -363,29 +571,30 @@ export default function Calificacion() {
               <AlertTriangle size={14} />
             </span>
             <p>
-              Tu calificación será pública en el perfil de {SOLUCIONADOR.nombre}{" "}
-              y afectará su posición en el ranking de TeePee.
+              Tu calificación será pública en el perfil de{" "}
+              {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre} y
+              afectará su posición en el ranking de TeePee.
             </p>
           </div>
         )}
+        {/* ── BOTÓN ENVIAR ── */}
+        <div style={{ padding: "8px 0 16px" }}>
+          <button
+            type="button"
+            className={`${styles.btnEnviar} ${
+              estrellasPrincipal === 0 ? styles.btnEnviarDesactivado : ""
+            }`}
+            onClick={enviarCalificacion}
+            disabled={estrellasPrincipal === 0}
+          >
+            {estrellasPrincipal === 0
+              ? "Elegí una calificación"
+              : `Enviar calificación de ${estrellasPrincipal} ⭐`}
+          </button>
+        </div>
       </main>
 
-      {/* ── FOOTER ── */}
-      <div className={styles.footer}>
-        <button
-          type="button"
-          className={`${styles.btnEnviar} ${
-            estrellasPrincipal === 0 ? styles.btnEnviarDesactivado : ""
-          }`}
-          onClick={enviarCalificacion}
-          disabled={estrellasPrincipal === 0}
-        >
-          {estrellasPrincipal === 0
-            ? "Elegí una calificación"
-            : `Enviar calificación de ${estrellasPrincipal} ⭐`}
-        </button>
-      </div>
-
+      <NavInferior />
       {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   );

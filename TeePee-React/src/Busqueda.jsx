@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import NavInferior from "./NavInferior";
 import styles from "./Busqueda.module.css";
 import {
   IconoPlomeria,
@@ -103,7 +104,9 @@ const SOLUCIONADORES_MOCK = [
 
 export default function Busqueda() {
   const navigate = useNavigate();
-  const [paso, setPaso] = useState(1);
+  const [searchParams] = useSearchParams();
+  const pasoInicial = Number(searchParams.get("paso")) || 1;
+  const [paso, setPaso] = useState(pasoInicial);
   const [categoriaSeleccionada, setCategoriaSeleccionada] = useState(null);
   const [descripcion, setDescripcion] = useState("");
   const [urgencia, setUrgencia] = useState("normal");
@@ -249,6 +252,7 @@ export default function Busqueda() {
         </div>
 
         {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferior />
       </div>
     );
   }
@@ -481,6 +485,7 @@ export default function Busqueda() {
         </div>
 
         {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferior />
       </div>
     );
   }
@@ -609,14 +614,14 @@ export default function Busqueda() {
                   <button
                     type="button"
                     className={styles.btnVerPerfil}
-                    onClick={() => navigate("/perfil")}
+                    onClick={() => navigate(`/perfil?nombre=${encodeURIComponent(sol.nombre)}&oficio=${encodeURIComponent(sol.oficio)}&reputacion=${sol.reputacion}&trabajos=${sol.trabajos}&distancia=${encodeURIComponent(sol.distancia)}&precio=${encodeURIComponent(sol.precio)}&garantia=${encodeURIComponent(sol.garantia)}&nivelIcono=${encodeURIComponent(sol.nivelIcono)}&desde=busqueda`)}
                   >
                     Ver perfil
                   </button>
                   <button
                     type="button"
                     className={styles.btnContactar}
-                    onClick={() => navigate("/chat")}
+                    onClick={() => navigate(`/chat?solId=${sol.id}&nombre=${encodeURIComponent(sol.nombre)}&inicial=${sol.inicial}&oficio=${encodeURIComponent(sol.oficio)}&desde=busqueda`)}
                   >
                     Contactar →
                   </button>
@@ -627,6 +632,7 @@ export default function Busqueda() {
         </main>
 
         {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferior />
       </div>
     );
   }

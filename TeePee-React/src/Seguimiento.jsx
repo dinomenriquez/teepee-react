@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import NavInferior from "./NavInferior";
+import { getSolucionador, TRABAJOS } from "./MockData";
 import styles from "./Seguimiento.module.css";
 import { IconoVolver } from "./Iconos";
 import {
@@ -11,6 +13,7 @@ import {
   Cable,
   Lock,
   MessageCircle,
+  HardHat,
   Star,
 } from "lucide-react";
 
@@ -27,48 +30,50 @@ const TRABAJO = {
 };
 
 const SOLUCIONADOR = {
-  nombre: "Juan Ledesma",
-  inicial: "J",
-  oficio: "Electricista",
+  nombre: "Carlos Méndez",
+  inicial: "C",
+  oficio: "Plomero",
   nivel: "🥇",
   reputacion: 4.9,
   telefono: "+54 376 4123456",
 };
 
-const ETAPAS = [
-  {
-    id: 1,
-    icono: <CheckCircle size={18} />,
-    titulo: "Trabajo confirmado",
-    desc: "Presupuesto aceptado y pago en escrow",
-    hora: "16:52",
-    estado: "completada",
-  },
-  {
-    id: 2,
-    icono: <Car size={18} />,
-    titulo: "En camino",
-    desc: "Juan está yendo a tu domicilio",
-    hora: "17:10",
-    estado: "completada",
-  },
-  {
-    id: 3,
-    icono: <Wrench size={18} />,
-    titulo: "Trabajando",
-    desc: "Juan está realizando el trabajo",
-    hora: "17:35",
-    estado: "activa",
-  },
-  {
-    id: 4,
-    icono: <Flag size={18} />,
-    titulo: "Terminado",
-    desc: "Trabajo finalizado, pendiente de confirmación",
-    hora: null,
-    estado: "pendiente",
-  },
-];
+function getEtapas(nombreSol) {
+  return [
+    {
+      id: 1,
+      icono: <CheckCircle size={18} />,
+      titulo: "Trabajo confirmado",
+      desc: "Presupuesto aceptado y pago en escrow",
+      hora: "16:52",
+      estado: "completada",
+    },
+    {
+      id: 2,
+      icono: <Car size={18} />,
+      titulo: "En camino",
+      desc: `${nombreSol} está yendo a tu domicilio`,
+      hora: "17:10",
+      estado: "completada",
+    },
+    {
+      id: 3,
+      icono: <Wrench size={18} />,
+      titulo: "Trabajando",
+      desc: `${nombreSol} está realizando el trabajo`,
+      hora: "17:35",
+      estado: "activa",
+    },
+    {
+      id: 4,
+      icono: <Flag size={18} />,
+      titulo: "Terminado",
+      desc: "Trabajo finalizado, pendiente de confirmación",
+      hora: null,
+      estado: "pendiente",
+    },
+  ];
+}
 
 const FOTOS_AVANCE = [
   { id: 1, icono: <Zap size={20} />, titulo: "Tablero antes", hora: "17:38" },
@@ -83,11 +88,29 @@ const FOTOS_AVANCE = [
 
 export default function Seguimiento() {
   const navigate = useNavigate();
-  const [etapaActiva] = useState(3);
+  const [searchParams] = useSearchParams();
+  const solIdParam = searchParams.get("solId");
+  const trabajoIdParam = searchParams.get("trabajoId");
+
+  // Solucionador dinámico — usa el param si viene, sino el mock por defecto
+  const solDinamico = solIdParam ? getSolucionador(Number(solIdParam)) : null;
+  const trabajoDinamico = trabajoIdParam
+    ? TRABAJOS.find(t => t.id === Number(trabajoIdParam))
+    : null;
+  const solActivo = solDinamico || SOLUCIONADOR;
+  const ETAPAS = getEtapas(solActivo.nombre);
+  const [etapaActiva, setEtapaActiva] = useState(3);
   const [toast, setToast] = useState(null);
   const [modalFinalizar, setModalFinalizar] = useState(false);
+  const [avancePct, setAvancePct] = useState(65);
+  const [fotos, setFotos] = useState([]);
+  const [materiales, setMateriales] = useState([]);
+  const [nuevoMaterial, setNuevoMaterial] = useState({ nombre: "", costo: "" });
+  const [mostrarMateriales, setMostrarMateriales] = useState(false);
+  const [mostrarResumen, setMostrarResumen] = useState(false);
   const [trabajoFinalizado, setTrabajoFinalizado] = useState(false);
-  const [esSolucionador, setEsSolucionador] = useState(false) // cambiar a true para probar
+  const [avanceSolicitado, setAvanceSolicitado]   = useState(null); // % pendiente de aprobar
+  const [avanceAprobadoU,  setAvanceAprobadoU]    = useState(65);   // último % aprobado
 
   function mostrarToast(msg) {
     setToast(msg);
@@ -97,136 +120,7 @@ export default function Seguimiento() {
   const progresoPct = Math.round(
     ((etapaActiva - 1) / (ETAPAS.length - 1)) * 100,
   );
-  if (esSolucionador) {
-    return (
-      <div className={styles.pantalla}>
-        <header className={styles.header}>
-          <button className={styles.btnVolver} onClick={() => navigate(-1)}>
-            <IconoVolver size={20} />
-          </button>
-          <span className={styles.headerTitulo}>Seguimiento</span>
-          <button className={styles.btnAccionHeader} onClick={() => navigate('/chat')}>
-            <MessageCircle size={20} />
-          </button>
-        </header>
 
-        <main className={styles.contenido}>
-          {/* ── ESTADO ── */}
-          <section className={styles.estadoCard}>
-            <div className={styles.estadoCardTop}>
-              <div className={styles.estadoPunto}></div>
-              <div className={styles.estadoInfo}>
-                <p className={styles.estadoLabel}>Estado actual</p>
-                <p className={styles.estadoTexto}>{ETAPAS[etapaActiva - 1].titulo}</p>
-                <p className={styles.estadoDesc}>{ETAPAS[etapaActiva - 1].desc}</p>
-              </div>
-              <div className={styles.estadoPct}>{progresoPct}%</div>
-            </div>
-            <div className={styles.estadoBarra}>
-              <div className={styles.estadoBarraRelleno} style={{ width: `${progresoPct}%` }} />
-            </div>
-          </section>
-
-          {/* ── DATOS DEL USUARIO ── */}
-          <section className={styles.solucionadorCard}>
-            <div className={styles.solucionadorInfo}>
-              <div className={styles.solucionadorAvatar}>
-                M
-              </div>
-              <div className={styles.solucionadorTexto}>
-                <span className={styles.solucionadorNombre}>Martín García</span>
-                <span className={styles.solucionadorOficio}>
-                  {TRABAJO.titulo} · {TRABAJO.direccion}
-                </span>
-              </div>
-            </div>
-            <button
-              type="button"
-              className={styles.btnAccion}
-              onClick={() => navigate('/chat')}
-            >
-              <MessageCircle size={18} />
-            </button>
-          </section>
-
-          {/* ── ETAPAS ── */}
-          <section className={styles.seccion}>
-            <h2 className={styles.seccionTitulo}>Progreso del trabajo</h2>
-            <div className={styles.etapasLista}>
-              {ETAPAS.map((etapa, index) => (
-                <div key={etapa.id} className={styles.etapaFila}>
-                  <div className={styles.etapaIzquierda}>
-                    <div className={`${styles.etapaCirculo} ${
-                      etapa.estado === 'completada' ? styles.etapaCirculoCompleta
-                      : etapa.estado === 'activa' ? styles.etapaCirculoActiva
-                      : styles.etapaCirculoPendiente
-                    }`}>
-                      {etapa.estado === 'completada' ? '✓' : etapa.estado === 'activa' ? etapa.icono : index + 1}
-                    </div>
-                    {index < ETAPAS.length - 1 && (
-                      <div className={`${styles.etapaLinea} ${
-                        etapa.estado === 'completada' ? styles.etapaLineaCompleta : styles.etapaLineaPendiente
-                      }`}></div>
-                    )}
-                  </div>
-                  <div className={`${styles.etapaContenido} ${
-                    etapa.estado === 'pendiente' ? styles.etapaContenidoPendiente : ''
-                  }`}>
-                    <div className={styles.etapaHeader}>
-                      <span className={styles.etapaTitulo}>{etapa.titulo}</span>
-                      {etapa.hora && <span className={styles.etapaHora}>{etapa.hora}</span>}
-                    </div>
-                    <span className={styles.etapaDesc}>{etapa.desc}</span>
-                    {etapa.estado === 'activa' && (
-                      <div className={styles.etapaActivaBadge}>En curso ahora</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* ── MONTO ── */}
-          <section className={styles.escrowCard}>
-            <div className={styles.escrowIcono}><Lock size={24} /></div>
-            <div className={styles.escrowInfo}>
-              <p className={styles.escrowTitulo}>Pago en garantía (Escrow)</p>
-              <p className={styles.escrowMonto}>{TRABAJO.montoEscrow}</p>
-              <p className={styles.escrowDesc}>
-                Se libera cuando el usuario confirma el trabajo completo.
-              </p>
-            </div>
-          </section>
-
-          {/* ── BOTÓN MARCAR TERMINADO ── */}
-          {!trabajoFinalizado && etapaActiva < ETAPAS.length && (
-            <button
-              type="button"
-              className={styles.btnFinalizar}
-              onClick={() => {
-                setEtapaActiva(prev => Math.min(prev + 1, ETAPAS.length))
-                mostrarToast('Etapa actualizada')
-              }}
-            >
-              <CheckCircle size={16} /> Avanzar etapa
-            </button>
-          )}
-
-          {etapaActiva === ETAPAS.length && !trabajoFinalizado && (
-            <button
-              type="button"
-              className={styles.btnFinalizar}
-              onClick={() => setModalFinalizar(true)}
-            >
-              <CheckCircle size={16} /> Marcar como terminado
-            </button>
-          )}
-        </main>
-
-        {toast && <div className={styles.toast}>{toast}</div>}
-      </div>
-    )
-  }
   return (
     <div className={styles.pantalla}>
       {/* ── HEADER ── */}
@@ -269,6 +163,32 @@ export default function Seguimiento() {
                 style={{ width: `${progresoPct}%` }}
               />
             </div>
+            {/* Simulación: el solucionador envió avance 80% */}
+            {!avanceSolicitado && avanceAprobadoU < 80 && (
+              <div style={{ marginTop: 8, padding: "10px 12px", background: "rgba(140,104,32,0.08)", borderRadius: 8, border: "1px solid rgba(140,104,32,0.2)" }}>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--amarillo)", margin: "0 0 8px", fontFamily: "var(--fuente)" }}>
+                  ⏳ El solucionador reportó 80% de avance
+                </p>
+                <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 10px", fontFamily: "var(--fuente)" }}>
+                  Aprobá el avance para habilitar el pago parcial correspondiente.
+                </p>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button type="button"
+                    onClick={() => { setAvanceAprobadoU(80); mostrarToast("✅ Avance aprobado · Pago parcial habilitado"); }}
+                    style={{ flex: 1, padding: "8px 0", borderRadius: 8, background: "var(--verde)", color: "white", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700 }}>
+                    ✅ Aprobar
+                  </button>
+                  <button type="button"
+                    onClick={() => mostrarToast("Avance rechazado — el solucionador fue notificado")}
+                    style={{ flex: 1, padding: "8px 0", borderRadius: 8, background: "none", color: "var(--tp-rojo)", border: "1px solid rgba(184,64,48,0.3)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 600 }}>
+                    Rechazar
+                  </button>
+                </div>
+              </div>
+            )}
+            <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: "6px 0 0", fontFamily: "var(--fuente)" }}>
+              📡 Avance aprobado: {avanceAprobadoU}% · Actualizado en tiempo real
+            </p>
           </section>
         ) : (
           <section className={styles.finalizadoCard}>
@@ -276,7 +196,7 @@ export default function Seguimiento() {
             <div>
               <p className={styles.finalizadoTitulo}>¡Trabajo completado!</p>
               <p className={styles.finalizadoDesc}>
-                El pago fue liberado a Juan. ¿Podés calificarlo?
+                El pago fue liberado a {solActivo.nombre}. ¿Podés calificarlo?
               </p>
             </div>
           </section>
@@ -345,28 +265,38 @@ export default function Seguimiento() {
         <section className={styles.solucionadorCard}>
           <div className={styles.solucionadorInfo}>
             <div className={styles.solucionadorAvatar}>
-              {SOLUCIONADOR.inicial}
+              {solActivo.inicial}
               <span className={styles.solucionadorNivel}>
-                {SOLUCIONADOR.nivel}
+                {solActivo.nivel || "🥇"}
               </span>
             </div>
             <div className={styles.solucionadorTexto}>
               <span className={styles.solucionadorNombre}>
-                {SOLUCIONADOR.nombre}
+                {solActivo.nombre}
               </span>
               <span className={styles.solucionadorOficio}>
-                {SOLUCIONADOR.oficio} · <Star size={12} />{" "}
-                {SOLUCIONADOR.reputacion}
+                {solActivo.oficio} · <Star size={12} />{" "}
+                {solActivo.calificacion || solActivo.reputacion || 4.9}
               </span>
             </div>
           </div>
           <div className={styles.solucionadorAcciones}>
-              <button
+            <button
               type="button"
               className={styles.btnAccion}
-              onClick={() => navigate("/chat")}
+              onClick={() => navigate(`/chat?solId=${solIdParam || 1}&desde=seguimiento`)}
+              title="Chat"
             >
               <MessageCircle size={18} />
+            </button>
+            <button
+              type="button"
+              className={styles.btnAccion}
+              onClick={() => navigate(`/perfil?nombre=${encodeURIComponent(solActivo.nombre)}&oficio=${encodeURIComponent(solActivo.oficio)}&desde=seguimiento&solId=${solIdParam || 1}`)}
+              title="Ver perfil"
+              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontFamily: "var(--fuente)", padding: "6px 10px" }}
+            >
+              <HardHat size={18} />
             </button>
           </div>
         </section>
@@ -445,7 +375,7 @@ export default function Seguimiento() {
             className={styles.btnCalificar}
             onClick={() => navigate("/calificacion")}
           >
-            <Star size={16} /> Calificar a {SOLUCIONADOR.nombre}
+            <Star size={16} /> Calificar a {solActivo.nombre}
           </button>
         )}
       </main>
@@ -466,7 +396,7 @@ export default function Seguimiento() {
             <h2 className={styles.modalTitulo}>¿El trabajo está completo?</h2>
             <p className={styles.modalDesc}>
               Al confirmar, se liberará el pago de{" "}
-              <strong>{TRABAJO.montoEscrow}</strong> a {SOLUCIONADOR.nombre}.
+              <strong>{TRABAJO.montoEscrow}</strong> a {solActivo.nombre}.
               Esta acción no se puede deshacer.
             </p>
 
@@ -476,7 +406,7 @@ export default function Seguimiento() {
               </span>
               <p>
                 Se liberarán <strong>{TRABAJO.montoEscrow}</strong> del escrow a
-                la cuenta de {SOLUCIONADOR.nombre}
+                la cuenta de {solActivo.nombre}
               </p>
             </div>
 
@@ -486,7 +416,7 @@ export default function Seguimiento() {
               onClick={() => {
                 setModalFinalizar(false);
                 setTrabajoFinalizado(true);
-                mostrarToast("🎉 Pago liberado a " + SOLUCIONADOR.nombre);
+                mostrarToast("🎉 Pago liberado a " + solActivo.nombre);
               }}
             >
               Confirmar y liberar pago
@@ -503,6 +433,7 @@ export default function Seguimiento() {
       )}
 
       {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferior />
     </div>
   );
 }

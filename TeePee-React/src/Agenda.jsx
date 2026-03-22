@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavInferiorS from "./NavInferiorS";
 import styles from "./Agenda.module.css";
 import { IconoVolver } from "./Iconos";
 import {
@@ -39,7 +40,7 @@ const MESES = [
 
 const TRABAJOS = [
   {
-    id: 1,
+    id: 1, usuarioId: 1,
     titulo: "Tablero eléctrico",
     cliente: "María González",
     direccion: "Av. Mitre 1234",
@@ -50,7 +51,7 @@ const TRABAJOS = [
     diaOffset: 0,
   },
   {
-    id: 2,
+    id: 2, usuarioId: 2,
     titulo: "Instalación de luces",
     cliente: "Roberto Sosa",
     direccion: "Belgrano 456",
@@ -61,7 +62,7 @@ const TRABAJOS = [
     diaOffset: 0,
   },
   {
-    id: 3,
+    id: 3, usuarioId: 3,
     titulo: "Corte de luz revisión",
     cliente: "Ana Ramírez",
     direccion: "San Lorenzo 789",
@@ -72,7 +73,7 @@ const TRABAJOS = [
     diaOffset: 1,
   },
   {
-    id: 4,
+    id: 4, usuarioId: 4,
     titulo: "Tomacorrientes nuevos",
     cliente: "Luis Pereyra",
     direccion: "Corrientes 321",
@@ -83,7 +84,7 @@ const TRABAJOS = [
     diaOffset: 2,
   },
   {
-    id: 5,
+    id: 5, usuarioId: 5,
     titulo: "Revisión general",
     cliente: "Silvia Torres",
     direccion: "España 654",
@@ -395,7 +396,7 @@ export default function Agenda() {
                           <button
                             type="button"
                             className={styles.btnChat}
-                            onClick={() => navigate("/chat")}
+                            onClick={() => navigate(`/chat-s?usuarioId=${trabajo.usuarioId}&nombre=${encodeURIComponent(trabajo.cliente)}&inicial=${trabajo.cliente?.charAt(0)}&desde=agenda`)}
                           >
                             <MessageCircle size={14} /> Chat
                           </button>
@@ -476,6 +477,7 @@ export default function Agenda() {
       )}
 
       {toast && <div className={styles.toast}>{toast}</div>}
+      <NavInferiorS />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { IconoOk, IconoGarantia, IconoTrofeo, IconoReloj, IconoUbicacion, IconoEstrella } from "./Iconos";
+import { getSolucionador } from "./MockData";
 import styles from "./PerfilSolucionador.module.css";
 import { IconoVolver } from './Iconos'
 
@@ -21,10 +23,13 @@ const SOLUCIONADOR = {
   disponibilidad: ["Lun", "Mar", "Mié", "Jue", "Vie"],
   horario: "8:00 - 18:00 hs",
   precio: "$18.000 - $35.000",
+  oficiosPrincipales: ["Electricidad", "Iluminación"],
+  oficiosSecundarios: ["Instalaciones", "Tableros"],
   oficios: [
-    { icono: "⚡", nombre: "Electricidad", principal: true },
-    { icono: "💡", nombre: "Iluminación", principal: false },
-    { icono: "🔌", nombre: "Instalaciones", principal: false },
+    { icono: "⚡", nombre: "Electricidad",   tipo: "principal" },
+    { icono: "💡", nombre: "Iluminación",    tipo: "principal" },
+    { icono: "🔌", nombre: "Instalaciones",  tipo: "secundario" },
+    { icono: "🗂️", nombre: "Tableros",       tipo: "secundario" },
   ],
   certificaciones: [
     "✅ Matrícula profesional verificada",
@@ -70,6 +75,38 @@ const FOTOS_TRABAJOS = ["🏠", "⚡", "🔌", "💡", "🏗️", "✨"];
 
 export default function PerfilSolucionador() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const solIdParam = searchParams.get("solId");
+  const nombreParam = searchParams.get("nombre");
+  const oficioParam = searchParams.get("oficio");
+  const reputacionParam = searchParams.get("reputacion");
+  const trabajosParam = searchParams.get("trabajos");
+  const distanciaParam = searchParams.get("distancia");
+  const precioParam = searchParams.get("precio");
+  const garantiaParam = searchParams.get("garantia");
+  const nivelIconoParam = searchParams.get("nivelIcono");
+  const desdeParam = searchParams.get("desde");
+
+  // Resolver solucionador: solId (MockData) > params completos > mock local
+  const solDinamico = solIdParam ? getSolucionador(Number(solIdParam)) : null;
+  const SOLUCIONADOR_ACTIVO = solDinamico
+    ? { ...SOLUCIONADOR, nombre: solDinamico.nombre, oficio: solDinamico.oficio, inicial: solDinamico.inicial, calificacion: solDinamico.calificacion }
+    : nombreParam
+      ? {
+          ...SOLUCIONADOR,
+          nombre: decodeURIComponent(nombreParam),
+          inicial: decodeURIComponent(nombreParam).charAt(0),
+          oficio: oficioParam ? decodeURIComponent(oficioParam) : SOLUCIONADOR.oficio,
+          reputacion: reputacionParam ? Number(reputacionParam) : SOLUCIONADOR.reputacion,
+          calificacion: reputacionParam ? Number(reputacionParam) : SOLUCIONADOR.reputacion,
+          totalTrabajos: trabajosParam ? Number(trabajosParam) : SOLUCIONADOR.totalTrabajos,
+          trabajos: trabajosParam ? Number(trabajosParam) : SOLUCIONADOR.totalTrabajos,
+          distancia: distanciaParam ? decodeURIComponent(distanciaParam) : SOLUCIONADOR.distancia,
+          precio: precioParam ? decodeURIComponent(precioParam) : SOLUCIONADOR.precio,
+          garantia: garantiaParam ? decodeURIComponent(garantiaParam) : SOLUCIONADOR.garantia,
+          nivelIcono: nivelIconoParam ? decodeURIComponent(nivelIconoParam) : SOLUCIONADOR.nivelIcono,
+        }
+      : SOLUCIONADOR;
   const [tabActiva, setTabActiva] = useState("info");
   const [toast, setToast] = useState(null);
   const [modalContacto, setModalContacto] = useState(false);
@@ -84,7 +121,7 @@ export default function PerfilSolucionador() {
       {/* ── HEADER con foto de fondo ── */}
       <div className={styles.heroBloque}>
         <div className={styles.heroAcciones}>
-          <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+          <button className={styles.btnVolver} onClick={() => desdeParam === "busqueda" ? navigate("/busqueda?paso=3") : desdeParam === "seguimiento" ? navigate(`/seguimiento${solIdParam ? `?solId=${solIdParam}` : ""}`) : navigate(-1)}>
             <IconoVolver size={20} />
           </button>
           <button
@@ -137,38 +174,38 @@ export default function PerfilSolucionador() {
 
         {/* Avatar grande */}
         <div className={styles.heroAvatar}>
-          <div className={styles.heroAvatarCirculo}>{SOLUCIONADOR.inicial}</div>
-          <div className={styles.heroNivelBadge}>{SOLUCIONADOR.nivelIcono}</div>
+          <div className={styles.heroAvatarCirculo}>{SOLUCIONADOR_ACTIVO.inicial}</div>
+          <div className={styles.heroNivelBadge}>{SOLUCIONADOR_ACTIVO.nivelIcono}</div>
         </div>
 
         {/* Info principal */}
         <div className={styles.heroInfo}>
-          <h1 className={styles.heroNombre}>{SOLUCIONADOR.nombre}</h1>
+          <h1 className={styles.heroNombre}>{SOLUCIONADOR_ACTIVO.nombre}</h1>
           <p className={styles.heroOficio}>
-            {SOLUCIONADOR.oficio} · Nivel {SOLUCIONADOR.nivel}
+            {SOLUCIONADOR_ACTIVO.oficio} · Nivel {SOLUCIONADOR_ACTIVO.nivel}
           </p>
 
           {/* Stats rápidos */}
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
               <span className={styles.heroStatNum}>
-                {SOLUCIONADOR.reputacion}
+                {SOLUCIONADOR_ACTIVO.calificacion || SOLUCIONADOR_ACTIVO.reputacion}
               </span>
-              <span className={styles.heroStatLabel}>⭐ Reputación</span>
+              <span className={styles.heroStatLabel} style={{display:"flex",alignItems:"center",gap:3}}><IconoEstrella size={11} />Reputación</span>
             </div>
             <div className={styles.heroStatDivider}></div>
             <div className={styles.heroStat}>
               <span className={styles.heroStatNum}>
-                {SOLUCIONADOR.totalTrabajos}
+                {SOLUCIONADOR_ACTIVO.trabajos || SOLUCIONADOR_ACTIVO.totalTrabajos}
               </span>
-              <span className={styles.heroStatLabel}>Trabajos</span>
+              <span className={styles.heroStatLabel} style={{display:"flex",alignItems:"center",gap:3}}><IconoTrofeo size={11} />Trabajos</span>
             </div>
             <div className={styles.heroStatDivider}></div>
             <div className={styles.heroStat}>
               <span className={styles.heroStatNum}>
-                {SOLUCIONADOR.tiempoRespuesta}
+                {SOLUCIONADOR_ACTIVO.tiempoRespuesta}
               </span>
-              <span className={styles.heroStatLabel}>Respuesta</span>
+              <span className={styles.heroStatLabel} style={{display:"flex",alignItems:"center",gap:3}}><IconoReloj size={11} />Respuesta</span>
             </div>
           </div>
         </div>
@@ -177,10 +214,10 @@ export default function PerfilSolucionador() {
       {/* ── TABS ── */}
       <div className={styles.tabs}>
         {[
-          { id: "info", label: "Información" },
-          { id: "fotos", label: "Trabajos" },
-          { id: "disponibilidad", label: "Disponibilidad" },
-          { id: "reseñas", label: `Reseñas (${SOLUCIONADOR.totalReseñas})` },
+          { id: "info",          icono: <IconoOk size={15} />,       label: "Información" },
+          { id: "fotos",         icono: <IconoTrofeo size={15} />,    label: "Trabajos" },
+          { id: "disponibilidad",icono: <IconoReloj size={15} />,     label: "Disponibilidad" },
+          { id: "reseñas",       icono: <IconoEstrella size={15} />,  label: `Reseñas (${SOLUCIONADOR_ACTIVO.totalReseñas})` },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -190,7 +227,9 @@ export default function PerfilSolucionador() {
             }`}
             onClick={() => setTabActiva(tab.id)}
           >
-            {tab.label}
+            <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
+              {tab.icono}{tab.label}
+            </span>
           </button>
         ))}
       </div>
@@ -203,14 +242,14 @@ export default function PerfilSolucionador() {
             {/* Descripción */}
             <section className={styles.seccion}>
               <h2 className={styles.seccionTitulo}>Sobre mí</h2>
-              <p className={styles.descripcion}>{SOLUCIONADOR.descripcion}</p>
+              <p className={styles.descripcion}>{SOLUCIONADOR_ACTIVO.descripcion}</p>
             </section>
 
             {/* Certificaciones */}
             <section className={styles.seccion}>
-              <h2 className={styles.seccionTitulo}>Verificaciones</h2>
+              <h2 className={styles.seccionTitulo}><IconoOk size={16} style={{marginRight:6, verticalAlign:"middle", color:"var(--verde)"}} />Verificaciones</h2>
               <div className={styles.certificacionesLista}>
-                {SOLUCIONADOR.certificaciones.map((cert, i) => (
+                {SOLUCIONADOR_ACTIVO.certificaciones.map((cert, i) => (
                   <div key={i} className={styles.certificacionItem}>
                     {cert}
                   </div>
@@ -220,48 +259,51 @@ export default function PerfilSolucionador() {
 
             {/* Oficios */}
             <section className={styles.seccion}>
-              <h2 className={styles.seccionTitulo}>Servicios que ofrece</h2>
-              <div className={styles.oficiosLista}>
-                {SOLUCIONADOR.oficios.map((oficio) => (
-                  <div key={oficio.nombre} className={styles.oficioCard}>
-                    <span className={styles.oficioIcono}>{oficio.icono}</span>
-                    <span className={styles.oficioNombre}>{oficio.nombre}</span>
-                    {oficio.principal && (
-                      <span className={styles.oficioPrincipal}>Principal</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </section>
+              <h2 className={styles.seccionTitulo}><IconoTrofeo size={16} style={{marginRight:6, verticalAlign:"middle", color:"var(--tp-rojo)"}} />Servicios que ofrece</h2>
 
-            {/* Disponibilidad */}
-            <section className={styles.seccion}>
-              <h2 className={styles.seccionTitulo}>Disponibilidad</h2>
-              <div className={styles.disponibilidadDias}>
-                {["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"].map(
-                  (dia) => (
-                    <div
-                      key={dia}
-                      className={`${styles.diaChip} ${
-                        SOLUCIONADOR.disponibilidad.includes(dia)
-                          ? styles.diaChipActivo
-                          : styles.diaChipInactivo
-                      }`}
-                    >
-                      {dia}
-                    </div>
-                  ),
-                )}
-              </div>
-              <p className={styles.horarioTexto}>🕐 {SOLUCIONADOR.horario}</p>
+              {/* Principales */}
+              {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "principal").length > 0 && (
+                <div style={{ marginBottom: 10 }}>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 6px", fontFamily: "var(--fuente)" }}>
+                    ⭐ Principal
+                  </p>
+                  <div className={styles.oficiosLista}>
+                    {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "principal").map((oficio) => (
+                      <div key={oficio.nombre} className={styles.oficioCard} style={{ background: "var(--amarillo-suave)", border: "1px solid rgba(140,104,32,0.2)" }}>
+                        <span className={styles.oficioIcono}>{oficio.icono}</span>
+                        <span className={styles.oficioNombre}>{oficio.nombre}</span>
+                        <span style={{ fontSize: 12, marginLeft: "auto" }}>⭐</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Secundarios */}
+              {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "secundario").length > 0 && (
+                <div>
+                  <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 6px", fontFamily: "var(--fuente)" }}>
+                    🔵 Secundario
+                  </p>
+                  <div className={styles.oficiosLista}>
+                    {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "secundario").map((oficio) => (
+                      <div key={oficio.nombre} className={styles.oficioCard}>
+                        <span className={styles.oficioIcono}>{oficio.icono}</span>
+                        <span className={styles.oficioNombre}>{oficio.nombre}</span>
+                        <span style={{ fontSize: 12, marginLeft: "auto" }}>🔵</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </section>
 
             {/* Garantía */}
             <section className={styles.garantiaCard}>
               <span className={styles.garantiaIcono}>🛡️</span>
               <div className={styles.garantiaInfo}>
-                <p className={styles.garantiaTitulo}>Garantía de trabajo</p>
-                <p className={styles.garantiaValor}>{SOLUCIONADOR.garantia}</p>
+                <p className={styles.garantiaTitulo}><IconoGarantia size={14} style={{marginRight:4, verticalAlign:"middle"}} /> Garantía de trabajo</p>
+                <p className={styles.garantiaValor}>{SOLUCIONADOR_ACTIVO.garantia}</p>
                 <p className={styles.garantiaDesc}>
                   Si algo falla en ese período, vuelve sin costo adicional
                 </p>
@@ -272,14 +314,14 @@ export default function PerfilSolucionador() {
             <section className={styles.precioCard}>
               <div className={styles.precioInfo}>
                 <p className={styles.precioLabel}>Precio estimado</p>
-                <p className={styles.precioMonto}>{SOLUCIONADOR.precio}</p>
+                <p className={styles.precioMonto}>{SOLUCIONADOR_ACTIVO.precio}</p>
                 <p className={styles.precioDesc}>
                   El precio final se define en el presupuesto
                 </p>
               </div>
               <div className={styles.precioDistancia}>
                 <p className={styles.precioDistanciaNum}>
-                  {SOLUCIONADOR.distancia}
+                  {SOLUCIONADOR_ACTIVO.distancia}
                 </p>
                 <p className={styles.precioDistanciaLabel}>de distancia</p>
               </div>
@@ -291,7 +333,7 @@ export default function PerfilSolucionador() {
         {tabActiva === "fotos" && (
           <div className={styles.tabContenido}>
             <p className={styles.fotosSubtitulo}>
-              {SOLUCIONADOR.totalTrabajos} trabajos realizados
+              {SOLUCIONADOR_ACTIVO.trabajos || SOLUCIONADOR_ACTIVO.totalTrabajos} trabajos realizados
             </p>
             <div className={styles.fotosGrid}>
               {FOTOS_TRABAJOS.map((foto, i) => (
@@ -316,71 +358,88 @@ export default function PerfilSolucionador() {
         {tabActiva === "disponibilidad" && (
           <div className={styles.tabContenido}>
             <p className={styles.disponibilidadDesc}>
-              Horarios en los que Juan suele estar disponible. Confirmá con él
-              por chat antes de agendar.
+              Días y horarios en que {SOLUCIONADOR_ACTIVO.nombre.split(" ")[0]} suele estar disponible.
+              Confirmá por chat antes de agendar.
             </p>
 
-            {[
-              { dia: "Lunes", turnos: ["manana", "tarde"] },
-              { dia: "Martes", turnos: ["manana", "tarde"] },
-              { dia: "Miércoles", turnos: ["manana"] },
-              { dia: "Jueves", turnos: ["manana", "tarde", "noche"] },
-              { dia: "Viernes", turnos: ["tarde", "noche"] },
-              { dia: "Sábado", turnos: ["manana"] },
-              { dia: "Domingo", turnos: [] },
-            ].map((fila) => (
-              <div key={fila.dia} className={styles.disponibilidadFila}>
-                <span className={styles.disponibilidadDia}>{fila.dia}</span>
-                <div className={styles.disponibilidadTurnos}>
-                  {fila.turnos.length === 0 ? (
-                    <span className={styles.disponibilidadNoDisp}>
-                      No disponible
-                    </span>
-                  ) : (
-                    ["manana", "tarde", "noche"].map((turno) => (
-                      <span
-                        key={turno}
-                        className={`${styles.disponibilidadTurno} ${
-                          fila.turnos.includes(turno)
-                            ? styles.disponibilidadTurnoActivo
-                            : styles.disponibilidadTurnoVacio
-                        }`}
-                      >
-                        {turno === "manana"
-                          ? "☀️ Mañana"
-                          : turno === "tarde"
-                            ? "🌤 Tarde"
-                            : "🌙 Noche"}
-                      </span>
-                    ))
-                  )}
-                </div>
-              </div>
-            ))}
+            {/* Encabezado turnos */}
+            <div style={{ display: "flex", gap: 4, marginBottom: 4, paddingLeft: 84 }}>
+              {["7–12", "12–15", "15–19", "19–21"].map(t => (
+                <div key={t} style={{
+                  flex: 1, textAlign: "center", fontSize: 10,
+                  fontWeight: 700, color: "var(--tp-marron-suave)",
+                  fontFamily: "var(--fuente)",
+                }}>{t}</div>
+              ))}
+            </div>
 
-            <div className={styles.disponibilidadAviso}>
-              <span>💬</span>
-              <p>
-                ¿Necesitás un horario especial? Escribile por chat y coordiná
-                directamente con él.
-              </p>
+            {/* Grilla días × turnos */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {[
+                { dia: "Lunes",     key: "Lun" },
+                { dia: "Martes",    key: "Mar" },
+                { dia: "Miércoles", key: "Mié" },
+                { dia: "Jueves",    key: "Jue" },
+                { dia: "Viernes",   key: "Vie" },
+                { dia: "Sábado",    key: "Sáb" },
+                { dia: "Domingo",   key: "Dom" },
+              ].map((fila) => {
+                const activo = SOLUCIONADOR_ACTIVO.disponibilidad.includes(fila.key);
+                return (
+                  <div key={fila.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                    <span style={{
+                      width: 80, fontSize: 12, fontWeight: 600,
+                      fontFamily: "var(--fuente)",
+                      color: activo ? "var(--tp-marron)" : "var(--tp-marron-suave)",
+                      opacity: activo ? 1 : 0.35,
+                    }}>{fila.dia}</span>
+                    {[
+                      { id: "7-12",  label: "7–12"  },
+                      { id: "12-15", label: "12–15" },
+                      { id: "15-19", label: "15–19" },
+                      { id: "19-21", label: "19–21" },
+                    ].map((turno) => {
+                      const disponible = activo && (
+                        turno.id === "7-12" || turno.id === "12-15" ||
+                        (fila.key !== "Sáb" && fila.key !== "Dom" && turno.id === "15-19")
+                      );
+                      return (
+                        <div key={turno.id} style={{
+                          flex: 1, padding: "7px 2px", borderRadius: 6,
+                          textAlign: "center", fontSize: 11,
+                          fontFamily: "var(--fuente)",
+                          fontWeight: disponible ? 700 : 400,
+                          background: disponible ? "var(--tp-rojo-suave)" : "rgba(61,31,31,0.04)",
+                          color: disponible ? "var(--tp-rojo)" : "rgba(61,31,31,0.12)",
+                          border: disponible
+                            ? "1px solid rgba(184,64,48,0.2)"
+                            : "1px solid rgba(61,31,31,0.06)",
+                        }}>
+                          {disponible ? turno.label : ""}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
-        {/* TAB: RESEÑAS */}
+
+                {/* TAB: RESEÑAS */}
         {tabActiva === "reseñas" && (
           <div className={styles.tabContenido}>
             {/* Resumen de reputación */}
             <div className={styles.reputacionResumen}>
               <div className={styles.reputacionNumGrande}>
-                {SOLUCIONADOR.reputacion}
+                {SOLUCIONADOR_ACTIVO.calificacion || SOLUCIONADOR_ACTIVO.reputacion}
               </div>
               <div className={styles.reputacionDetalle}>
                 <div className={styles.estrellas}>
-                  {"⭐".repeat(Math.round(SOLUCIONADOR.reputacion))}
+                  {"⭐".repeat(Math.round(SOLUCIONADOR_ACTIVO.calificacion || SOLUCIONADOR_ACTIVO.reputacion || 5))}
                 </div>
                 <p className={styles.reputacionTotal}>
-                  {SOLUCIONADOR.totalReseñas} reseñas verificadas
+                  {SOLUCIONADOR_ACTIVO.totalReseñas} reseñas verificadas
                 </p>
               </div>
             </div>
@@ -419,7 +478,7 @@ export default function PerfilSolucionador() {
         <div className={styles.footerPrecio}>
           <span className={styles.footerPrecioLabel}>Desde</span>
           <span className={styles.footerPrecioMonto}>
-            {SOLUCIONADOR.precio}
+            {SOLUCIONADOR_ACTIVO.precio}
           </span>
         </div>
         <button
@@ -443,7 +502,7 @@ export default function PerfilSolucionador() {
             <div className={styles.modalHandle}></div>
             <div className={styles.modalIcono}>⚡</div>
             <h2 className={styles.modalTitulo}>
-              Contactar a {SOLUCIONADOR.nombre}
+              Contactar a {SOLUCIONADOR_ACTIVO_ACTIVO.nombre}
             </h2>
             <p className={styles.modalDesc}>
               Al contactarlo vas a poder chatear, recibir su presupuesto y
@@ -455,7 +514,7 @@ export default function PerfilSolucionador() {
                 className={styles.modalOpcion}
                 onClick={() => {
                   setModalContacto(false);
-                  navigate("/chat");
+                  navigate(`/chat?solId=${solIdParam || 1}`);
                 }}
               >
                 <span>💬</span>
@@ -474,7 +533,7 @@ export default function PerfilSolucionador() {
                 className={`${styles.modalOpcion} ${styles.modalOpcionUrgente}`}
                 onClick={() => {
                   setModalContacto(false);
-                  navigate("/chat");
+                  navigate(`/chat?solId=${solIdParam || 1}`);
                 }}
               >
                 <span>🚨</span>

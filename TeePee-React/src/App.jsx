@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
+import { AuthProvider, useAuth } from "./AuthContext";
 
 import Bienvenida from "./Bienvenida";
 import HomeUsuario from "./HomeUsuario";
@@ -20,37 +21,93 @@ import PerfilSolucionadorEdit from "./PerfilSolucionadorEdit";
 import Notificaciones from "./Notificaciones";
 import NotificacionesS from "./NotificacionesS";
 import Ingresos from "./Ingresos";
+import Ayuda from "./Ayuda";
+import AyudaS from "./AyudaS";
+import SeguimientoS from "./SeguimientoS";
+import ChatS from "./ChatS";
+import PerfilUsuarioPublico from "./PerfilUsuarioPublico";
+
+// ── RUTA PROTEGIDA ────────────────────────────
+// Si no hay sesión → /bienvenida
+function RutaProtegida({ children }) {
+  const { sesion, cargando } = useAuth();
+  if (cargando) return null;
+  if (!sesion) return <Navigate to="/bienvenida" replace />;
+  return children;
+}
+
+// ── RUTA SOLO SOLUCIONADOR ────────────────────
+function RutaSolucionador({ children }) {
+  const { sesion, cargando } = useAuth();
+  if (cargando) return null;
+  if (!sesion) return <Navigate to="/bienvenida" replace />;
+  if (sesion.rolActivo !== "solucionador") return <Navigate to="/home" replace />;
+  return children;
+}
+
+// ── RUTA INICIAL: detecta sesión y redirige ───
+function RutaInicial() {
+  const { sesion, cargando } = useAuth();
+  if (cargando) return null;
+  if (!sesion) return <Navigate to="/bienvenida" replace />;
+  if (sesion.rolActivo === "solucionador") return <Navigate to="/home-solucionador" replace />;
+  return <Navigate to="/home" replace />;
+}
+
+function AppRoutes() {
+  return (
+    <Routes>
+      {/* Raíz — detecta sesión y redirige */}
+      <Route path="/" element={<RutaInicial />} />
+
+      {/* Bienvenida — siempre accesible */}
+      <Route path="/bienvenida" element={<Bienvenida />} />
+
+      {/* Homes */}
+      <Route path="/home" element={
+        <RutaProtegida><HomeUsuario /></RutaProtegida>
+      } />
+      <Route path="/home-solucionador" element={
+        <RutaProtegida><HomeSolucionador /></RutaProtegida>
+      } />
+
+      {/* Rutas comunes */}
+      <Route path="/busqueda" element={<RutaProtegida><Busqueda /></RutaProtegida>} />
+      <Route path="/perfil" element={<RutaProtegida><PerfilSolucionador /></RutaProtegida>} />
+      <Route path="/chat" element={<RutaProtegida><Chat /></RutaProtegida>} />
+      <Route path="/seguimiento" element={<RutaProtegida><Seguimiento /></RutaProtegida>} />
+      <Route path="/seguimiento-s" element={<RutaProtegida><SeguimientoS /></RutaProtegida>} />
+      <Route path="/pago" element={<RutaProtegida><Pago /></RutaProtegida>} />
+      <Route path="/calificacion" element={<RutaProtegida><Calificacion /></RutaProtegida>} />
+      <Route path="/cancelacion" element={<RutaProtegida><Cancelacion /></RutaProtegida>} />
+      <Route path="/agenda" element={<RutaProtegida><Agenda /></RutaProtegida>} />
+      <Route path="/perfil-usuario" element={<RutaProtegida><PerfilUsuario /></RutaProtegida>} />
+      <Route path="/presupuestos" element={<RutaProtegida><Presupuestos /></RutaProtegida>} />
+      <Route path="/trabajos" element={<RutaProtegida><MisTrabajosU /></RutaProtegida>} />
+      <Route path="/trabajos-s" element={<RutaProtegida><MisTrabajosS /></RutaProtegida>} />
+      <Route path="/perfil-solucionador" element={<RutaProtegida><PerfilSolucionadorEdit /></RutaProtegida>} />
+      <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
+      <Route path="/notificaciones-s" element={<RutaProtegida><NotificacionesS /></RutaProtegida>} />
+      <Route path="/ingresos" element={<RutaProtegida><Ingresos /></RutaProtegida>} />
+      <Route path="/ayuda" element={<RutaProtegida><Ayuda /></RutaProtegida>} />
+      <Route path="/ayuda-s" element={<RutaProtegida><AyudaS /></RutaProtegida>} />
+      <Route path="/chat-s" element={<RutaProtegida><ChatS /></RutaProtegida>} />
+      <Route path="/perfil-usuario-publico" element={<RutaProtegida><PerfilUsuarioPublico /></RutaProtegida>} />
+
+      {/* Fallback */}
+      <Route path="*" element={<RutaInicial />} />
+    </Routes>
+  );
+}
 
 function App() {
   return (
     <BrowserRouter>
-      <div className="app">
-        <Routes>
-          <Route path="/" element={<Navigate to="/bienvenida" />} />
-          <Route path="/bienvenida" element={<Bienvenida />} />
-          <Route path="/home" element={<HomeUsuario />} />
-          <Route path="/home-solucionador" element={<HomeSolucionador />} />
-          <Route path="/busqueda" element={<Busqueda />} />
-          <Route path="/perfil" element={<PerfilSolucionador />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/seguimiento" element={<Seguimiento />} />
-          <Route path="/pago" element={<Pago />} />
-          <Route path="/calificacion" element={<Calificacion />} />
-          <Route path="/cancelacion" element={<Cancelacion />} />
-          <Route path="/agenda" element={<Agenda />} />
-          <Route path="/perfil-usuario" element={<PerfilUsuario />} />
-          <Route path="/presupuestos" element={<Presupuestos />} />
-          <Route path="/trabajos" element={<MisTrabajosU />} />
-          <Route path="/trabajos-s" element={<MisTrabajosS />} />
-          <Route
-            path="/perfil-solucionador"
-            element={<PerfilSolucionadorEdit />}
-          />
-          <Route path="/notificaciones" element={<Notificaciones />} />
-          <Route path="/notificaciones-s" element={<NotificacionesS />} />
-          <Route path="/ingresos" element={<Ingresos />} />
-        </Routes>
-      </div>
+      <AuthProvider>
+        <div className="app">
+          <AppRoutes />
+        </div>
+      </AuthProvider>
     </BrowserRouter>
   );
 }

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import NavInferior from "./NavInferior";
 import styles from "./Presupuestos.module.css";
 import { IconoVolver } from "./Iconos";
 import {
@@ -72,8 +73,7 @@ const PRESUPUESTOS = [
     tiempoRespuesta: "5 min",
     monto: 25000,
     tiempoEstimado: "2 horas",
-    descripcion:
-      "Trabajo completo con garantía de resultado. Materiales incluidos.",
+    descripcion: "Trabajo completo con garantía de resultado. Materiales incluidos.",
     vence: "1 día",
     badge: "Más reseñas",
   },
@@ -236,14 +236,14 @@ export default function Presupuestos() {
                     <button
                       type="button"
                       className={styles.btnPerfil}
-                      onClick={() => navigate("/perfil")}
+                      onClick={() => navigate(`/perfil?nombre=${encodeURIComponent(p.nombre)}&oficio=${encodeURIComponent(p.oficio)}`)}
                     >
                       Ver perfil
                     </button>
                     <button
                       type="button"
                       className={styles.btnChat}
-                      onClick={() => navigate("/chat")}
+                      onClick={() => navigate(`/chat?solId=${p.id}`)}
                     >
                       <MessageCircle size={14} /> Preguntar
                     </button>
@@ -371,6 +371,7 @@ export default function Presupuestos() {
         )}
       </main>
 
+      <NavInferior />
       {toast && <div className={styles.toast}>{toast}</div>}
     </div>
   );

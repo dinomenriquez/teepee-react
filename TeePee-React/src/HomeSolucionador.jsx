@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./AuthContext";
+import NavInferiorS from "./NavInferiorS";
+import { TRABAJOS, SOLICITUDES as SOLICITUDES_MOCK, getUsuario } from "./MockData";
 import styles from "./HomeSolucionador.module.css";
 import {
   IconoInicio,
@@ -50,17 +53,36 @@ const ESTADO_OPCIONES = [
   },
 ];
 
-const TRABAJO_ACTIVO = {
-  usuario: "Martín García",
-  inicial: "M",
-  descripcion: "Reparación de cañería bajo mesada",
-  direccion: "Av. Mitre 1240, Posadas",
-  horario: "Hoy 14:30 hs",
-  monto: "$28.000",
-  etapaActual: 2,
-  totalEtapas: 3,
-  progreso: 65,
-};
+const TRABAJOS_ACTIVOS_S = [
+  {
+    id: 1,
+    usuarioId: 1,
+    usuario: "Martín García",
+    inicial: "M",
+    descripcion: "Reparación de cañería bajo mesada",
+    distancia: "1.2 km",
+    horario: "Hoy 14:30 hs",
+    monto: "$28.000",
+    etapaActual: 2,
+    totalEtapas: 3,
+    progreso: 65,
+    color: "#2A7D5A",
+  },
+  {
+    id: 2,
+    usuarioId: 2,
+    usuario: "Laura Sánchez",
+    inicial: "L",
+    descripcion: "Cambio de canilla cocina",
+    distancia: "3.4 km",
+    horario: "Mañana 10:00 hs",
+    monto: "$12.000",
+    etapaActual: 1,
+    totalEtapas: 3,
+    progreso: 20,
+    color: "#B84030",
+  },
+];
 
 const SOLICITUDES = [
   {
@@ -96,20 +118,25 @@ const SOLICITUDES = [
   },
 ];
 
-const NAV_ITEMS = [
-  { id: "inicio", icono: <IconoInicio size={20} />, label: "Inicio" },
-  { id: "trabajos", icono: <IconoTrabajos size={20} />, label: "Trabajos" },
-  { id: "agenda", icono: <IconoAgenda size={20} />, label: "Agenda" },
-  { id: "ingresos", icono: <IconoIngresos size={20} />, label: "Ingresos" },
-  { id: "perfil", icono: <IconoPerfil size={20} />, label: "Perfil" },
-];
 
 export default function HomeSolucionador() {
   const navigate = useNavigate();
+  const { sesion, tieneDobleRol, cambiarRol, logout } = useAuth();
   const [estadoActivo, setEstadoActivo] = useState("disponible");
-  const [navActiva, setNavActiva] = useState("inicio");
   const [toast, setToast] = useState(null);
   const [mostrarEstados, setMostrarEstados] = useState(false);
+  const [dropdownRol, setDropdownRol] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    function handler(e) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownRol(false);
+      }
+    }
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   function mostrarToast(mensaje) {
     setToast(mensaje);
@@ -162,6 +189,133 @@ export default function HomeSolucionador() {
           <IconoCampana size={20} />
           <div className={styles.notifBadge}></div>
         </button>
+
+        {/* Avatar con dot de rol + dropdown */}
+        <div ref={dropdownRef} style={{ position: "relative" }}>
+          <button
+            type="button"
+            style={{
+              width: 36, height: 36, borderRadius: "50%",
+              padding: 0, border: "none", cursor: "pointer",
+              position: "relative", background: "none",
+            }}
+            onClick={() => setDropdownRol((v) => !v)}
+            title="Mi cuenta"
+          >
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%",
+              background: "var(--tp-marron)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 14, fontWeight: 800, color: "var(--tp-crema)",
+              fontFamily: "var(--fuente)",
+            }}>
+              {sesion?.nombre?.charAt(0) || SOLUCIONADOR.inicial}
+            </div>
+            {/* Dot verde = modo solucionador */}
+            <div style={{
+              position: "absolute", bottom: 1, right: 1,
+              width: 10, height: 10, borderRadius: "50%",
+              background: "var(--verde)",
+              border: "2px solid var(--tp-crema)",
+            }} />
+          </button>
+
+          {dropdownRol && (
+            <div style={{
+              position: "absolute", top: 44, right: 0,
+              background: "var(--tp-crema-clara)",
+              border: "1px solid rgba(61,31,31,0.12)",
+              borderRadius: 12, minWidth: 210,
+              boxShadow: "0 4px 16px rgba(61,31,31,0.10)",
+              zIndex: 200, overflow: "hidden",
+            }}>
+              <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(61,31,31,0.08)" }}>
+                <p style={{ fontSize: 13, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>
+                  {sesion?.nombre || SOLUCIONADOR.nombre}
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--verde)", flexShrink: 0 }} />
+                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Modo solucionador activo</span>
+                </div>
+              </div>
+
+              {tieneDobleRol && (
+                <button
+                  type="button"
+                  style={{
+                    width: "100%", padding: "10px 14px",
+                    display: "flex", alignItems: "center", gap: 8,
+                    background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
+                    cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+                  }}
+                  onClick={() => {
+                    cambiarRol("usuario");
+                    setDropdownRol(false);
+                    navigate("/home");
+                  }}
+                >
+                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#378ADD", flexShrink: 0 }} />
+                  <span style={{ fontSize: 12, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Cambiar a usuario</span>
+                  <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--tp-rojo)" }}>→</span>
+                </button>
+              )}
+
+              {!tieneDobleRol && (
+                <button
+                  type="button"
+                  style={{
+                    width: "100%", padding: "10px 14px",
+                    display: "flex", alignItems: "center", gap: 8,
+                    background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
+                    cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+                  }}
+                  onClick={() => { setDropdownRol(false); navigate("/home"); }}
+                >
+                  <span style={{ fontSize: 12, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Activar modo usuario</span>
+                  <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--tp-marron-suave)" }}>+</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                style={{
+                  width: "100%", padding: "10px 14px",
+                  display: "flex", alignItems: "center",
+                  background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
+                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+                }}
+                onClick={() => { setDropdownRol(false); navigate("/perfil-solucionador"); }}
+              >
+                <span style={{ fontSize: 12, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Mi perfil</span>
+              </button>
+              <button
+                type="button"
+                style={{
+                  width: "100%", padding: "10px 14px",
+                  display: "flex", alignItems: "center", gap: 6,
+                  background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
+                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+                }}
+                onClick={() => { setDropdownRol(false); navigate("/ayuda-s"); }}
+              >
+                <span style={{ fontSize: 12, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Centro de ayuda</span>
+                <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--tp-marron-suave)" }}>?</span>
+              </button>
+
+              <button
+                type="button"
+                style={{
+                  width: "100%", padding: "10px 14px",
+                  background: "none", border: "none",
+                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+                }}
+                onClick={() => { logout(); setDropdownRol(false); }}
+              >
+                <span style={{ fontSize: 12, color: "var(--tp-rojo)", fontFamily: "var(--fuente)" }}>Cerrar sesión</span>
+              </button>
+            </div>
+          )}
+        </div>
       </header>
 
       {/*
@@ -196,7 +350,7 @@ export default function HomeSolucionador() {
         <section className={styles.saludo}>
           <div>
             <p className={styles.saludoSub}>Panel del Solucionador 🔧</p>
-            <h1 className={styles.saludoNombre}>{SOLUCIONADOR.nombre}</h1>
+            <h1 className={styles.saludoNombre}>{sesion?.nombre || SOLUCIONADOR.nombre}</h1>
             <div className={styles.saludoNivel}>
               <span>{SOLUCIONADOR.nivelIcono}</span>
               <span className={styles.saludoNivelTexto}>
@@ -207,83 +361,146 @@ export default function HomeSolucionador() {
               </span>
             </div>
           </div>
-          <div className={styles.avatar}>{SOLUCIONADOR.inicial}</div>
         </section>
 
         {/* ── RESUMEN DE INGRESOS ── */}
-        <section className={styles.ingresosCard}>
-          <div className={styles.ingresosBloque}>
-            <p className={styles.ingresosTitulo}>Esta semana</p>
-            <p className={styles.ingresosMonto}>
-              {SOLUCIONADOR.ingresosEstaSemana}
-            </p>
-            <p className={styles.ingresosDesc}>3 trabajos completados</p>
-          </div>
-
-          <div className={styles.ingresosDivider}></div>
-
-          <div className={styles.ingresosBloque}>
-            <p className={styles.ingresosTitulo}>Este mes</p>
-            <p className={styles.ingresosMonto}>{SOLUCIONADOR.ingresosMes}</p>
-            <p className={styles.ingresosDesc}>12 trabajos completados</p>
-          </div>
-
-          {/* Próximo pago */}
-          <div className={styles.proximoPago}>
-            <span className={styles.proximoPagoIcono}>
-              <IconoPago size={16} />
-            </span>
-            <span className={styles.proximoPagoTexto}>
-              Próximo pago: {SOLUCIONADOR.proximoPago}
-            </span>
-          </div>
-        </section>
-
-        {/* ── TRABAJO ACTIVO ── */}
-        <section className={styles.trabajoActivo}>
-          <div className={styles.trabajoActivoHeader}>
-            <div className={styles.trabajoActivoLabel}>
-              <div className={styles.puntoActivo}></div>
-              Trabajo en curso
+        <section
+          onClick={() => navigate("/ingresos")}
+          style={{
+            cursor: "pointer",
+            borderRadius: "var(--r-xl)",
+            overflow: "hidden",
+            background: "linear-gradient(135deg, #3D1F1F 0%, #5C2E2E 60%, #7A2020 100%)",
+            boxShadow: "0 8px 24px rgba(61,31,31,0.35)",
+          }}
+        >
+          {/* Nivel 1 — Título */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "16px 20px 10px",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F0EAD6" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="6" width="20" height="12" rx="2"/>
+                <circle cx="12" cy="12" r="2.5"/>
+                <path d="M6 12h.01M18 12h.01"/>
+              </svg>
+              <span style={{ fontSize: 16, fontWeight: 900, color: "#F0EAD6", fontFamily: "var(--fuente)", letterSpacing: "-0.4px" }}>
+                Mis ingresos
+              </span>
             </div>
-            <button
-              className={styles.trabajoActivoBtn}
-              onClick={() => navigate("/seguimiento")}
-            >
-              Ver detalle →
-            </button>
-          </div>
-
-          <h2 className={styles.trabajoActivoDesc}>
-            {TRABAJO_ACTIVO.descripcion}
-          </h2>
-
-          <div className={styles.trabajoActivoMeta}>
-            <span className={styles.trabajoActivoMetaItem}>
-              <IconoPerfil size={12} /> {TRABAJO_ACTIVO.usuario}
-            </span>
-            <span className={styles.trabajoActivoMetaItem}>
-              <IconoUbicacion size={12} /> {TRABAJO_ACTIVO.distancia}
-            </span>
-            <span className={styles.trabajoActivoMetaItem}>
-              <IconoReloj size={12} /> {TRABAJO_ACTIVO.horario}
+            <span style={{
+              fontSize: 11, fontWeight: 700, color: "rgba(240,234,214,0.55)",
+              fontFamily: "var(--fuente)", textTransform: "uppercase", letterSpacing: "0.8px",
+            }}>
+              Este mes
             </span>
           </div>
 
-          <div className={styles.progreso}>
-            <div
-              className={styles.progresoBarra}
-              style={{ width: `${TRABAJO_ACTIVO.progreso}%` }}
-            />
+          {/* Nivel 2 — Montos */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "1fr 1px 1fr",
+            padding: "4px 20px 16px",
+            borderBottom: "1px solid rgba(240,234,214,0.08)",
+          }}>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(240,234,214,0.45)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 4px", fontFamily: "var(--fuente)" }}>
+                Esta semana
+              </p>
+              <p style={{ fontSize: 22, fontWeight: 900, color: "#F0EAD6", margin: "0 0 3px", letterSpacing: "-0.5px", fontFamily: "var(--fuente)" }}>
+                {SOLUCIONADOR.ingresosEstaSemana}
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(240,234,214,0.40)", margin: 0, fontFamily: "var(--fuente)" }}>
+                3 trabajos
+              </p>
+            </div>
+            <div style={{ width: 1, background: "rgba(240,234,214,0.08)", margin: "0 20px" }} />
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(240,234,214,0.45)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 4px", fontFamily: "var(--fuente)" }}>
+                Este mes
+              </p>
+              <p style={{ fontSize: 22, fontWeight: 900, color: "#F5C842", margin: "0 0 3px", letterSpacing: "-0.5px", fontFamily: "var(--fuente)" }}>
+                {SOLUCIONADOR.ingresosMes}
+              </p>
+              <p style={{ fontSize: 11, color: "rgba(240,234,214,0.40)", margin: 0, fontFamily: "var(--fuente)" }}>
+                12 trabajos
+              </p>
+            </div>
           </div>
 
-          <div className={styles.progresoLabels}>
-            <span className={styles.progresoTexto}>
-              Etapa {TRABAJO_ACTIVO.etapaActual} de {TRABAJO_ACTIVO.totalEtapas}
+          {/* Nivel 3 — Próximo pago */}
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "10px 20px",
+            borderBottom: "1px solid rgba(240,234,214,0.06)",
+          }}>
+            <IconoPago size={14} style={{ color: "rgba(240,234,214,0.5)" }} />
+            <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", fontFamily: "var(--fuente)", fontWeight: 500 }}>
+              Próximo pago:
             </span>
-            <span className={styles.progresoMonto}>{TRABAJO_ACTIVO.monto}</span>
+            <span style={{ fontSize: 12, color: "#F0EAD6", fontFamily: "var(--fuente)", fontWeight: 700 }}>
+              {SOLUCIONADOR.proximoPago}
+            </span>
+          </div>
+
+          {/* Nivel 4 — Ver detalle */}
+          <div style={{
+            padding: "11px 20px",
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+            background: "rgba(245,200,66,0.12)",
+          }}>
+            <span style={{ fontSize: 12, fontWeight: 700, color: "#F5C842", fontFamily: "var(--fuente)", letterSpacing: "0.2px" }}>
+              Ver detalle de ingresos
+            </span>
+            <span style={{ fontSize: 14, color: "#F5C842" }}>→</span>
           </div>
         </section>
+
+        {/* ── TRABAJOS ACTIVOS ── */}
+        {TRABAJOS_ACTIVOS_S.map((t) => (
+          <section key={t.id} className={styles.trabajoActivo}>
+            <div className={styles.trabajoActivoHeader}>
+              <div className={styles.trabajoActivoLabel}>
+                <div className={styles.puntoActivo} style={{ background: t.color }}></div>
+                Trabajo en curso
+              </div>
+              <button
+                className={styles.trabajoActivoBtn}
+                onClick={() => navigate(`/seguimiento-s?solId=${t.usuarioId}&trabajoId=${t.id}`)}
+              >
+                Ver detalle →
+              </button>
+            </div>
+
+            <h2 className={styles.trabajoActivoDesc}>{t.descripcion}</h2>
+
+            <div className={styles.trabajoActivoMeta}>
+              <span className={styles.trabajoActivoMetaItem}>
+                <IconoPerfil size={12} /> {t.usuario}
+              </span>
+              <span className={styles.trabajoActivoMetaItem}>
+                <IconoUbicacion size={12} /> {t.distancia}
+              </span>
+              <span className={styles.trabajoActivoMetaItem}>
+                <IconoReloj size={12} /> {t.horario}
+              </span>
+            </div>
+
+            <div className={styles.progreso}>
+              <div
+                className={styles.progresoBarra}
+                style={{ width: `${t.progreso}%`, background: t.color }}
+              />
+            </div>
+
+            <div className={styles.progresoLabels}>
+              <span className={styles.progresoTexto}>
+                Etapa {t.etapaActual} de {t.totalEtapas}
+              </span>
+              <span className={styles.progresoMonto}>{t.monto}</span>
+            </div>
+          </section>
+        ))}
 
         {/* ── SOLICITUDES NUEVAS ── */}
         <section>
@@ -292,9 +509,9 @@ export default function HomeSolucionador() {
               Solicitudes nuevas
               <span className={styles.seccionBadge}>{SOLICITUDES.length}</span>
             </h2>
-            <a href="#" className={styles.seccionVerTodo}>
+            <button type="button" className={styles.seccionVerTodo} onClick={() => navigate("/trabajos-s")}>
               Ver todas →
-            </a>
+            </button>
           </div>
 
           <div className={styles.solicitudesLista}>
@@ -377,14 +594,14 @@ export default function HomeSolucionador() {
                   <button
                     type="button"
                     className={styles.btnRechazar}
-                    onClick={() => mostrarToast("Solicitud rechazada")}
+                    onClick={() => { mostrarToast("Solicitud rechazada"); }}
                   >
                     Rechazar
                   </button>
                   <button
                     type="button"
                     className={`${styles.btnAceptar} ${sol.urgente ? styles.btnAceptarUrgente : ""}`}
-                    onClick={() => mostrarToast("¡Solicitud aceptada!")}
+                    onClick={() => navigate(`/presupuestos`)}
                   >
                     Ver y cotizar →
                   </button>
@@ -392,6 +609,33 @@ export default function HomeSolucionador() {
               </div>
             ))}
           </div>
+        </section>
+
+        {/* ── CENTRO DE AYUDA ── */}
+        <section>
+          <button
+            type="button"
+            onClick={() => navigate("/ayuda-s")}
+            style={{
+              width: "100%", display: "flex", alignItems: "center", gap: 12,
+              padding: "14px 16px", borderRadius: "var(--r-md)",
+              background: "var(--tp-crema-clara)",
+              border: "1px solid rgba(61,31,31,0.10)",
+              cursor: "pointer", fontFamily: "var(--fuente)",
+            }}
+          >
+            <div style={{
+              width: 36, height: 36, borderRadius: "50%",
+              background: "var(--tp-rojo-suave)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 18, flexShrink: 0,
+            }}>💬</div>
+            <div style={{ textAlign: "left" }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: 0 }}>Centro de ayuda</p>
+              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>Preguntas frecuentes y soporte</p>
+            </div>
+            <span style={{ marginLeft: "auto", color: "var(--tp-marron-suave)", fontSize: 18 }}>›</span>
+          </button>
         </section>
 
         {/* ── REPUTACIÓN ── */}
@@ -416,25 +660,7 @@ export default function HomeSolucionador() {
       </main>
 
       {/* ── NAVEGACIÓN INFERIOR ── */}
-      <nav className={styles.navInferior}>
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            className={`${styles.navItem} ${navActiva === item.id ? styles.navItemActivo : ""}`}
-            onClick={() => {
-              setNavActiva(item.id);
-              if (item.id === "agenda") navigate("/agenda");
-              if (item.id === "ingresos") navigate("/ingresos");
-              if (item.id === "perfil") navigate("/perfil-solucionador");
-              if (item.id === "trabajos") navigate("/trabajos-s");
-            }}
-          >
-            <span className={styles.navIcono}>{item.icono}</span>
-            <span className={styles.navLabel}>{item.label}</span>
-          </button>
-        ))}
-      </nav>
+      <NavInferiorS />
 
       {/* ── TOAST ── */}
       {toast && <div className={styles.toast}>{toast}</div>}

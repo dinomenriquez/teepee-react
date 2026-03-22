@@ -56,3 +56,8 @@ button {
 
 a { text-decoration: none; color: inherit; }
 h1,h2,h3,h4 { line-height: 1.2; }
+/* Nav inferior fijo — padding para que el contenido no quede tapado */
+.app > div,
+[class*="pantalla"] {
+  padding-bottom: 68px;
+}
