@@ -164,12 +164,17 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
 
+.tabs::-webkit-scrollbar { display: none; }
+
 .tab {
-  flex: 1;
-  padding: var(--sp-md) var(--sp-sm);
-  font-size: 13px;
+  flex: 0 0 auto;
+  padding: 12px 14px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--tp-marron-suave);
   cursor: pointer;
@@ -179,6 +184,7 @@
   border: none;
   border-bottom: 2px solid transparent;
   margin-bottom: -1px;
+  white-space: nowrap;
 }
 
 .tab:hover { color: var(--tp-marron); }

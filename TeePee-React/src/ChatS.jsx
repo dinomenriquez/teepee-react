@@ -55,6 +55,11 @@ export default function ChatS() {
   const nombreParam    = searchParams.get("nombre");
   const inicialParam   = searchParams.get("inicial");
   const desdeParam     = searchParams.get("desde");
+  const mensajeParam   = searchParams.get("mensaje");
+  const montoPptoParam    = searchParams.get("monto");
+  const etapasPptoParam   = searchParams.get("etapas");
+  const garantiaPptoParam = searchParams.get("garantia");
+  const matPptoParam      = searchParams.get("materiales");
 
   // Si viene con usuarioId o nombre, ir directo al hilo
   const clienteDirecto = usuarioIdParam || nombreParam ? {
@@ -70,7 +75,24 @@ export default function ChatS() {
   useEffect(() => {
     if (clienteDirecto) setConvActiva(clienteDirecto);
   }, [usuarioIdParam, nombreParam]);
-  const [mensajes, setMensajes]     = useState(MENSAJES_INICIALES);
+  const mensajesIniciales = mensajeParam === "presupuesto"
+    ? [...MENSAJES_INICIALES, {
+        id: MENSAJES_INICIALES.length + 1,
+        tipo: "presupuesto",
+        autor: "solucionador",
+        texto: "📋 Presupuesto enviado",
+        hora: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
+        leido: false,
+        presupuesto: {
+          monto:      montoPptoParam  ? decodeURIComponent(montoPptoParam)  : "$ a confirmar",
+          etapas:     etapasPptoParam ? decodeURIComponent(etapasPptoParam) : "A convenir",
+          garantia:   garantiaPptoParam ? decodeURIComponent(garantiaPptoParam) : "Sin garantía",
+          materiales: matPptoParam    ? decodeURIComponent(matPptoParam)    : "",
+        },
+      }]
+    : MENSAJES_INICIALES;
+
+  const [mensajes, setMensajes]     = useState(mensajesIniciales);
   const [inputTexto, setInputTexto] = useState("");
   const [toast, setToast]           = useState(null);
 
@@ -176,7 +198,45 @@ export default function ChatS() {
         {mensajes.map((msg) => (
           <div key={msg.id} className={`${stylesCss.mensajeFila} ${msg.autor === "solucionador" ? stylesCss.mensajeFilaPropio : ""}`}>
             <div className={`${stylesCss.burbuja} ${msg.autor === "solucionador" ? stylesCss.burbujaPropia : ""}`}>
-              <p className={stylesCss.burbujaTexto}>{msg.texto}</p>
+              {msg.tipo === "presupuesto" && msg.presupuesto ? (
+                <div style={{ minWidth: 200 }}>
+                  {/* Header tarjeta */}
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 10, paddingBottom: 8, borderBottom: "1px solid rgba(240,234,214,0.20)" }}>
+                    <span style={{ fontSize: 14 }}>📋</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, color: "rgba(240,234,214,0.90)", textTransform: "uppercase", letterSpacing: "0.5px" }}>Presupuesto enviado</span>
+                  </div>
+                  {/* Monto destacado */}
+                  <p style={{ fontSize: 24, fontWeight: 900, color: "var(--tp-crema)", margin: "0 0 8px", letterSpacing: "-0.5px" }}>{msg.presupuesto.monto}</p>
+                  {/* Detalles */}
+                  <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 11, color: "rgba(240,234,214,0.60)", width: 16 }}>💳</span>
+                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>{msg.presupuesto.etapas}</span>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                      <span style={{ fontSize: 11, color: "rgba(240,234,214,0.60)", width: 16 }}>🛡️</span>
+                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>Garantía {msg.presupuesto.garantia}</span>
+                    </div>
+                    {msg.presupuesto.materiales && (
+                      <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                        <span style={{ fontSize: 11, color: "rgba(240,234,214,0.60)", width: 16 }}>🔧</span>
+                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>Materiales: {msg.presupuesto.materiales}</span>
+                      </div>
+                    )}
+                  </div>
+                  {/* Botones de acción para el cliente (si es vista cliente) */}
+                  <div style={{ display: "flex", gap: 6, marginTop: 10 }}>
+                    <div style={{ flex: 1, padding: "6px 0", borderRadius: 8, background: "rgba(42,125,90,0.35)", textAlign: "center", fontSize: 12, fontWeight: 700, color: "white" }}>
+                      ✓ Aceptar
+                    </div>
+                    <div style={{ flex: 1, padding: "6px 0", borderRadius: 8, background: "rgba(240,234,214,0.15)", textAlign: "center", fontSize: 12, fontWeight: 600, color: "rgba(240,234,214,0.75)" }}>
+                      Negociar
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <p className={stylesCss.burbujaTexto}>{msg.texto}</p>
+              )}
               <span className={stylesCss.burbujaHora}>{msg.hora}</span>
             </div>
           </div>

@@ -121,7 +121,7 @@ export const IconoPago = (props) => <CreditCard {...props} />;
 export const IconoEnvio = (props) => <Truck {...props} />;
 export const IconoPaquete = (props) => <Package {...props} />;
 // ── LOGO TEEPEE ───────────────────────────────
-export function LogoTeePee({ size = 40, className }) {
+      export function LogoTeePee({ size = 40, className }) {
   return (
     <svg
       width={size}
@@ -131,42 +131,12 @@ export function LogoTeePee({ size = 40, className }) {
       className={className}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        fill="#4B2E2B"
-        d="M200.368,346.159c2.168-2.775,6.174-3.268,8.949-1.1c2.773,2.168,3.266,6.174,1.098,8.949L104.829,489.151c-2.166,2.775-6.174,3.268-8.947,1.1c-2.775-2.168-3.268-6.174-1.1-8.949L200.368,346.159z"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        fill="#4B2E2B"
-        d="M191.735,377.919l-25.205-32.26c-2.168-2.775-6.174-3.268-8.949-1.1c-2.773,2.168-3.266,6.174-1.098,8.949l27.139,34.736L191.735,377.919z"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        fill="#4B2E2B"
-        d="M272.723,481.302l-79.505-101.511l-8.113,10.326l77.571,99.034c2.166,2.775,6.174,3.268,8.947,1.1C274.398,488.083,274.891,484.077,272.723,481.302z"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        fill="#A63A2B"
-        d="M202.979,398.71c2.49-2.49,6.525-2.49,9.016,0s2.49,6.525,0,9.016l-78.582,82.459c-2.49,2.49-7.854,2.141-10.345-0.35s-3.755-7.459-1.265-9.949L202.979,398.71z"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        fill="#A63A2B"
-        d="M193.444,427.273l-28.708-28.708c-2.49-2.49-6.525-2.49-9.016,0s-2.49,6.525,0,9.016l28.171,29.562L193.444,427.273z"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        fill="#A63A2B"
-        d="M245.912,479.741l-50.865-50.864l-9.59,9.908l48.846,51.255c2.49,2.49,7.854,2.141,10.345-0.35S248.402,482.231,245.912,479.741z"
-      />
+      <path fillRule="evenodd" clipRule="evenodd" fill="#4B2E2B" d="M200.368,346.159c2.168-2.775,6.174-3.268,8.949-1.1c2.773,2.168,3.266,6.174,1.098,8.949L104.829,489.151c-2.166,2.775-6.174,3.268-8.947,1.1c-2.775-2.168-3.268-6.174-1.1-8.949L200.368,346.159z"/>
+      <path fillRule="evenodd" clipRule="evenodd" fill="#4B2E2B" d="M191.735,377.919l-25.205-32.26c-2.168-2.775-6.174-3.268-8.949-1.1c-2.773,2.168-3.266,6.174-1.098,8.949l27.139,34.736L191.735,377.919z"/>
+      <path fillRule="evenodd" clipRule="evenodd" fill="#4B2E2B" d="M272.723,481.302l-79.505-101.511l-8.113,10.326l77.571,99.034c2.166,2.775,6.174,3.268,8.947,1.1C274.398,488.083,274.891,484.077,272.723,481.302z"/>
+      <path fillRule="evenodd" clipRule="evenodd" fill="#A63A2B" d="M202.979,398.71c2.49-2.49,6.525-2.49,9.016,0s2.49,6.525,0,9.016l-78.582,82.459c-2.49,2.49-7.854,2.141-10.345-0.35s-3.755-7.459-1.265-9.949L202.979,398.71z"/>
+      <path fillRule="evenodd" clipRule="evenodd" fill="#A63A2B" d="M193.444,427.273l-28.708-28.708c-2.49-2.49-6.525-2.49-9.016,0s-2.49,6.525,0,9.016l28.171,29.562L193.444,427.273z"/>
+      <path fillRule="evenodd" clipRule="evenodd" fill="#A63A2B" d="M245.912,479.741l-50.865-50.864l-9.59,9.908l48.846,51.255c2.49,2.49,7.854,2.141,10.345-0.35S248.402,482.231,245.912,479.741z"/>
     </svg>
   );
 }
@@ -174,19 +144,39 @@ export function LogoTeePee({ size = 40, className }) {
 // ── TEXTO LOGO TEEPEE ─────────────────────────
 export function LogoTexto({ size = 18 }) {
   return (
-    <span
-      style={{
-        fontFamily: "DM Sans, sans-serif",
-        fontSize: size,
-        fontWeight: 800,
-        color: "#3D1F1F",
-        letterSpacing: "-0.5px",
-        whiteSpace: "nowrap",
-        display: "inline-block",
-      }}
+    <svg
+      width={size * 4.2}
+      height={size * 1.3}
+      viewBox="0 0 84 26"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ display: "block" }}
     >
-      TeePe<span style={{ color: "#B84030" }}>e</span>
-    </span>
+      <text
+        x="0" y="21"
+        fontFamily="Arial Black, Arial, sans-serif"
+        fontSize="22"
+        fontWeight="900"
+        letterSpacing="-0.8"
+        fill="#3D1F1F"
+      >TeeP</text>
+      <text
+        x="55" y="21"
+        fontFamily="Arial Black, Arial, sans-serif"
+        fontSize="22"
+        fontWeight="900"
+        letterSpacing="-0.8"
+        fill="#3D1F1F"
+      >e</text>
+      <text
+        x="68" y="21"
+        fontFamily="Arial Black, Arial, sans-serif"
+        fontSize="22"
+        fontWeight="900"
+        letterSpacing="-0.8"
+        fill="#B84030"
+      >e</text>
+    </svg>
   );
 }
 

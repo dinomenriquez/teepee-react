@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferiorS from "./NavInferiorS";
 import styles from "./MisTrabajosS.module.css";
 import { IconoVolver } from "./Iconos";
@@ -9,6 +9,12 @@ import {
   CheckCircle,
   XCircle,
   AlertTriangle,
+  FileText,
+  Plus,
+  Send,
+  Clock,
+  Shield,
+  MessageCircle,
 } from "lucide-react";
 
 const TRABAJOS = {
@@ -125,16 +131,63 @@ const TRABAJOS = {
 };
 
 const TABS = [
-  { id: "hoy", label: "Hoy", icono: <Calendar size={14} /> },
-  { id: "enCurso", label: "En curso", icono: <RefreshCw size={14} /> },
-  { id: "finalizados", label: "Finalizados", icono: <CheckCircle size={14} /> },
-  { id: "cancelados", label: "Cancelados", icono: <XCircle size={14} /> },
-  { id: "disputas", label: "Disputas", icono: <AlertTriangle size={14} /> },
+  { id: "hoy",          label: "Hoy",          icono: <Calendar      size={14} /> },
+  { id: "enCurso",      label: "En curso",     icono: <RefreshCw     size={14} /> },
+  { id: "presupuestos", label: "Presupuestos", icono: <FileText      size={14} />, destacada: true, ruta: "/presupuestos-s" },
+  { id: "finalizados",  label: "Finalizados",  icono: <CheckCircle   size={14} /> },
+  { id: "cancelados",   label: "Cancelados",   icono: <XCircle       size={14} /> },
+  { id: "disputas",     label: "Disputas",     icono: <AlertTriangle size={14} /> },
+];
+
+const PRESUPUESTOS_MOCK = [
+  {
+    id: 1, clienteId: 1, cliente: "Martín García", inicial: "M", color: "#B84030",
+    servicio: "Pérdida de agua en baño", estado: "pendiente",
+    monto: 15000, tiempoEstimado: "2–3 hs", garantia: 30,
+    incluyeMateriales: true, vence: 2, fecha: "Hoy",
+  },
+  {
+    id: 2, clienteId: 2, cliente: "Laura Sánchez", inicial: "L", color: "#2A7D5A",
+    servicio: "Instalación calefón", estado: "pendiente",
+    monto: 32000, tiempoEstimado: "3–4 hs", garantia: 15,
+    incluyeMateriales: false, vence: 5, fecha: "Ayer",
+  },
+  {
+    id: 3, clienteId: 3, cliente: "Diego Fernández", inicial: "D", color: "#8C6820",
+    servicio: "Cambio de canilla", estado: "aceptado",
+    monto: 8500, tiempoEstimado: "1–2 hs", garantia: 30,
+    incluyeMateriales: true, vence: 0, fecha: "Hace 3 días",
+  },
 ];
 
 export default function MisTrabajosS() {
   const navigate = useNavigate();
-  const [tab, setTab] = useState("hoy");
+  const [searchParams] = useSearchParams();
+  const tabParam      = searchParams.get("tab");
+  const clienteParam  = searchParams.get("cliente");
+  const servicioParam = searchParams.get("servicio");
+
+  const [tab, setTab] = useState(tabParam || "hoy");
+  const [formPpto, setFormPpto] = useState(null);
+
+  // Cuando vienen params de URL (desde HomeSolucionador), abrir tab y formulario
+  useEffect(() => {
+    if (tabParam === "presupuestos") {
+      setTab("presupuestos");
+      if (clienteParam) {
+        setFormPpto({
+          cliente: decodeURIComponent(clienteParam),
+          servicio: decodeURIComponent(servicioParam || ""),
+          clienteId: null,
+        });
+      }
+    }
+  }, [tabParam, clienteParam, servicioParam]);
+  const [datosPpto, setDatosPpto] = useState({
+    monto: "", tiempoEstimado: "", garantia: "30",
+    incluyeMateriales: true, noIncluye: "", validezDias: "7",
+    descripcion: "",
+  });
   const [toast, setToast] = useState(null);
 
   function mostrarToast(msg) {
@@ -142,7 +195,7 @@ export default function MisTrabajosS() {
     setTimeout(() => setToast(null), 2500);
   }
 
-  const trabajosActuales = TRABAJOS[tab];
+  const trabajosActuales = TRABAJOS[tab] || [];
 
   return (
     <div className={styles.pantalla}>
@@ -156,28 +209,36 @@ export default function MisTrabajosS() {
 
       {/* ── TABS ── */}
       <div className={styles.tabs}>
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            className={`${styles.tab} ${tab === t.id ? styles.tabActivo : ""}`}
-            onClick={() => setTab(t.id)}
-          >
-            <span>{t.icono}</span>
-            <span>{t.label}</span>
-            {TRABAJOS[t.id].length > 0 && (
-              <span
-                className={`${styles.tabBadge} ${
-                  tab === t.id ? styles.tabBadgeActivo : ""
-                }`}
-              >
-                {TRABAJOS[t.id].length}
-              </span>
-            )}
-          </button>
-        ))}
+        {TABS.map((t) => {
+          const pptosPendientes = PRESUPUESTOS_MOCK.filter(p => p.estado === "pendiente").length;
+          const count = t.id === "presupuestos"
+            ? pptosPendientes
+            : (TRABAJOS[t.id]?.length || 0);
+          return (
+            <button
+              key={t.id}
+              type="button"
+              className={`${styles.tab} ${tab === t.id ? styles.tabActivo : ""}`}
+              onClick={() => t.ruta ? navigate(t.ruta) : setTab(t.id)}
+              style={t.destacada && tab !== t.id ? {
+                color: "var(--tp-rojo)", fontWeight: 700,
+                borderBottom: "2px solid rgba(184,64,48,0.25)",
+              } : {}}
+            >
+              <span>{t.icono}</span>
+              <span>{t.label}</span>
+              {count > 0 && (
+                <span className={`${styles.tabBadge} ${tab === t.id ? styles.tabBadgeActivo : ""}`}
+                  style={t.destacada && tab !== t.id ? { background: "var(--tp-rojo)", color: "white" } : {}}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
+      {tab !== "presupuestos" && (
       <main className={styles.contenido}>
         {trabajosActuales.length === 0 ? (
           <div className={styles.vacio}>
@@ -354,6 +415,195 @@ export default function MisTrabajosS() {
           </div>
         )}
       </main>
+      )}
+
+      {/* ── TAB PRESUPUESTOS ── */}
+      {tab === "presupuestos" && (
+        <main className={styles.lista} style={{ paddingBottom: 80 }}>
+
+          {/* Si hay un formulario abierto */}
+          {formPpto ? (
+            <div>
+              {/* Header formulario */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 16 }}>
+                <button onClick={() => setFormPpto(null)} style={{ border: "none", background: "none", cursor: "pointer", color: "var(--tp-marron-suave)", fontSize: 20 }}>←</button>
+                <div>
+                  <p style={{ fontSize: 15, fontWeight: 800, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>Nuevo presupuesto</p>
+                  <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)" }}>{formPpto.cliente} · {formPpto.servicio}</p>
+                </div>
+              </div>
+
+              {/* Formulario */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+
+                {/* Monto */}
+                <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 14, border: "1px solid rgba(61,31,31,0.08)" }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)", display: "block", marginBottom: 6 }}>Monto total</label>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 20, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>$</span>
+                    <input
+                      type="number" placeholder="0"
+                      value={datosPpto.monto}
+                      onChange={e => setDatosPpto(p => ({ ...p, monto: e.target.value }))}
+                      style={{ flex: 1, fontSize: 22, fontWeight: 800, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }}
+                    />
+                  </div>
+                </div>
+
+                {/* Tiempo y garantía */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 12, border: "1px solid rgba(61,31,31,0.08)" }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)", display: "flex", alignItems: "center", gap: 4, marginBottom: 6 }}>
+                      <Clock size={11} /> Tiempo est.
+                    </label>
+                    <input
+                      type="text" placeholder="ej: 2-3 hs"
+                      value={datosPpto.tiempoEstimado}
+                      onChange={e => setDatosPpto(p => ({ ...p, tiempoEstimado: e.target.value }))}
+                      style={{ width: "100%", fontSize: 14, fontWeight: 700, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }}
+                    />
+                  </div>
+                  <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 12, border: "1px solid rgba(61,31,31,0.08)" }}>
+                    <label style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)", display: "flex", alignItems: "center", gap: 4, marginBottom: 6 }}>
+                      <Shield size={11} /> Garantía
+                    </label>
+                    <select
+                      value={datosPpto.garantia}
+                      onChange={e => setDatosPpto(p => ({ ...p, garantia: e.target.value }))}
+                      style={{ width: "100%", fontSize: 14, fontWeight: 700, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }}
+                    >
+                      {["Sin garantía", "7", "15", "30", "60", "90"].map(d => (
+                        <option key={d} value={d}>{d === "Sin garantía" ? d : `${d} días`}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                {/* Materiales */}
+                <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 14, border: "1px solid rgba(61,31,31,0.08)" }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)", display: "block", marginBottom: 10 }}>Materiales</label>
+                  <div style={{ display: "flex", gap: 8 }}>
+                    {[true, false].map(val => (
+                      <button key={String(val)} type="button"
+                        onClick={() => setDatosPpto(p => ({ ...p, incluyeMateriales: val }))}
+                        style={{ flex: 1, padding: "8px 0", borderRadius: "var(--r-sm)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 600,
+                          background: datosPpto.incluyeMateriales === val ? "var(--tp-marron)" : "rgba(61,31,31,0.06)",
+                          color: datosPpto.incluyeMateriales === val ? "var(--tp-crema)" : "var(--tp-marron-suave)",
+                        }}>
+                        {val ? "Incluidos" : "No incluidos"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Qué incluye / no incluye */}
+                <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 14, border: "1px solid rgba(61,31,31,0.08)" }}>
+                  <label style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)", display: "block", marginBottom: 6 }}>Descripción del trabajo</label>
+                  <textarea
+                    placeholder="Describí qué incluye el presupuesto, qué no incluye, condiciones..."
+                    value={datosPpto.descripcion}
+                    onChange={e => setDatosPpto(p => ({ ...p, descripcion: e.target.value }))}
+                    rows={3}
+                    style={{ width: "100%", fontSize: 13, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)", resize: "none", lineHeight: 1.5 }}
+                  />
+                </div>
+
+                {/* Validez */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "10px 14px", background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", border: "1px solid rgba(61,31,31,0.08)" }}>
+                  <span style={{ fontSize: 13, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Válido por</span>
+                  <select
+                    value={datosPpto.validezDias}
+                    onChange={e => setDatosPpto(p => ({ ...p, validezDias: e.target.value }))}
+                    style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", border: "none", background: "none", fontFamily: "var(--fuente)" }}
+                  >
+                    {["3", "5", "7", "10", "15", "30"].map(d => (
+                      <option key={d} value={d}>{d} días</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Botón enviar */}
+                <button type="button"
+                  onClick={() => { setFormPpto(null); mostrarToast("✅ Presupuesto enviado a " + formPpto.cliente); }}
+                  style={{ width: "100%", padding: 16, borderRadius: "var(--r-md)", background: "var(--tp-marron)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}
+                >
+                  <Send size={16} /> Enviar presupuesto
+                </button>
+
+                <button type="button"
+                  onClick={() => mostrarToast("Borrador guardado")}
+                  style={{ width: "100%", padding: 12, borderRadius: "var(--r-md)", background: "none", color: "var(--tp-marron)", border: "1px solid rgba(61,31,31,0.15)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 14, fontWeight: 600 }}
+                >
+                  Guardar como borrador
+                </button>
+              </div>
+            </div>
+
+          ) : (
+            /* Lista de presupuestos */
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+
+              {/* Botón nuevo presupuesto */}
+              <button type="button"
+                onClick={() => setFormPpto({ cliente: "Cliente nuevo", servicio: "Nuevo servicio", clienteId: null })}
+                style={{ width: "100%", padding: "12px 16px", borderRadius: "var(--r-md)", background: "none", border: "2px dashed rgba(61,31,31,0.18)", cursor: "pointer", fontFamily: "var(--fuente)", display: "flex", alignItems: "center", justifyContent: "center", gap: 8, color: "var(--tp-marron-suave)", fontSize: 14, fontWeight: 600 }}
+              >
+                <Plus size={16} /> Nuevo presupuesto
+              </button>
+
+              {PRESUPUESTOS_MOCK.map(p => (
+                <div key={p.id} style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", padding: 14, border: "1px solid rgba(61,31,31,0.08)" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <div style={{ width: 38, height: 38, borderRadius: "50%", background: p.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, flexShrink: 0 }}>
+                      {p.inicial}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 14, fontWeight: 700, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>{p.cliente}</p>
+                      <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)" }}>{p.servicio}</p>
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: "var(--r-full)", fontFamily: "var(--fuente)",
+                      background: p.estado === "aceptado" ? "var(--verde-suave)" : "var(--amarillo-suave)",
+                      color: p.estado === "aceptado" ? "var(--verde)" : "var(--amarillo)",
+                    }}>
+                      {p.estado === "aceptado" ? "✓ Aceptado" : "⏳ Pendiente"}
+                    </span>
+                  </div>
+
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 10 }}>
+                    <div style={{ textAlign: "center", padding: "6px 0", background: "rgba(61,31,31,0.04)", borderRadius: 8 }}>
+                      <p style={{ fontSize: 15, fontWeight: 800, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>${p.monto.toLocaleString()}</p>
+                      <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)" }}>Monto</p>
+                    </div>
+                    <div style={{ textAlign: "center", padding: "6px 0", background: "rgba(61,31,31,0.04)", borderRadius: 8 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>{p.tiempoEstimado}</p>
+                      <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)" }}>Tiempo</p>
+                    </div>
+                    <div style={{ textAlign: "center", padding: "6px 0", background: "rgba(61,31,31,0.04)", borderRadius: 8 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>{p.garantia}d</p>
+                      <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)" }}>Garantía</p>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>
+                      {p.fecha} · {p.incluyeMateriales ? "Con materiales" : "Sin materiales"}
+                      {p.estado === "pendiente" && p.vence > 0 ? ` · Vence en ${p.vence}d` : ""}
+                    </span>
+                    {p.estado === "pendiente" && (
+                      <button type="button"
+                        onClick={() => setFormPpto(p)}
+                        style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-rojo)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)" }}
+                      >
+                        Editar →
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </main>
+      )}
 
       {toast && <div className={styles.toast}>{toast}</div>}
       <NavInferiorS />

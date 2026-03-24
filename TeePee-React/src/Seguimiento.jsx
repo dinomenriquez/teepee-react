@@ -23,7 +23,7 @@ const TRABAJO = {
   descripcion:
     "Revisión completa del tablero, reemplazo del disyuntor principal 32A y verificación de todos los circuitos.",
   monto: "$32.000",
-  montoEscrow: "$35.200",
+  montoRetenido: "$35.200",
   fecha: "Hoy, 7 de marzo",
   direccion: "Av. Mitre 1240, Posadas",
   garantia: "30 días",
@@ -44,7 +44,7 @@ function getEtapas(nombreSol) {
       id: 1,
       icono: <CheckCircle size={18} />,
       titulo: "Trabajo confirmado",
-      desc: "Presupuesto aceptado y pago en escrow",
+      desc: "Presupuesto aceptado y pago retenido",
       hora: "16:52",
       estado: "completada",
     },
@@ -307,12 +307,26 @@ export default function Seguimiento() {
             <Lock size={24} />
           </div>
           <div className={styles.escrowInfo}>
-            <p className={styles.escrowTitulo}>Pago en garantía (Escrow)</p>
-            <p className={styles.escrowMonto}>{TRABAJO.montoEscrow}</p>
-            <p className={styles.escrowDesc}>
-              El dinero está retenido de forma segura. Se libera automáticamente
-              cuando confirmás que el trabajo está completo.
-            </p>
+            <p className={styles.escrowTitulo}>Pago retenido en garantía</p>
+            <p className={styles.escrowMonto}>{TRABAJO.montoRetenido}</p>
+            {/* Etapas de pago simplificadas */}
+            <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
+              {[
+                { label: "Anticipo 30%", estado: "pagado" },
+                { label: "Avance 40%",  estado: "retenido" },
+                { label: "Cierre 30%",  estado: "pendiente" },
+              ].map((e, i) => (
+                <div key={i} style={{ flex: 1, padding: "5px 4px", borderRadius: 8, textAlign: "center",
+                  background: e.estado === "pagado" ? "rgba(42,125,90,0.15)" : e.estado === "retenido" ? "rgba(240,234,214,0.25)" : "rgba(240,234,214,0.10)",
+                }}>
+                  <p style={{ fontSize: 9, fontWeight: 700, margin: "0 0 2px", fontFamily: "var(--fuente)",
+                    color: e.estado === "pagado" ? "#2A7D5A" : "rgba(240,234,214,0.75)" }}>
+                    {e.estado === "pagado" ? "✓" : e.estado === "retenido" ? "🔒" : "○"}
+                  </p>
+                  <p style={{ fontSize: 9, margin: 0, fontFamily: "var(--fuente)", color: "rgba(240,234,214,0.65)" }}>{e.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
@@ -396,7 +410,7 @@ onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(solActivo.
             <h2 className={styles.modalTitulo}>¿El trabajo está completo?</h2>
             <p className={styles.modalDesc}>
               Al confirmar, se liberará el pago de{" "}
-              <strong>{TRABAJO.montoEscrow}</strong> a {solActivo.nombre}.
+              <strong>{TRABAJO.montoRetenido}</strong> a {solActivo.nombre}.
               Esta acción no se puede deshacer.
             </p>
 
@@ -405,7 +419,7 @@ onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(solActivo.
                 <Lock size={16} />
               </span>
               <p>
-                Se liberarán <strong>{TRABAJO.montoEscrow}</strong> del escrow a
+                Se liberarán <strong>{TRABAJO.montoRetenido}</strong> retenido a
                 la cuenta de {solActivo.nombre}
               </p>
             </div>

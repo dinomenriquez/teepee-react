@@ -11,7 +11,7 @@ const TRABAJO_DEFAULT = {
   titulo: "Reparación cañería",
   descripcion: "Reparación de cañería bajo mesada, cambio de sifón y sellado.",
   monto: "$28.000",
-  montoEscrow: "$28.000",
+  montoRetenido: "$28.000",
   fecha: "Hoy, 14:30 hs",
   direccion: "Av. Mitre 1240, Posadas",
 };
@@ -19,7 +19,7 @@ const TRABAJO_DEFAULT = {
 const USUARIO_DEFAULT = { nombre: "Martín García", inicial: "M" };
 
 const ETAPAS = [
-  { id: 1, icono: <CheckCircle size={18} />, titulo: "Trabajo confirmado", desc: "El presupuesto fue aceptado y el pago está en escrow", hora: "16:52", estado: "completada" },
+  { id: 1, icono: <CheckCircle size={18} />, titulo: "Trabajo confirmado", desc: "El presupuesto fue aceptado y el pago está retenido en garantía", hora: "16:52", estado: "completada" },
   { id: 2, icono: <Car size={18} />,         titulo: "En camino",          desc: "Estás yendo al domicilio del cliente",                hora: "17:10", estado: "completada" },
   { id: 3, icono: <Wrench size={18} />,      titulo: "Trabajando",         desc: "Estás realizando el trabajo",                         hora: "17:35", estado: "activa"    },
   { id: 4, icono: <Flag size={18} />,        titulo: "Terminado",          desc: "Marcaste el trabajo como finalizado — esperando confirmación del cliente", hora: null, estado: "pendiente" },
@@ -112,8 +112,8 @@ export default function SeguimientoS() {
           <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 14, border: "1px solid rgba(61,31,31,0.08)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron-suave)", margin: "0 0 4px", textTransform: "uppercase" }}>Pago en escrow</p>
-                <p style={{ fontSize: 22, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>{trabajoActivo.monto || TRABAJO_DEFAULT.montoEscrow}</p>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron-suave)", margin: "0 0 4px", textTransform: "uppercase" }}>Pago retenido</p>
+                <p style={{ fontSize: 22, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>{trabajoActivo.monto || TRABAJO_DEFAULT.montoRetenido}</p>
               </div>
               <span style={{ fontSize: 32 }}>🔒</span>
             </div>
@@ -329,8 +329,8 @@ export default function SeguimientoS() {
         <section className={stylesS.escrowCard}>
           <div className={stylesS.escrowIcono}><Lock size={24} /></div>
           <div className={stylesS.escrowInfo}>
-            <p className={stylesS.escrowTitulo}>Pago en garantía (Escrow)</p>
-            <p className={stylesS.escrowMonto}>{trabajoActivo.monto || TRABAJO_DEFAULT.montoEscrow}</p>
+            <p className={stylesS.escrowTitulo}>Pago retenido en garantía</p>
+            <p className={stylesS.escrowMonto}>{trabajoActivo.monto || TRABAJO_DEFAULT.montoRetenido}</p>
             <p className={stylesS.escrowDesc}>Se libera cuando el cliente confirme el trabajo.</p>
           </div>
         </section>

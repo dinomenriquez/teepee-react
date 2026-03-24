@@ -143,7 +143,7 @@ export default function Ayuda() {
                         border: "none", cursor: "pointer", fontFamily: "var(--fuente)",
                       }}
                     >
-                      <span style={{ fontSize: 12, color: "var(--tp-rojo)", fontWeight: 700, flexShrink: 0, marginTop: 1 }}>P</span>
+                      <span style={{ fontSize: 14, color: "var(--tp-rojo)", flexShrink: 0, marginTop: 1 }}>›</span>
                       <span style={{ fontSize: 13, color: "var(--tp-marron)", textAlign: "left", flex: 1 }}>{item.p}</span>
                       <span style={{
                         fontSize: 14, color: "var(--tp-marron-suave)", flexShrink: 0,

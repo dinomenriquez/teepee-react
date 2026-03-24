@@ -112,6 +112,7 @@ export default function Busqueda() {
   const [urgencia, setUrgencia] = useState("normal");
   const [buscando, setBuscando] = useState(false);
   const [horariosSeleccionados, setHorariosSeleccionados] = useState([]);
+  const [horasPuntuales, setHorasPuntuales] = useState({});
   const [toast, setToast] = useState(null);
 
   function mostrarToast(mensaje) {
@@ -141,7 +142,7 @@ export default function Busqueda() {
     /*
       En el Paso 5 (FastAPI) acá va a ir
       una llamada real a la API:
-      fetch('/api/matching?categoria=plomeria&lat=...&lng=...')
+      fetch('/api/búsqueda?categoria=plomeria&lat=...&lng=...')
       Por ahora simulamos el delay con setTimeout.
     */
   }
@@ -445,13 +446,23 @@ export default function Busqueda() {
                   })}
                 </div>
 
-                {/* Hora puntual por día */}
-                <input
-                  type="time"
+                {/* Hora puntual por día — selector custom */}
+                <select
                   className={styles.horaPuntual}
-                  placeholder="hora exacta"
-                  onChange={() => {}}
-                />
+                  value={horasPuntuales[fila.id] || ""}
+                  onChange={(e) => setHorasPuntuales(prev => ({ ...prev, [fila.id]: e.target.value }))}
+                  style={{ fontSize: 11, padding: "4px 2px", borderRadius: 6, border: "1px solid rgba(61,31,31,0.15)", background: "var(--tp-crema)", color: "var(--tp-marron)", fontFamily: "var(--fuente)", cursor: "pointer" }}
+                >
+                  <option value="">h. exacta</option>
+                  {Array.from({ length: (21 - 7) * 4 + 1 }, (_, i) => {
+                    const totalMin = 7 * 60 + i * 15;
+                    const h = String(Math.floor(totalMin / 60)).padStart(2, "0");
+                    const m = String(totalMin % 60).padStart(2, "0");
+                    return `${h}:${m}`;
+                  }).map(h => (
+                    <option key={h} value={h}>{h}</option>
+                  ))}
+                </select>
               </div>
             ))}
 
@@ -490,7 +501,7 @@ export default function Busqueda() {
     );
   }
 
-  // ── PASO 3: Resultados del matching ──
+  // ── PASO 3: Resultados del búsqueda ──
   if (paso === 3) {
     return (
       <div className={styles.pantalla}>
@@ -530,7 +541,7 @@ export default function Busqueda() {
             </div>
           </div>
 
-          {/* Resultado del matching */}
+          {/* Resultado del búsqueda */}
           <div className={styles.resultadosHeader}>
             <p className={styles.resultadosTexto}>
               <span className={styles.resultadosNumero}>
@@ -558,7 +569,7 @@ export default function Busqueda() {
                 {/* Badge "Mejor match" para el primero */}
                 {index === 0 && (
                   <div className={styles.mejorMatchBadge}>
-                    ⭐ Mejor match para vos
+                    ⭐ ⭐ Mejor resultado para vos
                   </div>
                 )}
 

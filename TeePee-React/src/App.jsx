@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import ScrollToTop from "./ScrollToTop";
 import "./App.css";
 import { AuthProvider, useAuth } from "./AuthContext";
 
@@ -26,6 +27,7 @@ import AyudaS from "./AyudaS";
 import SeguimientoS from "./SeguimientoS";
 import ChatS from "./ChatS";
 import PerfilUsuarioPublico from "./PerfilUsuarioPublico";
+import PresupuestosS from "./PresupuestosS";
 
 // ── RUTA PROTEGIDA ────────────────────────────
 // Si no hay sesión → /bienvenida
@@ -93,6 +95,7 @@ function AppRoutes() {
       <Route path="/ayuda-s" element={<RutaProtegida><AyudaS /></RutaProtegida>} />
       <Route path="/chat-s" element={<RutaProtegida><ChatS /></RutaProtegida>} />
       <Route path="/perfil-usuario-publico" element={<RutaProtegida><PerfilUsuarioPublico /></RutaProtegida>} />
+      <Route path="/presupuestos-s" element={<RutaProtegida><PresupuestosS /></RutaProtegida>} />
 
       {/* Fallback */}
       <Route path="*" element={<RutaInicial />} />
@@ -103,6 +106,7 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <div className="app">
           <AppRoutes />
