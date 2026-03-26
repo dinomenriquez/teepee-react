@@ -9,24 +9,17 @@ export default function Bienvenida() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [vista, setVista] = useState("bienvenida");
+  const [metodoVerif, setMetodoVerif] = useState("email"); // "email" o "whatsapp"
+  const [codigoIngresado, setCodigoIngresado] = useState("");
+  const [emailRegistrado, setEmailRegistrado] = useState("");
+  const [telefonoRegistrado, setTelefonoRegistrado] = useState("");
   const [verPassLogin, setVerPassLogin] = useState(false);
   const [verPassUsuario, setVerPassUsuario] = useState(false);
   const [verPassSolucionador, setVerPassSolucionador] = useState(false);
   const [modalTC, setModalTC] = useState(false);
   const [formLogin, setFormLogin] = useState({ email: "", pass: "" });
-  const [formUsuario, setFormUsuario] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    pass: "",
-  });
-  const [formSolucionador, setFormSolucionador] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    oficio: "",
-    pass: "",
-  });
+  const [formUsuario, setFormUsuario] = useState({ nombre: "", apellido: "", email: "", pass: "" });
+  const [formSolucionador, setFormSolucionador] = useState({ nombre: "", apellido: "", email: "", oficio: "", pass: "" });
 
   // ── VISTA: BIENVENIDA ──
   if (vista === "bienvenida") {
@@ -118,10 +111,7 @@ export default function Bienvenida() {
           >
             ← Volver
           </button>
-          <div
-            className={styles.formHeaderLogo}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
+          <div className={styles.formHeaderLogo} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <LogoTeePee size={26} />
             <LogoTexto size={22} />
           </div>
@@ -168,12 +158,7 @@ export default function Bienvenida() {
               type="button"
               className={styles.btnPrimario}
               onClick={() => {
-                login({
-                  nombre: formLogin.email.split("@")[0] || "Usuario",
-                  email: formLogin.email,
-                  roles: ["usuario"],
-                  rolActivo: "usuario",
-                });
+                login({ nombre: formLogin.email.split("@")[0] || "Usuario", email: formLogin.email, roles: ["usuario"], rolActivo: "usuario" });
                 navigate("/home");
               }}
             >
@@ -191,48 +176,22 @@ export default function Bienvenida() {
               className={styles.btnGoogle}
               onClick={() => {
                 try {
-                  const prev = JSON.parse(
-                    localStorage.getItem("teepee_session"),
-                  );
+                  const prev = JSON.parse(localStorage.getItem("teepee_session"));
                   const rol = prev?.rolActivo || "usuario";
                   const roles = prev?.roles || ["usuario"];
-                  login({
-                    nombre: "Usuario Google",
-                    email: "google@gmail.com",
-                    roles,
-                    rolActivo: rol,
-                  });
-                  navigate(
-                    rol === "solucionador" ? "/home-solucionador" : "/home",
-                  );
+                  login({ nombre: "Usuario Google", email: "google@gmail.com", roles, rolActivo: rol });
+                  navigate(rol === "solucionador" ? "/home-solucionador" : "/home");
                 } catch {
-                  login({
-                    nombre: "Usuario Google",
-                    email: "google@gmail.com",
-                    roles: ["usuario"],
-                    rolActivo: "usuario",
-                  });
+                  login({ nombre: "Usuario Google", email: "google@gmail.com", roles: ["usuario"], rolActivo: "usuario" });
                   navigate("/home");
                 }
               }}
             >
               <svg width="18" height="18" viewBox="0 0 18 18">
-                <path
-                  fill="#4285F4"
-                  d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.566 2.684-3.874 2.684-6.615z"
-                />
-                <path
-                  fill="#34A853"
-                  d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"
-                />
-                <path
-                  fill="#FBBC05"
-                  d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"
-                />
-                <path
-                  fill="#EA4335"
-                  d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"
-                />
+                <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.566 2.684-3.874 2.684-6.615z"/>
+                <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/>
+                <path fill="#FBBC05" d="M3.964 10.707A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.707V4.961H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.039l3.007-2.332z"/>
+                <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/>
               </svg>
               Continuar con Google
             </button>
@@ -264,10 +223,7 @@ export default function Bienvenida() {
           >
             ← Volver
           </button>
-          <div
-            className={styles.formHeaderLogo}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
+          <div className={styles.formHeaderLogo} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <LogoTeePee size={26} />
             <LogoTexto size={22} />
           </div>
@@ -293,9 +249,7 @@ export default function Bienvenida() {
                   className={styles.campoInput}
                   placeholder="Martín"
                   value={formUsuario.nombre}
-                  onChange={(e) =>
-                    setFormUsuario({ ...formUsuario, nombre: e.target.value })
-                  }
+                  onChange={(e) => setFormUsuario({ ...formUsuario, nombre: e.target.value })}
                 />
               </div>
               <div className={styles.campo}>
@@ -305,9 +259,7 @@ export default function Bienvenida() {
                   className={styles.campoInput}
                   placeholder="García"
                   value={formUsuario.apellido}
-                  onChange={(e) =>
-                    setFormUsuario({ ...formUsuario, apellido: e.target.value })
-                  }
+                  onChange={(e) => setFormUsuario({ ...formUsuario, apellido: e.target.value })}
                 />
               </div>
             </div>
@@ -347,19 +299,9 @@ export default function Bienvenida() {
               />
               <label htmlFor="terminos" className={styles.terminosTexto}>
                 Acepto los{" "}
-                <button
-                  type="button"
-                  className={styles.terminosLink}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
-                    fontFamily: "inherit",
-                    fontSize: "inherit",
-                  }}
-                  onClick={() => setModalTC(true)}
-                >
+                <button type="button" className={styles.terminosLink}
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: "inherit" }}
+                  onClick={() => setModalTC(true)}>
                   términos y condiciones
                 </button>
               </label>
@@ -369,12 +311,7 @@ export default function Bienvenida() {
               type="button"
               className={styles.btnPrimario}
               onClick={() => {
-                login({
-                  nombre: formUsuario.nombre || "Usuario",
-                  email: formUsuario.email,
-                  roles: ["usuario"],
-                  rolActivo: "usuario",
-                });
+                login({ nombre: formUsuario.nombre || "Usuario", email: formUsuario.email, roles: ["usuario"], rolActivo: "usuario" });
                 navigate("/home");
               }}
             >
@@ -422,149 +359,27 @@ export default function Bienvenida() {
           </div>
         </div>
 
-        {modalTC && (
-          <div
-            onClick={() => setModalTC(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(61,31,31,0.55)",
-              zIndex: 300,
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                width: "100%",
-                maxWidth: 430,
-                background: "var(--tp-crema)",
-                borderRadius: "20px 20px 0 0",
-                padding: "24px 24px 40px",
-                maxHeight: "80vh",
-                overflowY: "auto",
-              }}
-            >
-              <div
-                style={{
-                  width: 40,
-                  height: 4,
-                  background: "var(--tp-marron-suave)",
-                  borderRadius: 9999,
-                  margin: "0 auto 20px",
-                  opacity: 0.3,
-                }}
-              />
-              <h2
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: "var(--tp-marron)",
-                  marginBottom: 16,
-                  fontFamily: "var(--fuente)",
-                }}
-              >
-                Términos y Condiciones
-              </h2>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: "var(--tp-marron-suave)",
-                  lineHeight: 1.7,
-                  fontFamily: "var(--fuente)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                }}
-              >
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    1. Aceptación
-                  </strong>
-                  <br />
-                  Al registrarte en TeePee aceptás estos términos.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    2. Uso de la plataforma
-                  </strong>
-                  <br />
-                  TeePee conecta usuarios con solucionadores. Los solucionadores
-                  son trabajadores independientes.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    3. Escrow y pagos
-                  </strong>
-                  <br />
-                  Los pagos quedan retenidos hasta confirmar el trabajo.
-                  Comisión del 6% al 10%.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    4. Garantía
-                  </strong>
-                  <br />
-                  Los solucionadores pueden ofrecer garantía voluntaria. TeePee
-                  facilita la mediación.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    5. Cancelaciones
-                  </strong>
-                  <br />
-                  Sujetas a la política de devolución según el estado del
-                  trabajo.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    6. Privacidad
-                  </strong>
-                  <br />
-                  Tus datos son tratados conforme a nuestra Política de
-                  Privacidad. No vendemos datos.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    7. Conducta
-                  </strong>
-                  <br />
-                  Prohibido el uso fraudulento y el acoso. El incumplimiento
-                  puede resultar en suspensión.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    8. Jurisdicción
-                  </strong>
-                  <br />
-                  Rigen las leyes de Argentina. Disputas en tribunales de
-                  Posadas, Misiones.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalTC(false)}
-                style={{
-                  marginTop: 24,
-                  width: "100%",
-                  background: "var(--tp-rojo)",
-                  color: "var(--tp-crema)",
-                  border: "none",
-                  borderRadius: 12,
-                  padding: 16,
-                  fontSize: 15,
-                  fontWeight: 700,
-                  fontFamily: "var(--fuente)",
-                  cursor: "pointer",
-                }}
-              >
-                Entendido
-              </button>
+      {modalTC && (
+        <div onClick={() => setModalTC(false)} style={{ position: "fixed", inset: 0, background: "rgba(61,31,31,0.55)", zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 430, background: "var(--tp-crema)", borderRadius: "20px 20px 0 0", padding: "24px 24px 40px", maxHeight: "80vh", overflowY: "auto" }}>
+            <div style={{ width: 40, height: 4, background: "var(--tp-marron-suave)", borderRadius: 9999, margin: "0 auto 20px", opacity: 0.3 }} />
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--tp-marron)", marginBottom: 16, fontFamily: "var(--fuente)" }}>Términos y Condiciones</h2>
+            <div style={{ fontSize: 13, color: "var(--tp-marron-suave)", lineHeight: 1.7, fontFamily: "var(--fuente)", display: "flex", flexDirection: "column", gap: 10 }}>
+              <p><strong style={{ color: "var(--tp-marron)" }}>1. Aceptación</strong><br/>Al registrarte en TeePee aceptás estos términos.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>2. Uso de la plataforma</strong><br/>TeePee conecta usuarios con solucionadores. Los solucionadores son trabajadores independientes.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>3. Escrow y pagos</strong><br/>Los pagos quedan retenidos hasta confirmar el trabajo. Comisión del 6% al 10%.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>4. Garantía</strong><br/>Los solucionadores pueden ofrecer garantía voluntaria. TeePee facilita la mediación.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>5. Cancelaciones</strong><br/>Sujetas a la política de devolución según el estado del trabajo.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>6. Privacidad</strong><br/>Tus datos son tratados conforme a nuestra Política de Privacidad. No vendemos datos.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>7. Conducta</strong><br/>Prohibido el uso fraudulento y el acoso. El incumplimiento puede resultar en suspensión.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>8. Jurisdicción</strong><br/>Rigen las leyes de Argentina. Disputas en tribunales de Posadas, Misiones.</p>
             </div>
+            <button type="button" onClick={() => setModalTC(false)} style={{ marginTop: 24, width: "100%", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", borderRadius: 12, padding: 16, fontSize: 15, fontWeight: 700, fontFamily: "var(--fuente)", cursor: "pointer" }}>
+              Entendido
+            </button>
           </div>
-        )}
+        </div>
+      )}
       </div>
     );
   }
@@ -580,10 +395,7 @@ export default function Bienvenida() {
           >
             ← Volver
           </button>
-          <div
-            className={styles.formHeaderLogo}
-            style={{ display: "flex", alignItems: "center", gap: 6 }}
-          >
+          <div className={styles.formHeaderLogo} style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <LogoTeePee size={26} />
             <LogoTexto size={22} />
           </div>
@@ -611,12 +423,7 @@ export default function Bienvenida() {
                   className={styles.campoInput}
                   placeholder="Carlos"
                   value={formSolucionador.nombre}
-                  onChange={(e) =>
-                    setFormSolucionador({
-                      ...formSolucionador,
-                      nombre: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setFormSolucionador({ ...formSolucionador, nombre: e.target.value })}
                 />
               </div>
               <div className={styles.campo}>
@@ -626,12 +433,7 @@ export default function Bienvenida() {
                   className={styles.campoInput}
                   placeholder="Méndez"
                   value={formSolucionador.apellido}
-                  onChange={(e) =>
-                    setFormSolucionador({
-                      ...formSolucionador,
-                      apellido: e.target.value,
-                    })
-                  }
+                  onChange={(e) => setFormSolucionador({ ...formSolucionador, apellido: e.target.value })}
                 />
               </div>
             </div>
@@ -690,19 +492,9 @@ export default function Bienvenida() {
               />
               <label htmlFor="terminos-s" className={styles.terminosTexto}>
                 Acepto los{" "}
-                <button
-                  type="button"
-                  className={styles.terminosLink}
-                  style={{
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    padding: 0,
-                    fontFamily: "inherit",
-                    fontSize: "inherit",
-                  }}
-                  onClick={() => setModalTC(true)}
-                >
+                <button type="button" className={styles.terminosLink}
+                  style={{ background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit", fontSize: "inherit" }}
+                  onClick={() => setModalTC(true)}>
                   términos y condiciones
                 </button>
               </label>
@@ -723,12 +515,7 @@ export default function Bienvenida() {
               type="button"
               className={`${styles.btnPrimario} ${styles.btnPrimarioSolucionador}`}
               onClick={() => {
-                login({
-                  nombre: formSolucionador.nombre || "Solucionador",
-                  email: formSolucionador.email,
-                  roles: ["solucionador"],
-                  rolActivo: "solucionador",
-                });
+                login({ nombre: formSolucionador.nombre || "Solucionador", email: formSolucionador.email, roles: ["solucionador"], rolActivo: "solucionador" });
                 navigate("/home-solucionador");
               }}
             >
@@ -748,149 +535,27 @@ export default function Bienvenida() {
           </div>
         </div>
 
-        {modalTC && (
-          <div
-            onClick={() => setModalTC(false)}
-            style={{
-              position: "fixed",
-              inset: 0,
-              background: "rgba(61,31,31,0.55)",
-              zIndex: 300,
-              display: "flex",
-              alignItems: "flex-end",
-              justifyContent: "center",
-            }}
-          >
-            <div
-              onClick={(e) => e.stopPropagation()}
-              style={{
-                width: "100%",
-                maxWidth: 430,
-                background: "var(--tp-crema)",
-                borderRadius: "20px 20px 0 0",
-                padding: "24px 24px 40px",
-                maxHeight: "80vh",
-                overflowY: "auto",
-              }}
-            >
-              <div
-                style={{
-                  width: 40,
-                  height: 4,
-                  background: "var(--tp-marron-suave)",
-                  borderRadius: 9999,
-                  margin: "0 auto 20px",
-                  opacity: 0.3,
-                }}
-              />
-              <h2
-                style={{
-                  fontSize: 18,
-                  fontWeight: 800,
-                  color: "var(--tp-marron)",
-                  marginBottom: 16,
-                  fontFamily: "var(--fuente)",
-                }}
-              >
-                Términos y Condiciones
-              </h2>
-              <div
-                style={{
-                  fontSize: 13,
-                  color: "var(--tp-marron-suave)",
-                  lineHeight: 1.7,
-                  fontFamily: "var(--fuente)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 10,
-                }}
-              >
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    1. Aceptación
-                  </strong>
-                  <br />
-                  Al registrarte en TeePee aceptás estos términos.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    2. Uso de la plataforma
-                  </strong>
-                  <br />
-                  TeePee conecta usuarios con solucionadores. Los solucionadores
-                  son trabajadores independientes.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    3. Escrow y pagos
-                  </strong>
-                  <br />
-                  Los pagos quedan retenidos hasta confirmar el trabajo.
-                  Comisión del 6% al 10%.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    4. Garantía
-                  </strong>
-                  <br />
-                  Los solucionadores pueden ofrecer garantía voluntaria. TeePee
-                  facilita la mediación.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    5. Cancelaciones
-                  </strong>
-                  <br />
-                  Sujetas a la política de devolución según el estado del
-                  trabajo.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    6. Privacidad
-                  </strong>
-                  <br />
-                  Tus datos son tratados conforme a nuestra Política de
-                  Privacidad. No vendemos datos.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    7. Conducta
-                  </strong>
-                  <br />
-                  Prohibido el uso fraudulento y el acoso. El incumplimiento
-                  puede resultar en suspensión.
-                </p>
-                <p>
-                  <strong style={{ color: "var(--tp-marron)" }}>
-                    8. Jurisdicción
-                  </strong>
-                  <br />
-                  Rigen las leyes de Argentina. Disputas en tribunales de
-                  Posadas, Misiones.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setModalTC(false)}
-                style={{
-                  marginTop: 24,
-                  width: "100%",
-                  background: "var(--tp-rojo)",
-                  color: "var(--tp-crema)",
-                  border: "none",
-                  borderRadius: 12,
-                  padding: 16,
-                  fontSize: 15,
-                  fontWeight: 700,
-                  fontFamily: "var(--fuente)",
-                  cursor: "pointer",
-                }}
-              >
-                Entendido
-              </button>
+      {modalTC && (
+        <div onClick={() => setModalTC(false)} style={{ position: "fixed", inset: 0, background: "rgba(61,31,31,0.55)", zIndex: 300, display: "flex", alignItems: "flex-end", justifyContent: "center" }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ width: "100%", maxWidth: 430, background: "var(--tp-crema)", borderRadius: "20px 20px 0 0", padding: "24px 24px 40px", maxHeight: "80vh", overflowY: "auto" }}>
+            <div style={{ width: 40, height: 4, background: "var(--tp-marron-suave)", borderRadius: 9999, margin: "0 auto 20px", opacity: 0.3 }} />
+            <h2 style={{ fontSize: 18, fontWeight: 800, color: "var(--tp-marron)", marginBottom: 16, fontFamily: "var(--fuente)" }}>Términos y Condiciones</h2>
+            <div style={{ fontSize: 13, color: "var(--tp-marron-suave)", lineHeight: 1.7, fontFamily: "var(--fuente)", display: "flex", flexDirection: "column", gap: 10 }}>
+              <p><strong style={{ color: "var(--tp-marron)" }}>1. Aceptación</strong><br/>Al registrarte en TeePee aceptás estos términos.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>2. Uso de la plataforma</strong><br/>TeePee conecta usuarios con solucionadores. Los solucionadores son trabajadores independientes.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>3. Escrow y pagos</strong><br/>Los pagos quedan retenidos hasta confirmar el trabajo. Comisión del 6% al 10%.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>4. Garantía</strong><br/>Los solucionadores pueden ofrecer garantía voluntaria. TeePee facilita la mediación.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>5. Cancelaciones</strong><br/>Sujetas a la política de devolución según el estado del trabajo.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>6. Privacidad</strong><br/>Tus datos son tratados conforme a nuestra Política de Privacidad. No vendemos datos.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>7. Conducta</strong><br/>Prohibido el uso fraudulento y el acoso. El incumplimiento puede resultar en suspensión.</p>
+              <p><strong style={{ color: "var(--tp-marron)" }}>8. Jurisdicción</strong><br/>Rigen las leyes de Argentina. Disputas en tribunales de Posadas, Misiones.</p>
             </div>
+            <button type="button" onClick={() => setModalTC(false)} style={{ marginTop: 24, width: "100%", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", borderRadius: 12, padding: 16, fontSize: 15, fontWeight: 700, fontFamily: "var(--fuente)", cursor: "pointer" }}>
+              Entendido
+            </button>
           </div>
-        )}
+        </div>
+      )}
       </div>
     );
   }

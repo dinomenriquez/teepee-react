@@ -268,43 +268,64 @@ export default function HomeUsuario() {
         </section>
 
         {/* ── TRABAJOS EN CURSO ── */}
-        {TRABAJOS_ACTIVOS.map((t) => (
-          <section key={t.id} className={styles.trabajoActivo}>
-            <div className={styles.trabajoActivoHeader}>
-              <div className={styles.trabajoActivoLabel}>
-                <div className={styles.puntoActivo} style={{ background: t.color }}></div>
-                Trabajo en curso
-              </div>
-              <button
-                type="button"
-                className={styles.trabajoActivoBtn}
-                onClick={() => navigate(`/seguimiento?solId=${t.id}&trabajoId=${t.id}`)}
-              >
-                Ver detalle →
+        <div>
+          <div className={styles.seccionHeader} style={{ marginBottom: 8 }}>
+            <h2 className={styles.seccionTitulo}>Trabajos en curso</h2>
+            {TRABAJOS_ACTIVOS.length > 0 && (
+              <button type="button" className={styles.seccionVerTodo} onClick={() => navigate("/trabajos")}>
+                Ver todos →
               </button>
-            </div>
-            <h2 className={styles.trabajoActivoNombre}>
-              {t.solucionador} — {t.oficio}
-            </h2>
-            <p className={styles.trabajoActivoDesc}>
-              {t.descripcion} · {t.horario}
-            </p>
-            <div className={styles.progreso}>
-              <div
-                className={styles.progresoBarra}
-                style={{ width: `${t.progreso}%`, background: t.color }}
-              />
-            </div>
-            <div className={styles.progresoLabels}>
-              <span className={styles.progresoTexto}>
-                Etapa {t.etapaActual} de {t.totalEtapas}
-              </span>
-              <span className={styles.progresoPct}>
-                {t.progreso}%
-              </span>
-            </div>
-          </section>
-        ))}
+            )}
+          </div>
+
+          {TRABAJOS_ACTIVOS.length === 0 ? (
+            <section className={styles.trabajoActivo} style={{ opacity: 0.6 }}>
+              <div className={styles.trabajoActivoHeader}>
+                <div className={styles.trabajoActivoLabel}>
+                  <div className={styles.puntoActivo} style={{ background: "rgba(61,31,31,0.25)" }}></div>
+                  Sin trabajos activos en curso
+                </div>
+              </div>
+              <h2 className={styles.trabajoActivoNombre} style={{ color: "rgba(240,234,214,0.45)", fontStyle: "italic" }}>
+                —
+              </h2>
+              <p className={styles.trabajoActivoDesc}>
+                Cuando tengas un trabajo en curso aparecerá acá
+              </p>
+              <div className={styles.progreso}>
+                <div className={styles.progresoBarra} style={{ width: "0%" }} />
+              </div>
+              <div className={styles.progresoLabels}>
+                <span className={styles.progresoTexto}>Sin etapas</span>
+                <span className={styles.progresoPct}>0%</span>
+              </div>
+            </section>
+          ) : (
+            TRABAJOS_ACTIVOS.slice(0, 2).map((t) => (
+              <section key={t.id} className={styles.trabajoActivo} style={{ marginBottom: 10 }}>
+                <div className={styles.trabajoActivoHeader}>
+                  <div className={styles.trabajoActivoLabel}>
+                    <div className={styles.puntoActivo} style={{ background: t.color }}></div>
+                    Trabajo en curso
+                  </div>
+                  <button type="button" className={styles.trabajoActivoBtn}
+                    onClick={() => navigate(`/seguimiento?solId=${t.id}&trabajoId=${t.id}`)}>
+                    Ver detalle →
+                  </button>
+                </div>
+                <h2 className={styles.trabajoActivoNombre}>{t.solucionador} — {t.oficio}</h2>
+                <p className={styles.trabajoActivoDesc}>{t.descripcion} · {t.horario}</p>
+                <div className={styles.progreso}>
+                  <div className={styles.progresoBarra} style={{ width: `${t.progreso}%`, background: t.color }} />
+                </div>
+                <div className={styles.progresoLabels}>
+                  <span className={styles.progresoTexto}>Etapa {t.etapaActual} de {t.totalEtapas}</span>
+                  <span className={styles.progresoPct}>{t.progreso}%</span>
+                </div>
+              </section>
+            ))
+          )}
+        </div>
         {/* ── PRESUPUESTOS ── */}
         <section className={styles.presupuestosSection}>
           <div className={styles.seccionHeader}>
@@ -317,24 +338,25 @@ export default function HomeUsuario() {
               Ver todos →
             </button>
           </div>
-          <button
-            type="button"
-            className={styles.presupuestosBanner}
-            onClick={() => navigate("/presupuestos")}
-          >
-            <div className={styles.presupuestosBannerLeft}>
-              <span className={styles.presupuestosBadge}>3</span>
-              <div>
-                <p className={styles.presupuestosBannerTitulo}>
-                  Presupuestos pendientes
-                </p>
-                <p className={styles.presupuestosBannerDesc}>
-                  Pérdida de agua · Instalación luces · Pintura
-                </p>
+          {/* Si hay presupuestos muestra el banner, sino muestra vacío */}
+          {true /* reemplazar con presupuestos.length > 0 */ ? (
+            <button type="button" className={styles.presupuestosBanner} onClick={() => navigate("/presupuestos")}>
+              <div className={styles.presupuestosBannerLeft}>
+                <span className={styles.presupuestosBadge}>3</span>
+                <div>
+                  <p className={styles.presupuestosBannerTitulo}>Presupuestos pendientes</p>
+                  <p className={styles.presupuestosBannerDesc}>Pérdida de agua · Instalación luces · Pintura</p>
+                </div>
               </div>
+              <span className={styles.presupuestosFlecha}>›</span>
+            </button>
+          ) : (
+            <div style={{ padding: "14px 16px", borderRadius: "var(--r-md)", background: "rgba(61,31,31,0.04)", border: "1px dashed rgba(61,31,31,0.12)", textAlign: "center" }}>
+              <p style={{ fontSize: 13, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)" }}>
+                Sin presupuestos pendientes de ver
+              </p>
             </div>
-            <span className={styles.presupuestosFlecha}>›</span>
-          </button>
+          )}
         </section>
 
         {/* ── ACCIONES RÁPIDAS ── */}
