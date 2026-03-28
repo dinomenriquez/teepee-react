@@ -109,6 +109,12 @@ const SOLUCIONADORES_MOCK = [
   },
 ];
 
+// Mock de domicilios precargados del perfil del usuario
+const DOMICILIOS_USUARIO = [
+  { id: 1, label: "Casa", direccion: "Av. Mitre 1240, Posadas", principal: true },
+  { id: 2, label: "Trabajo", direccion: "San Lorenzo 456, Posadas", principal: false },
+];
+
 export default function Busqueda() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -124,6 +130,8 @@ export default function Busqueda() {
   const [buscando, setBuscando] = useState(false);
   const [horariosSeleccionados, setHorariosSeleccionados] = useState([]);
   const [horasPuntuales, setHorasPuntuales] = useState({});
+  const [direccion, setDireccion] = useState(DOMICILIOS_USUARIO.find(d => d.principal)?.direccion || "");
+  const [editandoDireccion, setEditandoDireccion] = useState(false);
   const [toast, setToast] = useState(null);
 
   function mostrarToast(mensaje) {
@@ -419,24 +427,99 @@ export default function Busqueda() {
 
           {/* Dirección */}
           <section className={styles.campoBloque}>
-            <p className={styles.campoLabel}>Dirección</p>
-            <div className={styles.direccionInput}>
-              <span className={styles.direccionIcono}>📍</span>
-              <input
-                type="text"
-                className={styles.direccionCampo}
-                placeholder="Ej: Av. Mitre 1240, Posadas"
-                defaultValue="Av. Mitre 1240, Posadas"
-              />
-            </div>
-            <button
-              type="button"
-              className={styles.btnUbicacion}
-              onClick={() => mostrarToast("Usando tu ubicación actual")}
-            >
+            <p className={styles.campoLabel}>Dirección del servicio</p>
+
+            {/* Domicilios guardados del perfil */}
+            {!editandoDireccion && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
+                {DOMICILIOS_USUARIO.map(d => (
+                  <button key={d.id} type="button"
+                    onClick={() => setDireccion(d.direccion)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                      borderRadius: "var(--r-md)", border: "none", cursor: "pointer",
+                      fontFamily: "var(--fuente)", textAlign: "left",
+                      background: direccion === d.direccion ? "var(--tp-marron)" : "rgba(61,31,31,0.06)",
+                    }}>
+                    <span style={{ fontSize: 16 }}>📍</span>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 12, fontWeight: 700, margin: 0,
+                        color: direccion === d.direccion ? "var(--tp-crema)" : "var(--tp-marron)" }}>
+                        {d.label}
+                      </p>
+                      <p style={{ fontSize: 11, margin: 0,
+                        color: direccion === d.direccion ? "rgba(240,234,214,0.70)" : "var(--tp-marron-suave)" }}>
+                        {d.direccion}
+                      </p>
+                    </div>
+                    {direccion === d.direccion && (
+                      <span style={{ fontSize: 14, color: "var(--tp-crema)" }}>✓</span>
+                    )}
+                  </button>
+                ))}
+                <button type="button"
+                  onClick={() => setEditandoDireccion(true)}
+                  style={{ padding: "8px 12px", borderRadius: "var(--r-md)", border: "1px dashed rgba(61,31,31,0.20)", background: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, color: "var(--tp-marron-suave)", textAlign: "left" }}>
+                  ✏️ Ingresar otra dirección
+                </button>
+              </div>
+            )}
+
+            {/* Edición manual */}
+            {editandoDireccion && (
+              <div>
+                <div className={styles.direccionInput} style={{ border: "2px solid var(--tp-rojo)", borderRadius: "var(--r-md)", background: "var(--tp-crema)" }}>
+                  <span className={styles.direccionIcono}>📍</span>
+                  <input type="text" className={styles.direccionCampo}
+                    placeholder="Ej: Av. Mitre 1240, Posadas"
+                    value={direccion}
+                    onChange={e => setDireccion(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+                {direccion && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, padding: "7px 10px", borderRadius: "var(--r-md)", background: "rgba(184,64,48,0.08)", border: "1px solid rgba(184,64,48,0.25)" }}>
+                    <span style={{ fontSize: 13 }}>📍</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-rojo)", fontFamily: "var(--fuente)" }}>{direccion}</span>
+                  </div>
+                )}
+                <button type="button"
+                  onClick={() => setEditandoDireccion(false)}
+                  style={{ fontSize: 11, color: "var(--tp-rojo)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", marginTop: 6 }}>
+                  ← Usar domicilio guardado
+                </button>
+              </div>
+            )}
+
+            <button type="button" className={styles.btnUbicacion}
+              onClick={() => { setDireccion("Ubicación actual"); setEditandoDireccion(false); mostrarToast("Usando tu ubicación actual"); }}>
               🎯 Usar mi ubicación actual
             </button>
           </section>
+
+          {/* Domicilio seleccionado — confirmación visible */}
+          {direccion && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              padding: "10px 14px", borderRadius: "var(--r-md)",
+              background: "var(--tp-marron)", marginBottom: 4,
+            }}>
+              <span style={{ fontSize: 18, flexShrink: 0 }}>📍</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(240,234,214,0.65)", margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)" }}>
+                  Dirección del servicio
+                </p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-crema)", margin: 0, fontFamily: "var(--fuente)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {direccion}
+                </p>
+              </div>
+              <button type="button"
+                onClick={() => setEditandoDireccion(true)}
+                style={{ fontSize: 11, color: "rgba(240,234,214,0.65)", background: "none", border: "1px solid rgba(240,234,214,0.25)", borderRadius: 20, padding: "3px 8px", cursor: "pointer", fontFamily: "var(--fuente)", flexShrink: 0 }}>
+                Cambiar
+              </button>
+            </div>
+          )}
 
           {/* Disponibilidad horaria */}
           <section className={styles.campoBloque}>
@@ -509,51 +592,50 @@ export default function Busqueda() {
               })
               .sort((a, b) => a.offset - b.offset);
             })().map((fila) => (
-              <div key={fila.id} className={styles.disponibilidadFila}>
-                <span className={styles.disponibilidadDia}>
+              <div key={fila.id} className={styles.disponibilidadFila} style={{ flexWrap: "wrap", gap: "4px 6px", alignItems: "center" }}>
+                {/* Día con fecha */}
+                <span className={styles.disponibilidadDia} style={{ flexShrink: 0, minWidth: 52 }}>
                   {fila.dia}
                   <span style={{ fontSize: 9, display: "block", color: "var(--tp-marron-suave)", fontWeight: 400 }}>{fila.fecha}</span>
                 </span>
 
-                <div className={styles.disponibilidadTurnos}>
-                  {[
-                    { id: "7-12", label: "7–12" },
-                    { id: "12-15", label: "12–15" },
-                    { id: "15-19", label: "15–19" },
-                    { id: "19-21", label: "19–21" },
-                  ].map((turno) => {
-                    const key = `${fila.id}-${turno.id}`;
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        className={`${styles.turnoBtn} ${
-                          horariosSeleccionados.includes(key)
-                            ? styles.turnoBtnActivo
-                            : ""
-                        }`}
-                        onClick={() =>
-                          setHorariosSeleccionados((prev) =>
-                            prev.includes(key)
-                              ? prev.filter((h) => h !== key)
-                              : [...prev, key],
-                          )
-                        }
-                      >
-                        {turno.label}
-                      </button>
-                    );
-                  })}
-                </div>
+                {/* 4 turnos en una sola fila */}
+                {[
+                  { id: "7-12", label: "7–12" },
+                  { id: "12-15", label: "12–15" },
+                  { id: "15-19", label: "15–19" },
+                  { id: "19-21", label: "19–21" },
+                ].map((turno) => {
+                  const key = `${fila.id}-${turno.id}`;
+                  return (
+                    <button key={key} type="button"
+                      className={`${styles.turnoBtn} ${horariosSeleccionados.includes(key) ? styles.turnoBtnActivo : ""}`}
+                      style={{ flexShrink: 0 }}
+                      onClick={() =>
+                        setHorariosSeleccionados((prev) =>
+                          prev.includes(key) ? prev.filter((h) => h !== key) : [...prev, key]
+                        )
+                      }
+                    >
+                      {turno.label}
+                    </button>
+                  );
+                })}
 
-                {/* Hora puntual por día — selector custom */}
+                {/* Hora preferida — select en misma fila */}
                 <select
-                  className={styles.horaPuntual}
                   value={horasPuntuales[fila.id] || ""}
                   onChange={(e) => setHorasPuntuales(prev => ({ ...prev, [fila.id]: e.target.value }))}
-                  style={{ fontSize: 11, padding: "4px 2px", borderRadius: 6, border: "1px solid rgba(61,31,31,0.15)", background: "var(--tp-crema)", color: "var(--tp-marron)", fontFamily: "var(--fuente)", cursor: "pointer" }}
+                  style={{
+                    flexShrink: 0, fontSize: 10, padding: "4px 4px",
+                    borderRadius: 6, border: "1px solid rgba(61,31,31,0.15)",
+                    background: horasPuntuales[fila.id] ? "var(--tp-rojo-suave)" : "var(--tp-crema)",
+                    color: horasPuntuales[fila.id] ? "var(--tp-rojo)" : "var(--tp-marron-suave)",
+                    fontFamily: "var(--fuente)", cursor: "pointer",
+                    maxWidth: 72, lineHeight: 1.3,
+                  }}
                 >
-                  <option value="">hora preferida</option>
+                  <option value="">⏰ hora</option>
                   {Array.from({ length: (21 - 7) * 4 + 1 }, (_, i) => {
                     const totalMin = 7 * 60 + i * 15;
                     const h = String(Math.floor(totalMin / 60)).padStart(2, "0");
@@ -625,20 +707,46 @@ export default function Busqueda() {
 
         <main className={styles.contenido}>
           {/* Resumen de la búsqueda */}
-          <div className={styles.resumenBusqueda}>
-            <div className={styles.resumenBusquedaTop}>
-              <span className={styles.resumenBusquedaIcono}>
+          <div className={styles.resumenBusqueda} style={{ padding: "12px 14px" }}>
+            {/* Fila 1: categoría + urgencia */}
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+              <span className={styles.resumenBusquedaIcono} style={{ flexShrink: 0 }}>
                 {categoriaActual?.icono}
               </span>
-              <div>
-                <p className={styles.resumenBusquedaTitulo}>
-                  {categoriaActual?.nombre}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p className={styles.resumenBusquedaTitulo} style={{ margin: "0 0 2px" }}>
+                  {categoriasActuales.length > 1
+                    ? categoriasActuales.map(c => c.nombre).join(" · ")
+                    : (categoriaActual?.nombre || "Servicio")}
                 </p>
-                <p className={styles.resumenBusquedaSub}>
-                  {urgenciaActual?.icono} {urgenciaActual?.titulo}· 📍 Posadas
-                </p>
+                <span style={{
+                  display: "inline-flex", alignItems: "center", gap: 4,
+                  fontSize: 11, fontWeight: 700, padding: "2px 8px",
+                  borderRadius: 20, fontFamily: "var(--fuente)",
+                  background: urgencia === "urgente" ? "rgba(184,64,48,0.15)" : "rgba(61,31,31,0.08)",
+                  color: urgencia === "urgente" ? "var(--tp-rojo)" : "var(--tp-marron-suave)",
+                }}>
+                  {urgenciaActual?.icono} {urgenciaActual?.titulo}
+                </span>
               </div>
             </div>
+
+            {/* Fila 2: dirección */}
+            {direccion && (
+              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 8, background: "rgba(61,31,31,0.06)", marginBottom: 6 }}>
+                <span style={{ fontSize: 13, flexShrink: 0 }}>📍</span>
+                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {direccion}
+                </p>
+              </div>
+            )}
+
+            {/* Fila 3: descripción resumida */}
+            {descripcion && (
+              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)", lineHeight: 1.4, fontStyle: "italic" }}>
+                "{descripcion.length > 70 ? descripcion.slice(0, 70) + "…" : descripcion}"
+              </p>
+            )}
           </div>
 
           {/* Resultado del búsqueda */}

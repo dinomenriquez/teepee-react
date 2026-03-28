@@ -1,452 +1,209 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferior from "./NavInferior";
-import { getSolucionador, TRABAJOS } from "./MockData";
 import styles from "./Seguimiento.module.css";
 import { IconoVolver } from "./Iconos";
-import {
-  CheckCircle,
-  Car,
-  Wrench,
-  Flag,
-  Zap,
-  Cable,
-  Lock,
-  MessageCircle,
-  HardHat,
-  Star,
-} from "lucide-react";
+import { MessageCircle, CheckCircle, Lock, Clock, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
 
+// ── MOCK ──────────────────────────────────────────────────────
 const TRABAJO = {
-  id: "TP-2024-0847",
-  titulo: "Tablero eléctrico",
-  descripcion:
-    "Revisión completa del tablero, reemplazo del disyuntor principal 32A y verificación de todos los circuitos.",
-  monto: "$32.000",
-  montoRetenido: "$35.200",
-  fecha: "Hoy, 7 de marzo",
-  direccion: "Av. Mitre 1240, Posadas",
-  garantia: "30 días",
+  id: 1,
+  titulo: "Pérdida de agua en baño principal",
+  solucionador: { nombre: "Carlos Mendoza", oficio: "Plomero", inicial: "C", color: "#B84030", nivel: "🥇" },
+  ordenId: "ORD-2025-0042",
+  monto: 22000,
+  avanceReportado: 60,   // % que reportó el solucionador
+  avanceAprobado: 40,    // % que aprobó el usuario
+  pendienteAprobacion: true, // el solucionador reportó nuevo avance
+  etapasPago: [
+    { id: 1, label: "Anticipo 30%",  pct: 30, monto: 6600,  estado: "pagado",    trigger: "Al firmar acuerdo" },
+    { id: 2, label: "Avance 60%",    pct: 40, monto: 8800,  estado: "habilitado", trigger: "Al confirmar 60% de obra" },
+    { id: 3, label: "Cierre 30%",    pct: 30, monto: 6600,  estado: "bloqueado",  trigger: "Al confirmar obra terminada" },
+  ],
 };
 
-const SOLUCIONADOR = {
-  nombre: "Carlos Méndez",
-  inicial: "C",
-  oficio: "Plomero",
-  nivel: "🥇",
-  reputacion: 4.9,
-  telefono: "+54 376 4123456",
+const ESTADO_PAGO = {
+  pagado:     { label: "Pagado ✓",    color: "#2A7D5A", bg: "rgba(42,125,90,0.12)"  },
+  habilitado: { label: "⚡ Pagar ahora", color: "var(--tp-rojo)", bg: "rgba(184,64,48,0.10)" },
+  bloqueado:  { label: "🔒 Bloqueado", color: "var(--tp-marron-suave)", bg: "rgba(61,31,31,0.05)" },
 };
-
-function getEtapas(nombreSol) {
-  return [
-    {
-      id: 1,
-      icono: <CheckCircle size={18} />,
-      titulo: "Trabajo confirmado",
-      desc: "Presupuesto aceptado y pago retenido",
-      hora: "16:52",
-      estado: "completada",
-    },
-    {
-      id: 2,
-      icono: <Car size={18} />,
-      titulo: "En camino",
-      desc: `${nombreSol} está yendo a tu domicilio`,
-      hora: "17:10",
-      estado: "completada",
-    },
-    {
-      id: 3,
-      icono: <Wrench size={18} />,
-      titulo: "Trabajando",
-      desc: `${nombreSol} está realizando el trabajo`,
-      hora: "17:35",
-      estado: "activa",
-    },
-    {
-      id: 4,
-      icono: <Flag size={18} />,
-      titulo: "Terminado",
-      desc: "Trabajo finalizado, pendiente de confirmación",
-      hora: null,
-      estado: "pendiente",
-    },
-  ];
-}
-
-const FOTOS_AVANCE = [
-  { id: 1, icono: <Zap size={20} />, titulo: "Tablero antes", hora: "17:38" },
-  {
-    id: 2,
-    icono: <Wrench size={20} />,
-    titulo: "Circuito abierto",
-    hora: "17:45",
-  },
-  { id: 3, icono: <Wrench size={20} />, titulo: "Reemplazando", hora: "18:02" },
-];
 
 export default function Seguimiento() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const solIdParam = searchParams.get("solId");
-  const trabajoIdParam = searchParams.get("trabajoId");
+  const solId = searchParams.get("solId");
 
-  // Solucionador dinámico — usa el param si viene, sino el mock por defecto
-  const solDinamico = solIdParam ? getSolucionador(Number(solIdParam)) : null;
-  const trabajoDinamico = trabajoIdParam
-    ? TRABAJOS.find(t => t.id === Number(trabajoIdParam))
-    : null;
-  const solActivo = solDinamico || SOLUCIONADOR;
-  const ETAPAS = getEtapas(solActivo.nombre);
-  const [etapaActiva, setEtapaActiva] = useState(3);
-  const [toast, setToast] = useState(null);
-  const [modalFinalizar, setModalFinalizar] = useState(false);
-  const [avancePct, setAvancePct] = useState(65);
-  const [fotos, setFotos] = useState([]);
-  const [materiales, setMateriales] = useState([]);
-  const [nuevoMaterial, setNuevoMaterial] = useState({ nombre: "", costo: "" });
-  const [mostrarMateriales, setMostrarMateriales] = useState(false);
-  const [mostrarResumen, setMostrarResumen] = useState(false);
-  const [trabajoFinalizado, setTrabajoFinalizado] = useState(false);
-  const [avanceSolicitado, setAvanceSolicitado]   = useState(null); // % pendiente de aprobar
-  const [avanceAprobadoU,  setAvanceAprobadoU]    = useState(65);   // último % aprobado
+  const [avanceAprobado, setAvanceAprobado] = useState(TRABAJO.avanceAprobado);
+  const [pendiente, setPendiente]           = useState(TRABAJO.pendienteAprobacion);
+  const [mostrarPagos, setMostrarPagos]     = useState(false);
+  const [toast, setToast]                   = useState(null);
 
-  function mostrarToast(msg) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
+  const t = TRABAJO;
+  const montoPagado = t.etapasPago.filter(e => e.estado === "pagado").reduce((s, e) => s + e.monto, 0);
+  const montoPendiente = t.monto - montoPagado;
+  const pctPagado = Math.round((montoPagado / t.monto) * 100);
+
+  function mostrarToast(msg) { setToast(msg); setTimeout(() => setToast(null), 2500); }
+
+  function aprobarAvance() {
+    setAvanceAprobado(t.avanceReportado);
+    setPendiente(false);
+    mostrarToast("✅ Avance aprobado — instancia de pago habilitada");
   }
 
-  const progresoPct = Math.round(
-    ((etapaActiva - 1) / (ETAPAS.length - 1)) * 100,
-  );
-
   return (
-    <div className={styles.pantalla}>
-      {/* ── HEADER ── */}
-      <header className={styles.header}>
-        <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+    <div style={{ background: "var(--tp-crema)", minHeight: "100vh", fontFamily: "var(--fuente)" }}>
+
+      {/* Header */}
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+        <button onClick={() => navigate(-1)} style={{ border: "none", background: "none", cursor: "pointer", display: "flex" }}>
           <IconoVolver size={20} />
         </button>
-        <div className={styles.headerTexto}>
-          <span className={styles.headerTitulo}>Seguimiento</span>
-          <span className={styles.headerId}>#{TRABAJO.id}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-marron)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.titulo}</p>
+          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>{t.ordenId}</p>
         </div>
-        <button
-          className={styles.btnAyuda}
-          onClick={() => navigate("/cancelacion")}
-        >
-          ?
+        <button type="button"
+          onClick={() => navigate(`/chat?solId=${solId || 1}&nombre=${encodeURIComponent(t.solucionador.nombre)}&desde=seguimiento`)}
+          style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid rgba(61,31,31,0.15)", background: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--tp-marron-suave)" }}>
+          <MessageCircle size={18} />
         </button>
       </header>
 
-      <main className={styles.contenido}>
-        {/* ── ESTADO GENERAL ── */}
-        {!trabajoFinalizado ? (
-          <section className={styles.estadoCard}>
-            <div className={styles.estadoCardTop}>
-              <div className={styles.estadoPunto}></div>
-              <div className={styles.estadoInfo}>
-                <p className={styles.estadoLabel}>Estado actual</p>
-                <p className={styles.estadoTexto}>
-                  {ETAPAS[etapaActiva - 1].titulo}
-                </p>
-                <p className={styles.estadoDesc}>
-                  {ETAPAS[etapaActiva - 1].desc}
-                </p>
-              </div>
-              <div className={styles.estadoPct}>{progresoPct}%</div>
-            </div>
-            <div className={styles.estadoBarra}>
-              <div
-                className={styles.estadoBarraRelleno}
-                style={{ width: `${progresoPct}%` }}
-              />
-            </div>
-            {/* Simulación: el solucionador envió avance 80% */}
-            {!avanceSolicitado && avanceAprobadoU < 80 && (
-              <div style={{ marginTop: 8, padding: "10px 12px", background: "rgba(140,104,32,0.08)", borderRadius: 8, border: "1px solid rgba(140,104,32,0.2)" }}>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--amarillo)", margin: "0 0 8px", fontFamily: "var(--fuente)" }}>
-                  ⏳ El solucionador reportó 80% de avance
-                </p>
-                <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 10px", fontFamily: "var(--fuente)" }}>
-                  Aprobá el avance para habilitar el pago parcial correspondiente.
-                </p>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button type="button"
-                    onClick={() => { setAvanceAprobadoU(80); mostrarToast("✅ Avance aprobado · Pago parcial habilitado"); }}
-                    style={{ flex: 1, padding: "8px 0", borderRadius: 8, background: "var(--verde)", color: "white", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700 }}>
-                    ✅ Aprobar
-                  </button>
-                  <button type="button"
-                    onClick={() => mostrarToast("Avance rechazado — el solucionador fue notificado")}
-                    style={{ flex: 1, padding: "8px 0", borderRadius: 8, background: "none", color: "var(--tp-rojo)", border: "1px solid rgba(184,64,48,0.3)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 600 }}>
-                    Rechazar
-                  </button>
-                </div>
-              </div>
+      <div style={{ padding: "14px 16px 90px" }}>
+
+        {/* Solucionador */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", marginBottom: 12, border: "1px solid rgba(61,31,31,0.08)" }}>
+          <div style={{ width: 40, height: 40, borderRadius: "50%", background: t.solucionador.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
+            {t.solucionador.inicial}
+          </div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--tp-marron)", margin: 0 }}>{t.solucionador.nombre}</p>
+            <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>{t.solucionador.oficio} · {t.solucionador.nivel}</p>
+          </div>
+          <button type="button"
+            onClick={() => navigate(`/acuerdo-digital?desde=seguimiento`)}
+            style={{ fontSize: 11, color: "var(--tp-rojo)", background: "none", border: "1px solid rgba(184,64,48,0.25)", borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontFamily: "var(--fuente)", fontWeight: 600 }}>
+            Ver orden
+          </button>
+        </div>
+
+        {/* ── AVANCE DE OBRA ── */}
+        <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", padding: 16, marginBottom: 12, border: "1px solid rgba(61,31,31,0.08)" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0 }}>Avance de obra</p>
+            <span style={{ fontSize: 22, fontWeight: 900, color: "var(--tp-marron)" }}>{avanceAprobado}%</span>
+          </div>
+
+          {/* Barra de avance */}
+          <div style={{ position: "relative", height: 12, borderRadius: 6, background: "rgba(61,31,31,0.08)", marginBottom: 8, overflow: "hidden" }}>
+            {/* Avance aprobado */}
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 6, background: "var(--tp-rojo)", width: `${avanceAprobado}%`, transition: "width 0.6s ease" }} />
+            {/* Avance reportado (pendiente) */}
+            {pendiente && (
+              <div style={{ position: "absolute", left: `${avanceAprobado}%`, top: 0, bottom: 0, borderRadius: "0 6px 6px 0", background: "rgba(184,64,48,0.25)", width: `${t.avanceReportado - avanceAprobado}%`, backgroundImage: "repeating-linear-gradient(45deg, transparent, transparent 4px, rgba(184,64,48,0.2) 4px, rgba(184,64,48,0.2) 8px)" }} />
             )}
-            <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: "6px 0 0", fontFamily: "var(--fuente)" }}>
-              📡 Avance aprobado: {avanceAprobadoU}% · Actualizado en tiempo real
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>
+              Aprobado: {avanceAprobado}%
+              {pendiente && <span style={{ color: "var(--tp-rojo)", marginLeft: 6 }}>· Reportado: {t.avanceReportado}%</span>}
             </p>
-          </section>
-        ) : (
-          <section className={styles.finalizadoCard}>
-            <span className={styles.finalizadoIcono}>🎉</span>
-            <div>
-              <p className={styles.finalizadoTitulo}>¡Trabajo completado!</p>
-              <p className={styles.finalizadoDesc}>
-                El pago fue liberado a {solActivo.nombre}. ¿Podés calificarlo?
+            <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>100%</p>
+          </div>
+
+          {/* Alerta de avance pendiente */}
+          {pendiente && (
+            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: "var(--r-md)", background: "rgba(184,64,48,0.08)", border: "1px solid rgba(184,64,48,0.20)" }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-rojo)", margin: "0 0 4px", display: "flex", alignItems: "center", gap: 6 }}>
+                <AlertCircle size={14} /> Carlos reportó {t.avanceReportado}% de avance
               </p>
+              <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: "0 0 10px" }}>
+                Confirmá el avance para habilitar el pago correspondiente.
+              </p>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button type="button" onClick={aprobarAvance}
+                  style={{ flex: 1, padding: "10px 0", borderRadius: "var(--r-md)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 700 }}>
+                  ✓ Aprobar avance
+                </button>
+                <button type="button"
+                  onClick={() => navigate(`/chat?solId=${solId || 1}&nombre=${encodeURIComponent(t.solucionador.nombre)}&desde=seguimiento`)}
+                  style={{ flex: 1, padding: "10px 0", borderRadius: "var(--r-md)", background: "none", color: "var(--tp-marron)", border: "1px solid rgba(61,31,31,0.20)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 600 }}>
+                  💬 Consultar
+                </button>
+              </div>
             </div>
-          </section>
-        )}
+          )}
+        </div>
 
-        {/* ── ETAPAS ── */}
-        <section className={styles.seccion}>
-          <h2 className={styles.seccionTitulo}>Progreso del trabajo</h2>
-          <div className={styles.etapasLista}>
-            {ETAPAS.map((etapa, index) => (
-              <div key={etapa.id} className={styles.etapaFila}>
-                {/* Línea conectora */}
-                <div className={styles.etapaIzquierda}>
-                  <div
-                    className={`${styles.etapaCirculo} ${
-                      etapa.estado === "completada"
-                        ? styles.etapaCirculoCompleta
-                        : etapa.estado === "activa"
-                          ? styles.etapaCirculoActiva
-                          : styles.etapaCirculoPendiente
-                    }`}
-                  >
-                    {etapa.estado === "completada"
-                      ? "✓"
-                      : etapa.estado === "activa"
-                        ? etapa.icono
-                        : index + 1}
-                  </div>
-                  {index < ETAPAS.length - 1 && (
-                    <div
-                      className={`${styles.etapaLinea} ${
-                        etapa.estado === "completada"
-                          ? styles.etapaLineaCompleta
-                          : styles.etapaLineaPendiente
-                      }`}
-                    ></div>
-                  )}
-                </div>
+        {/* ── PAGOS ── */}
+        <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", border: "1px solid rgba(61,31,31,0.08)", marginBottom: 12, overflow: "hidden" }}>
+          <button type="button" onClick={() => setMostrarPagos(!mostrarPagos)}
+            style={{ width: "100%", padding: "14px 16px", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", display: "flex", alignItems: "center" }}>
+            <div style={{ flex: 1, textAlign: "left" }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Pagos</p>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
+                <span style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-marron)" }}>${montoPagado.toLocaleString("es-AR")}</span>
+                <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>pagado de ${t.monto.toLocaleString("es-AR")} · {pctPagado}%</span>
+              </div>
+            </div>
+            {/* Barra de pagos compacta */}
+            <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(61,31,31,0.08)", marginRight: 10, overflow: "hidden" }}>
+              <div style={{ height: "100%", borderRadius: 3, background: "var(--verde)", width: `${pctPagado}%` }} />
+            </div>
+            {mostrarPagos ? <ChevronUp size={16} color="var(--tp-marron-suave)" /> : <ChevronDown size={16} color="var(--tp-marron-suave)" />}
+          </button>
 
-                <div
-                  className={`${styles.etapaContenido} ${
-                    etapa.estado === "pendiente"
-                      ? styles.etapaContenidoPendiente
-                      : ""
-                  }`}
-                >
-                  <div className={styles.etapaHeader}>
-                    <span className={styles.etapaTitulo}>{etapa.titulo}</span>
-                    {etapa.hora && (
-                      <span className={styles.etapaHora}>{etapa.hora}</span>
+          {mostrarPagos && (
+            <div style={{ borderTop: "1px solid rgba(61,31,31,0.08)", padding: "12px 16px" }}>
+              {t.etapasPago.map(e => {
+                const est = ESTADO_PAGO[e.estado];
+                return (
+                  <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid rgba(61,31,31,0.05)" }}>
+                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: e.estado === "pagado" ? "rgba(42,125,90,0.12)" : e.estado === "habilitado" ? "rgba(184,64,48,0.10)" : "rgba(61,31,31,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      {e.estado === "pagado" ? <CheckCircle size={16} color="var(--verde)" /> : e.estado === "habilitado" ? <span style={{ fontSize: 14 }}>💳</span> : <Lock size={14} color="var(--tp-marron-suave)" />}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: "0 0 1px" }}>{e.label}</p>
+                      <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>${e.monto.toLocaleString("es-AR")}</p>
+                    </div>
+                    {e.estado === "habilitado" ? (
+                      <button type="button"
+                        onClick={() => navigate("/pago")}
+                        style={{ padding: "7px 14px", borderRadius: "var(--r-full)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700 }}>
+                        Pagar
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: est.bg, color: est.color }}>{est.label}</span>
                     )}
                   </div>
-                  <span className={styles.etapaDesc}>{etapa.desc}</span>
-                  {etapa.estado === "activa" && (
-                    <div className={styles.etapaActivaBadge}>
-                      En curso ahora
-                    </div>
-                  )}
-                </div>
+                );
+              })}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10 }}>
+                <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>Saldo pendiente</p>
+                <p style={{ fontSize: 15, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>${montoPendiente.toLocaleString("es-AR")}</p>
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── SOLUCIONADOR ── */}
-        <section className={styles.solucionadorCard}>
-          <div className={styles.solucionadorInfo}>
-            <div className={styles.solucionadorAvatar}>
-              {solActivo.inicial}
-              <span className={styles.solucionadorNivel}>
-                {solActivo.nivel || "🥇"}
-              </span>
             </div>
-            <div className={styles.solucionadorTexto}>
-              <span className={styles.solucionadorNombre}>
-                {solActivo.nombre}
-              </span>
-              <span className={styles.solucionadorOficio}>
-                {solActivo.oficio} · <Star size={12} />{" "}
-                {solActivo.calificacion || solActivo.reputacion || 4.9}
-              </span>
-            </div>
-          </div>
-          <div className={styles.solucionadorAcciones}>
-            <button
-              type="button"
-              className={styles.btnAccion}
-              onClick={() => navigate(`/chat?solId=${solIdParam || 1}&desde=seguimiento`)}
-              title="Chat"
-            >
-              <MessageCircle size={18} />
-            </button>
-            <button
-              type="button"
-              className={styles.btnAccion}
-              onClick={() => navigate(`/perfil?nombre=${encodeURIComponent(solActivo.nombre)}&oficio=${encodeURIComponent(solActivo.oficio)}&desde=seguimiento&solId=${solIdParam || 1}`)}
-              title="Ver perfil"
-              style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 12, fontFamily: "var(--fuente)", padding: "6px 10px" }}
-            >
-              <HardHat size={18} />
-            </button>
-          </div>
-        </section>
-
-        {/* ── ESCROW ── */}
-        <section className={styles.escrowCard}>
-          <div className={styles.escrowIcono}>
-            <Lock size={24} />
-          </div>
-          <div className={styles.escrowInfo}>
-            <p className={styles.escrowTitulo}>Pago retenido en garantía</p>
-            <p className={styles.escrowMonto}>{TRABAJO.montoRetenido}</p>
-            {/* Etapas de pago simplificadas */}
-            <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
-              {[
-                { label: "Anticipo 30%", estado: "pagado" },
-                { label: "Avance 40%",  estado: "retenido" },
-                { label: "Cierre 30%",  estado: "pendiente" },
-              ].map((e, i) => (
-                <div key={i} style={{ flex: 1, padding: "5px 4px", borderRadius: 8, textAlign: "center",
-                  background: e.estado === "pagado" ? "rgba(42,125,90,0.15)" : e.estado === "retenido" ? "rgba(240,234,214,0.25)" : "rgba(240,234,214,0.10)",
-                }}>
-                  <p style={{ fontSize: 9, fontWeight: 700, margin: "0 0 2px", fontFamily: "var(--fuente)",
-                    color: e.estado === "pagado" ? "#2A7D5A" : "rgba(240,234,214,0.75)" }}>
-                    {e.estado === "pagado" ? "✓" : e.estado === "retenido" ? "🔒" : "○"}
-                  </p>
-                  <p style={{ fontSize: 9, margin: 0, fontFamily: "var(--fuente)", color: "rgba(240,234,214,0.65)" }}>{e.label}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ── FOTOS DE AVANCE ── */}
-        <section className={styles.seccion}>
-          <div className={styles.seccionHeader}>
-            <h2 className={styles.seccionTitulo}>Fotos del avance</h2>
-            <span className={styles.seccionBadge}>{FOTOS_AVANCE.length}</span>
-          </div>
-          <div className={styles.fotosScroll}>
-            {FOTOS_AVANCE.map((foto) => (
-              <div
-                key={foto.id}
-                className={styles.fotoCard}
-                onClick={() => mostrarToast("Ver: " + foto.titulo)}
-              >
-                <span className={styles.fotoEmoji}>{foto.icono}</span>
-                <div className={styles.fotoInfo}>
-                  <span className={styles.fotoTitulo}>{foto.titulo}</span>
-                  <span className={styles.fotoHora}>{foto.hora}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── DETALLES DEL TRABAJO ── */}
-        <section className={styles.detallesCard}>
-          <h2 className={styles.seccionTitulo}>Detalles</h2>
-          <div className={styles.detallesLista}>
-            {[
-              { label: "Trabajo", valor: TRABAJO.titulo },
-              { label: "Dirección", valor: TRABAJO.direccion },
-              { label: "Fecha", valor: TRABAJO.fecha },
-              { label: "Monto", valor: TRABAJO.monto },
-              { label: "Garantía", valor: TRABAJO.garantia },
-            ].map((item) => (
-              <div key={item.label} className={styles.detalleFila}>
-                <span className={styles.detalleLabel}>{item.label}</span>
-                <span className={styles.detalleValor}>{item.valor}</span>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ── BOTÓN FINALIZAR ── */}
-        {!trabajoFinalizado && (
-          <button
-            type="button"
-            className={styles.btnFinalizar}
-            onClick={() => setModalFinalizar(true)}
-          >
-            <CheckCircle size={16} /> Confirmar trabajo completado
-          </button>
-        )}
-
-        {trabajoFinalizado && (
-          <button
-            type="button"
-            className={styles.btnCalificar}
-onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(solActivo.nombre)}&solOficio=${encodeURIComponent(solActivo.oficio || "Solucionador")}&solInicial=${solActivo.inicial || solActivo.nombre?.charAt(0)}&solNivel=${encodeURIComponent(solActivo.nivel || "🥇")}`)}
-          >
-            <Star size={16} /> Calificar a {solActivo.nombre}
-          </button>
-        )}
-      </main>
-
-      {/* ── MODAL FINALIZAR ── */}
-      {modalFinalizar && (
-        <div
-          className={styles.modalOverlay}
-          onClick={(e) => {
-            if (e.target === e.currentTarget) setModalFinalizar(false);
-          }}
-        >
-          <div className={styles.modal}>
-            <div className={styles.modalHandle}></div>
-            <div className={styles.modalIcono}>
-              <CheckCircle size={32} />
-            </div>
-            <h2 className={styles.modalTitulo}>¿El trabajo está completo?</h2>
-            <p className={styles.modalDesc}>
-              Al confirmar, se liberará el pago de{" "}
-              <strong>{TRABAJO.montoRetenido}</strong> a {solActivo.nombre}.
-              Esta acción no se puede deshacer.
-            </p>
-
-            <div className={styles.modalEscrow}>
-              <span>
-                <Lock size={16} />
-              </span>
-              <p>
-                Se liberarán <strong>{TRABAJO.montoRetenido}</strong> retenido a
-                la cuenta de {solActivo.nombre}
-              </p>
-            </div>
-
-            <button
-              type="button"
-              className={styles.btnConfirmar}
-              onClick={() => {
-                setModalFinalizar(false);
-                setTrabajoFinalizado(true);
-                mostrarToast("🎉 Pago liberado a " + solActivo.nombre);
-              }}
-            >
-              Confirmar y liberar pago
-            </button>
-            <button
-              type="button"
-              className={styles.btnCancelar}
-              onClick={() => setModalFinalizar(false)}
-            >
-              Todavía no
-            </button>
-          </div>
+          )}
         </div>
-      )}
 
-      {toast && <div className={styles.toast}>{toast}</div>}
+        {/* Nota de tiempo real */}
+        <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", textAlign: "center", margin: "4px 0 16px", fontFamily: "var(--fuente)" }}>
+          📡 Avance reportado por {t.solucionador.nombre} en tiempo real
+        </p>
+
+        {/* Botón calificar si terminó */}
+        {avanceAprobado === 100 && (
+          <button type="button"
+            onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(t.solucionador.nombre)}&solOficio=${encodeURIComponent(t.solucionador.oficio)}`)}
+            style={{ width: "100%", padding: 16, borderRadius: "var(--r-md)", background: "var(--tp-marron)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700 }}>
+            ⭐ Calificar a {t.solucionador.nombre}
+          </button>
+        )}
+      </div>
+
+      {toast && <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "var(--tp-marron)", color: "var(--tp-crema)", padding: "10px 20px", borderRadius: "var(--r-full)", fontSize: 13, fontWeight: 600, zIndex: 200, whiteSpace: "nowrap", fontFamily: "var(--fuente)" }}>{toast}</div>}
       <NavInferior />
     </div>
   );

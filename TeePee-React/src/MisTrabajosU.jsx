@@ -180,8 +180,15 @@ export default function MisTrabajosU() {
       <main className={styles.contenido}>
         {trabajosActuales.length === 0 ? (
           <div className={styles.vacio}>
-            <span className={styles.vacioIcono}>📋</span>
-            <p className={styles.vacioTexto}>Sin trabajos en esta sección</p>
+            <span className={styles.vacioIcono}>
+              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : tab === "cancelados" ? "🚫" : "⚖️"}
+            </span>
+            <p className={styles.vacioTexto}>
+              {tab === "enCurso"    ? "Sin trabajos en curso"     :
+               tab === "finalizados" ? "Sin trabajos finalizados"  :
+               tab === "cancelados"  ? "Sin trabajos cancelados"   :
+               "Sin disputas activas"}
+            </p>
           </div>
         ) : (
           <div className={styles.lista}>
@@ -289,7 +296,7 @@ export default function MisTrabajosU() {
                       <button
                         type="button"
                         className={styles.btnSecundario}
-                        onClick={() => navigate(`/chat?solId=${trabajo.solucionadorId || 1}`)}
+                        onClick={() => navigate(`/chat?solId=${trabajo.solucionadorId || 1}&nombre=${encodeURIComponent(trabajo.solucionador)}&desde=mis-trabajos`)}
                       >
                         💬 Chat
                       </button>

@@ -88,6 +88,7 @@ export default function Chat() {
   const inicialParam = searchParams.get("inicial");
   const oficioParam = searchParams.get("oficio");
   const desdeParam = searchParams.get("desde");
+  const trabajoIdBack = searchParams.get("trabajoId");
   const [mensajes, setMensajes] = useState(MENSAJES_INICIALES);
   // Si viene con ?solId=X arranca directo en ese hilo, sino muestra la lista
   const [convActiva, setConvActiva] = useState(
@@ -122,6 +123,16 @@ export default function Chat() {
     garantia: "",
     validez: "24 horas",
   });
+
+  // Si viene desde mis-trabajos o seguimiento con solId, ir directo al hilo
+  useEffect(() => {
+    if (
+      (desdeParam === "mis-trabajos" || desdeParam === "seguimiento") &&
+      solIdParam
+    ) {
+      setConvActiva(Number(solIdParam));
+    }
+  }, [desdeParam, solIdParam]);
 
   // Cada vez que cambian los mensajes → scroll al final
   useEffect(() => {
@@ -395,7 +406,13 @@ export default function Chat() {
               ? navigate("/busqueda?paso=3")
               : desdeParam === "seguimiento"
                 ? navigate(-1)
-                : setConvActiva(null)
+                : desdeParam === "mis-trabajos"
+                  ? navigate("/trabajos")
+                  : desdeParam === "presupuestos" && trabajoIdBack
+                    ? navigate(`/presupuestos?trabajoId=${trabajoIdBack}`)
+                    : desdeParam === "presupuestos"
+                      ? navigate(-1)
+                      : setConvActiva(null)
           }
         >
           <IconoVolver size={20} />

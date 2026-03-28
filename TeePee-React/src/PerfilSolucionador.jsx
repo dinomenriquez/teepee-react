@@ -1,9 +1,16 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { IconoOk, IconoGarantia, IconoTrofeo, IconoReloj, IconoUbicacion, IconoEstrella } from "./Iconos";
+import {
+  IconoOk,
+  IconoGarantia,
+  IconoTrofeo,
+  IconoReloj,
+  IconoUbicacion,
+  IconoEstrella,
+} from "./Iconos";
 import { getSolucionador } from "./MockData";
 import styles from "./PerfilSolucionador.module.css";
-import { IconoVolver } from './Iconos'
+import { IconoVolver } from "./Iconos";
 
 const SOLUCIONADOR = {
   nombre: "Juan Ledesma",
@@ -26,10 +33,10 @@ const SOLUCIONADOR = {
   oficiosPrincipales: ["Electricidad", "Iluminación"],
   oficiosSecundarios: ["Instalaciones", "Tableros"],
   oficios: [
-    { icono: "⚡", nombre: "Electricidad",   tipo: "principal" },
-    { icono: "💡", nombre: "Iluminación",    tipo: "principal" },
-    { icono: "🔌", nombre: "Instalaciones",  tipo: "secundario" },
-    { icono: "🗂️", nombre: "Tableros",       tipo: "secundario" },
+    { icono: "⚡", nombre: "Electricidad", tipo: "principal" },
+    { icono: "💡", nombre: "Iluminación", tipo: "principal" },
+    { icono: "🔌", nombre: "Instalaciones", tipo: "secundario" },
+    { icono: "🗂️", nombre: "Tableros", tipo: "secundario" },
   ],
   certificaciones: [
     "✅ Matrícula profesional verificada",
@@ -86,25 +93,50 @@ export default function PerfilSolucionador() {
   const garantiaParam = searchParams.get("garantia");
   const nivelIconoParam = searchParams.get("nivelIcono");
   const desdeParam = searchParams.get("desde");
+  const trabajoIdBack = searchParams.get("trabajoId");
 
   // Resolver solucionador: solId (MockData) > params completos > mock local
   const solDinamico = solIdParam ? getSolucionador(Number(solIdParam)) : null;
   const SOLUCIONADOR_ACTIVO = solDinamico
-    ? { ...SOLUCIONADOR, nombre: solDinamico.nombre, oficio: solDinamico.oficio, inicial: solDinamico.inicial, calificacion: solDinamico.calificacion }
+    ? {
+        ...SOLUCIONADOR,
+        nombre: solDinamico.nombre,
+        oficio: solDinamico.oficio,
+        inicial: solDinamico.inicial,
+        calificacion: solDinamico.calificacion,
+      }
     : nombreParam
       ? {
           ...SOLUCIONADOR,
           nombre: decodeURIComponent(nombreParam),
           inicial: decodeURIComponent(nombreParam).charAt(0),
-          oficio: oficioParam ? decodeURIComponent(oficioParam) : SOLUCIONADOR.oficio,
-          reputacion: reputacionParam ? Number(reputacionParam) : SOLUCIONADOR.reputacion,
-          calificacion: reputacionParam ? Number(reputacionParam) : SOLUCIONADOR.reputacion,
-          totalTrabajos: trabajosParam ? Number(trabajosParam) : SOLUCIONADOR.totalTrabajos,
-          trabajos: trabajosParam ? Number(trabajosParam) : SOLUCIONADOR.totalTrabajos,
-          distancia: distanciaParam ? decodeURIComponent(distanciaParam) : SOLUCIONADOR.distancia,
-          precio: precioParam ? decodeURIComponent(precioParam) : SOLUCIONADOR.precio,
-          garantia: garantiaParam ? decodeURIComponent(garantiaParam) : SOLUCIONADOR.garantia,
-          nivelIcono: nivelIconoParam ? decodeURIComponent(nivelIconoParam) : SOLUCIONADOR.nivelIcono,
+          oficio: oficioParam
+            ? decodeURIComponent(oficioParam)
+            : SOLUCIONADOR.oficio,
+          reputacion: reputacionParam
+            ? Number(reputacionParam)
+            : SOLUCIONADOR.reputacion,
+          calificacion: reputacionParam
+            ? Number(reputacionParam)
+            : SOLUCIONADOR.reputacion,
+          totalTrabajos: trabajosParam
+            ? Number(trabajosParam)
+            : SOLUCIONADOR.totalTrabajos,
+          trabajos: trabajosParam
+            ? Number(trabajosParam)
+            : SOLUCIONADOR.totalTrabajos,
+          distancia: distanciaParam
+            ? decodeURIComponent(distanciaParam)
+            : SOLUCIONADOR.distancia,
+          precio: precioParam
+            ? decodeURIComponent(precioParam)
+            : SOLUCIONADOR.precio,
+          garantia: garantiaParam
+            ? decodeURIComponent(garantiaParam)
+            : SOLUCIONADOR.garantia,
+          nivelIcono: nivelIconoParam
+            ? decodeURIComponent(nivelIconoParam)
+            : SOLUCIONADOR.nivelIcono,
         }
       : SOLUCIONADOR;
   const [tabActiva, setTabActiva] = useState("info");
@@ -121,7 +153,19 @@ export default function PerfilSolucionador() {
       {/* ── HEADER con foto de fondo ── */}
       <div className={styles.heroBloque}>
         <div className={styles.heroAcciones}>
-          <button className={styles.btnVolver} onClick={() => desdeParam === "busqueda" ? navigate("/busqueda?paso=3") : desdeParam === "seguimiento" ? navigate(`/seguimiento${solIdParam ? `?solId=${solIdParam}` : ""}`) : navigate(-1)}>
+          <button
+            className={styles.btnVolver}
+            onClick={() => {
+              if (desdeParam === "busqueda") navigate("/busqueda?paso=3");
+              else if (desdeParam === "seguimiento")
+                navigate(
+                  `/seguimiento${solIdParam ? `?solId=${solIdParam}` : ""}`,
+                );
+              else if (desdeParam === "presupuestos" && trabajoIdBack)
+                navigate(`/presupuestos?trabajoId=${trabajoIdBack}`);
+              else navigate(-1); // presupuestos, misTrabajos, y cualquier otro caso
+            }}
+          >
             <IconoVolver size={20} />
           </button>
           <button
@@ -174,8 +218,12 @@ export default function PerfilSolucionador() {
 
         {/* Avatar grande */}
         <div className={styles.heroAvatar}>
-          <div className={styles.heroAvatarCirculo}>{SOLUCIONADOR_ACTIVO.inicial}</div>
-          <div className={styles.heroNivelBadge}>{SOLUCIONADOR_ACTIVO.nivelIcono}</div>
+          <div className={styles.heroAvatarCirculo}>
+            {SOLUCIONADOR_ACTIVO.inicial}
+          </div>
+          <div className={styles.heroNivelBadge}>
+            {SOLUCIONADOR_ACTIVO.nivelIcono}
+          </div>
         </div>
 
         {/* Info principal */}
@@ -189,23 +237,43 @@ export default function PerfilSolucionador() {
           <div className={styles.heroStats}>
             <div className={styles.heroStat}>
               <span className={styles.heroStatNum}>
-                {SOLUCIONADOR_ACTIVO.calificacion || SOLUCIONADOR_ACTIVO.reputacion}
+                {SOLUCIONADOR_ACTIVO.calificacion ||
+                  SOLUCIONADOR_ACTIVO.reputacion}
               </span>
-              <span className={styles.heroStatLabel} style={{display:"flex",alignItems:"center",gap:3}}><IconoEstrella size={11} />Reputación</span>
+              <span
+                className={styles.heroStatLabel}
+                style={{ display: "flex", alignItems: "center", gap: 3 }}
+              >
+                <IconoEstrella size={11} />
+                Reputación
+              </span>
             </div>
             <div className={styles.heroStatDivider}></div>
             <div className={styles.heroStat}>
               <span className={styles.heroStatNum}>
-                {SOLUCIONADOR_ACTIVO.trabajos || SOLUCIONADOR_ACTIVO.totalTrabajos}
+                {SOLUCIONADOR_ACTIVO.trabajos ||
+                  SOLUCIONADOR_ACTIVO.totalTrabajos}
               </span>
-              <span className={styles.heroStatLabel} style={{display:"flex",alignItems:"center",gap:3}}><IconoTrofeo size={11} />Trabajos</span>
+              <span
+                className={styles.heroStatLabel}
+                style={{ display: "flex", alignItems: "center", gap: 3 }}
+              >
+                <IconoTrofeo size={11} />
+                Trabajos
+              </span>
             </div>
             <div className={styles.heroStatDivider}></div>
             <div className={styles.heroStat}>
               <span className={styles.heroStatNum}>
                 {SOLUCIONADOR_ACTIVO.tiempoRespuesta}
               </span>
-              <span className={styles.heroStatLabel} style={{display:"flex",alignItems:"center",gap:3}}><IconoReloj size={11} />Respuesta</span>
+              <span
+                className={styles.heroStatLabel}
+                style={{ display: "flex", alignItems: "center", gap: 3 }}
+              >
+                <IconoReloj size={11} />
+                Respuesta
+              </span>
             </div>
           </div>
         </div>
@@ -214,10 +282,18 @@ export default function PerfilSolucionador() {
       {/* ── TABS ── */}
       <div className={styles.tabs}>
         {[
-          { id: "info",          icono: <IconoOk size={15} />,       label: "Información" },
-          { id: "fotos",         icono: <IconoTrofeo size={15} />,    label: "Trabajos" },
-          { id: "disponibilidad",icono: <IconoReloj size={15} />,     label: "Disponibilidad" },
-          { id: "reseñas",       icono: <IconoEstrella size={15} />,  label: `Reseñas (${SOLUCIONADOR_ACTIVO.totalReseñas})` },
+          { id: "info", icono: <IconoOk size={15} />, label: "Información" },
+          { id: "fotos", icono: <IconoTrofeo size={15} />, label: "Trabajos" },
+          {
+            id: "disponibilidad",
+            icono: <IconoReloj size={15} />,
+            label: "Disponibilidad",
+          },
+          {
+            id: "reseñas",
+            icono: <IconoEstrella size={15} />,
+            label: `Reseñas (${SOLUCIONADOR_ACTIVO.totalReseñas})`,
+          },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -228,7 +304,8 @@ export default function PerfilSolucionador() {
             onClick={() => setTabActiva(tab.id)}
           >
             <span style={{ display: "flex", alignItems: "center", gap: 5 }}>
-              {tab.icono}{tab.label}
+              {tab.icono}
+              {tab.label}
             </span>
           </button>
         ))}
@@ -242,12 +319,24 @@ export default function PerfilSolucionador() {
             {/* Descripción */}
             <section className={styles.seccion}>
               <h2 className={styles.seccionTitulo}>Sobre mí</h2>
-              <p className={styles.descripcion}>{SOLUCIONADOR_ACTIVO.descripcion}</p>
+              <p className={styles.descripcion}>
+                {SOLUCIONADOR_ACTIVO.descripcion}
+              </p>
             </section>
 
             {/* Certificaciones */}
             <section className={styles.seccion}>
-              <h2 className={styles.seccionTitulo}><IconoOk size={16} style={{marginRight:6, verticalAlign:"middle", color:"var(--verde)"}} />Verificaciones</h2>
+              <h2 className={styles.seccionTitulo}>
+                <IconoOk
+                  size={16}
+                  style={{
+                    marginRight: 6,
+                    verticalAlign: "middle",
+                    color: "var(--verde)",
+                  }}
+                />
+                Verificaciones
+              </h2>
               <div className={styles.certificacionesLista}>
                 {SOLUCIONADOR_ACTIVO.certificaciones.map((cert, i) => (
                   <div key={i} className={styles.certificacionItem}>
@@ -259,40 +348,96 @@ export default function PerfilSolucionador() {
 
             {/* Oficios */}
             <section className={styles.seccion}>
-              <h2 className={styles.seccionTitulo}><IconoTrofeo size={16} style={{marginRight:6, verticalAlign:"middle", color:"var(--tp-rojo)"}} />Servicios que ofrece</h2>
+              <h2 className={styles.seccionTitulo}>
+                <IconoTrofeo
+                  size={16}
+                  style={{
+                    marginRight: 6,
+                    verticalAlign: "middle",
+                    color: "var(--tp-rojo)",
+                  }}
+                />
+                Servicios que ofrece
+              </h2>
 
               {/* Principales */}
-              {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "principal").length > 0 && (
+              {SOLUCIONADOR_ACTIVO.oficios.filter((o) => o.tipo === "principal")
+                .length > 0 && (
                 <div style={{ marginBottom: 10 }}>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 6px", fontFamily: "var(--fuente)" }}>
+                  <p
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: "var(--tp-marron-suave)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.6px",
+                      margin: "0 0 6px",
+                      fontFamily: "var(--fuente)",
+                    }}
+                  >
                     ⭐ Principal
                   </p>
                   <div className={styles.oficiosLista}>
-                    {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "principal").map((oficio) => (
-                      <div key={oficio.nombre} className={styles.oficioCard} style={{ background: "var(--amarillo-suave)", border: "1px solid rgba(140,104,32,0.2)" }}>
-                        <span className={styles.oficioIcono}>{oficio.icono}</span>
-                        <span className={styles.oficioNombre}>{oficio.nombre}</span>
-                        <span style={{ fontSize: 12, marginLeft: "auto" }}>⭐</span>
-                      </div>
-                    ))}
+                    {SOLUCIONADOR_ACTIVO.oficios
+                      .filter((o) => o.tipo === "principal")
+                      .map((oficio) => (
+                        <div
+                          key={oficio.nombre}
+                          className={styles.oficioCard}
+                          style={{
+                            background: "var(--amarillo-suave)",
+                            border: "1px solid rgba(140,104,32,0.2)",
+                          }}
+                        >
+                          <span className={styles.oficioIcono}>
+                            {oficio.icono}
+                          </span>
+                          <span className={styles.oficioNombre}>
+                            {oficio.nombre}
+                          </span>
+                          <span style={{ fontSize: 12, marginLeft: "auto" }}>
+                            ⭐
+                          </span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}
 
               {/* Secundarios */}
-              {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "secundario").length > 0 && (
+              {SOLUCIONADOR_ACTIVO.oficios.filter(
+                (o) => o.tipo === "secundario",
+              ).length > 0 && (
                 <div>
-                  <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 6px", fontFamily: "var(--fuente)" }}>
+                  <p
+                    style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      color: "var(--tp-marron-suave)",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.6px",
+                      margin: "0 0 6px",
+                      fontFamily: "var(--fuente)",
+                    }}
+                  >
                     🔵 Secundario
                   </p>
                   <div className={styles.oficiosLista}>
-                    {SOLUCIONADOR_ACTIVO.oficios.filter(o => o.tipo === "secundario").map((oficio) => (
-                      <div key={oficio.nombre} className={styles.oficioCard}>
-                        <span className={styles.oficioIcono}>{oficio.icono}</span>
-                        <span className={styles.oficioNombre}>{oficio.nombre}</span>
-                        <span style={{ fontSize: 12, marginLeft: "auto" }}>🔵</span>
-                      </div>
-                    ))}
+                    {SOLUCIONADOR_ACTIVO.oficios
+                      .filter((o) => o.tipo === "secundario")
+                      .map((oficio) => (
+                        <div key={oficio.nombre} className={styles.oficioCard}>
+                          <span className={styles.oficioIcono}>
+                            {oficio.icono}
+                          </span>
+                          <span className={styles.oficioNombre}>
+                            {oficio.nombre}
+                          </span>
+                          <span style={{ fontSize: 12, marginLeft: "auto" }}>
+                            🔵
+                          </span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               )}
@@ -302,8 +447,16 @@ export default function PerfilSolucionador() {
             <section className={styles.garantiaCard}>
               <span className={styles.garantiaIcono}>🛡️</span>
               <div className={styles.garantiaInfo}>
-                <p className={styles.garantiaTitulo}><IconoGarantia size={14} style={{marginRight:4, verticalAlign:"middle"}} /> Garantía de trabajo</p>
-                <p className={styles.garantiaValor}>{SOLUCIONADOR_ACTIVO.garantia}</p>
+                <p className={styles.garantiaTitulo}>
+                  <IconoGarantia
+                    size={14}
+                    style={{ marginRight: 4, verticalAlign: "middle" }}
+                  />{" "}
+                  Garantía de trabajo
+                </p>
+                <p className={styles.garantiaValor}>
+                  {SOLUCIONADOR_ACTIVO.garantia}
+                </p>
                 <p className={styles.garantiaDesc}>
                   Si algo falla en ese período, vuelve sin costo adicional
                 </p>
@@ -314,7 +467,9 @@ export default function PerfilSolucionador() {
             <section className={styles.precioCard}>
               <div className={styles.precioInfo}>
                 <p className={styles.precioLabel}>Precio estimado</p>
-                <p className={styles.precioMonto}>{SOLUCIONADOR_ACTIVO.precio}</p>
+                <p className={styles.precioMonto}>
+                  {SOLUCIONADOR_ACTIVO.precio}
+                </p>
                 <p className={styles.precioDesc}>
                   El precio final se define en el presupuesto
                 </p>
@@ -333,7 +488,9 @@ export default function PerfilSolucionador() {
         {tabActiva === "fotos" && (
           <div className={styles.tabContenido}>
             <p className={styles.fotosSubtitulo}>
-              {SOLUCIONADOR_ACTIVO.trabajos || SOLUCIONADOR_ACTIVO.totalTrabajos} trabajos realizados
+              {SOLUCIONADOR_ACTIVO.trabajos ||
+                SOLUCIONADOR_ACTIVO.totalTrabajos}{" "}
+              trabajos realizados
             </p>
             <div className={styles.fotosGrid}>
               {FOTOS_TRABAJOS.map((foto, i) => (
@@ -358,63 +515,104 @@ export default function PerfilSolucionador() {
         {tabActiva === "disponibilidad" && (
           <div className={styles.tabContenido}>
             <p className={styles.disponibilidadDesc}>
-              Días y horarios en que {SOLUCIONADOR_ACTIVO.nombre.split(" ")[0]} suele estar disponible.
-              Confirmá por chat antes de agendar.
+              Días y horarios en que {SOLUCIONADOR_ACTIVO.nombre.split(" ")[0]}{" "}
+              suele estar disponible. Confirmá por chat antes de agendar.
             </p>
 
             {/* Encabezado turnos */}
-            <div style={{ display: "flex", gap: 4, marginBottom: 4, paddingLeft: 84 }}>
-              {["7–12", "12–15", "15–19", "19–21"].map(t => (
-                <div key={t} style={{
-                  flex: 1, textAlign: "center", fontSize: 10,
-                  fontWeight: 700, color: "var(--tp-marron-suave)",
-                  fontFamily: "var(--fuente)",
-                }}>{t}</div>
+            <div
+              style={{
+                display: "flex",
+                gap: 4,
+                marginBottom: 4,
+                paddingLeft: 84,
+              }}
+            >
+              {["7–12", "12–15", "15–19", "19–21"].map((t) => (
+                <div
+                  key={t}
+                  style={{
+                    flex: 1,
+                    textAlign: "center",
+                    fontSize: 10,
+                    fontWeight: 700,
+                    color: "var(--tp-marron-suave)",
+                    fontFamily: "var(--fuente)",
+                  }}
+                >
+                  {t}
+                </div>
               ))}
             </div>
 
             {/* Grilla días × turnos */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               {[
-                { dia: "Lunes",     key: "Lun" },
-                { dia: "Martes",    key: "Mar" },
+                { dia: "Lunes", key: "Lun" },
+                { dia: "Martes", key: "Mar" },
                 { dia: "Miércoles", key: "Mié" },
-                { dia: "Jueves",    key: "Jue" },
-                { dia: "Viernes",   key: "Vie" },
-                { dia: "Sábado",    key: "Sáb" },
-                { dia: "Domingo",   key: "Dom" },
+                { dia: "Jueves", key: "Jue" },
+                { dia: "Viernes", key: "Vie" },
+                { dia: "Sábado", key: "Sáb" },
+                { dia: "Domingo", key: "Dom" },
               ].map((fila) => {
-                const activo = SOLUCIONADOR_ACTIVO.disponibilidad.includes(fila.key);
+                const activo = SOLUCIONADOR_ACTIVO.disponibilidad.includes(
+                  fila.key,
+                );
                 return (
-                  <div key={fila.key} style={{ display: "flex", alignItems: "center", gap: 4 }}>
-                    <span style={{
-                      width: 80, fontSize: 12, fontWeight: 600,
-                      fontFamily: "var(--fuente)",
-                      color: activo ? "var(--tp-marron)" : "var(--tp-marron-suave)",
-                      opacity: activo ? 1 : 0.35,
-                    }}>{fila.dia}</span>
+                  <div
+                    key={fila.key}
+                    style={{ display: "flex", alignItems: "center", gap: 4 }}
+                  >
+                    <span
+                      style={{
+                        width: 80,
+                        fontSize: 12,
+                        fontWeight: 600,
+                        fontFamily: "var(--fuente)",
+                        color: activo
+                          ? "var(--tp-marron)"
+                          : "var(--tp-marron-suave)",
+                        opacity: activo ? 1 : 0.35,
+                      }}
+                    >
+                      {fila.dia}
+                    </span>
                     {[
-                      { id: "7-12",  label: "7–12"  },
+                      { id: "7-12", label: "7–12" },
                       { id: "12-15", label: "12–15" },
                       { id: "15-19", label: "15–19" },
                       { id: "19-21", label: "19–21" },
                     ].map((turno) => {
-                      const disponible = activo && (
-                        turno.id === "7-12" || turno.id === "12-15" ||
-                        (fila.key !== "Sáb" && fila.key !== "Dom" && turno.id === "15-19")
-                      );
+                      const disponible =
+                        activo &&
+                        (turno.id === "7-12" ||
+                          turno.id === "12-15" ||
+                          (fila.key !== "Sáb" &&
+                            fila.key !== "Dom" &&
+                            turno.id === "15-19"));
                       return (
-                        <div key={turno.id} style={{
-                          flex: 1, padding: "7px 2px", borderRadius: 6,
-                          textAlign: "center", fontSize: 11,
-                          fontFamily: "var(--fuente)",
-                          fontWeight: disponible ? 700 : 400,
-                          background: disponible ? "var(--tp-rojo-suave)" : "rgba(61,31,31,0.04)",
-                          color: disponible ? "var(--tp-rojo)" : "rgba(61,31,31,0.12)",
-                          border: disponible
-                            ? "1px solid rgba(184,64,48,0.2)"
-                            : "1px solid rgba(61,31,31,0.06)",
-                        }}>
+                        <div
+                          key={turno.id}
+                          style={{
+                            flex: 1,
+                            padding: "7px 2px",
+                            borderRadius: 6,
+                            textAlign: "center",
+                            fontSize: 11,
+                            fontFamily: "var(--fuente)",
+                            fontWeight: disponible ? 700 : 400,
+                            background: disponible
+                              ? "var(--tp-rojo-suave)"
+                              : "rgba(61,31,31,0.04)",
+                            color: disponible
+                              ? "var(--tp-rojo)"
+                              : "rgba(61,31,31,0.12)",
+                            border: disponible
+                              ? "1px solid rgba(184,64,48,0.2)"
+                              : "1px solid rgba(61,31,31,0.06)",
+                          }}
+                        >
                           {disponible ? turno.label : ""}
                         </div>
                       );
@@ -426,17 +624,24 @@ export default function PerfilSolucionador() {
           </div>
         )}
 
-                {/* TAB: RESEÑAS */}
+        {/* TAB: RESEÑAS */}
         {tabActiva === "reseñas" && (
           <div className={styles.tabContenido}>
             {/* Resumen de reputación */}
             <div className={styles.reputacionResumen}>
               <div className={styles.reputacionNumGrande}>
-                {SOLUCIONADOR_ACTIVO.calificacion || SOLUCIONADOR_ACTIVO.reputacion}
+                {SOLUCIONADOR_ACTIVO.calificacion ||
+                  SOLUCIONADOR_ACTIVO.reputacion}
               </div>
               <div className={styles.reputacionDetalle}>
                 <div className={styles.estrellas}>
-                  {"⭐".repeat(Math.round(SOLUCIONADOR_ACTIVO.calificacion || SOLUCIONADOR_ACTIVO.reputacion || 5))}
+                  {"⭐".repeat(
+                    Math.round(
+                      SOLUCIONADOR_ACTIVO.calificacion ||
+                        SOLUCIONADOR_ACTIVO.reputacion ||
+                        5,
+                    ),
+                  )}
                 </div>
                 <p className={styles.reputacionTotal}>
                   {SOLUCIONADOR_ACTIVO.totalReseñas} reseñas verificadas
