@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferior from "./NavInferior";
-import { MENSAJES, getSolucionador, SOLUCIONADORES } from "./MockData";
+import { getSolucionador, SOLUCIONADORES } from "./MockData";
 import styles from "./Chat.module.css";
 import { IconoVolver, IconoCamara, IconoReloj, IconoPerfil } from "./Iconos";
 import {
@@ -15,12 +15,34 @@ import {
 } from "lucide-react";
 
 const CONTACTO = {
-  nombre: "Juan Ledesma",
+  nombre: "Carlos Mendoza",
   inicial: "J",
   oficio: "Electricista",
   nivel: "🥇",
   online: true,
 };
+
+// Lista de conversaciones
+const MENSAJES = [
+  {
+    solucionadorId: 1,
+    nombre: "Carlos Mendoza",
+    inicial: "C",
+    oficio: "Plomero",
+    ultimoMensaje: "Voy el lunes a las 9.",
+    hora: "09:25",
+    noLeidos: 0,
+  },
+  {
+    solucionadorId: 2,
+    nombre: "Roberto Flores",
+    inicial: "R",
+    oficio: "Plomero",
+    ultimoMensaje: "¿Podés confirmar el horario?",
+    hora: "Ayer",
+    noLeidos: 1,
+  },
+];
 
 // Tipos de mensaje:
 // 'texto'       → mensaje normal
@@ -87,27 +109,22 @@ export default function Chat() {
   const nombreParam = searchParams.get("nombre");
   const inicialParam = searchParams.get("inicial");
   const oficioParam = searchParams.get("oficio");
-  const desdeParam = searchParams.get("desde");
-  const trabajoIdBack = searchParams.get("trabajoId");
+  const desdeParam     = searchParams.get("desde");
+  const trabajoIdBack  = searchParams.get("trabajoId");
   const [mensajes, setMensajes] = useState(MENSAJES_INICIALES);
   // Si viene con ?solId=X arranca directo en ese hilo, sino muestra la lista
-  const [convActiva, setConvActiva] = useState(
-    solIdParam ? Number(solIdParam) : null,
-  );
+  const [convActiva, setConvActiva] = useState(solIdParam ? Number(solIdParam) : null);
 
   // Solucionador activo según la conversación seleccionada
-  const convData = MENSAJES.find((m) => m.solucionadorId === convActiva);
+  const convData = MENSAJES.find(m => m.solucionadorId === convActiva);
   // Si viene nombre por param (desde Busqueda), usarlo directo
-  const contactoDesdeParam = nombreParam
-    ? {
-        nombre: decodeURIComponent(nombreParam),
-        inicial: inicialParam || decodeURIComponent(nombreParam).charAt(0),
-        oficio: oficioParam ? decodeURIComponent(oficioParam) : "",
-        calificacion: 4.8,
-      }
-    : null;
-  const contactoActivo =
-    contactoDesdeParam || (convActiva ? getSolucionador(convActiva) : null);
+  const contactoDesdeParam = nombreParam ? {
+    nombre: decodeURIComponent(nombreParam),
+    inicial: inicialParam || decodeURIComponent(nombreParam).charAt(0),
+    oficio: oficioParam ? decodeURIComponent(oficioParam) : "",
+    calificacion: 4.8,
+  } : null;
+  const contactoActivo = contactoDesdeParam || (convActiva ? getSolucionador(convActiva) : null);
   const [inputTexto, setInputTexto] = useState("");
   const [escribiendo, setEscribiendo] = useState(false);
   const [modalPresupuesto, setModalPresupuesto] = useState(null);
@@ -126,10 +143,7 @@ export default function Chat() {
 
   // Si viene desde mis-trabajos o seguimiento con solId, ir directo al hilo
   useEffect(() => {
-    if (
-      (desdeParam === "mis-trabajos" || desdeParam === "seguimiento") &&
-      solIdParam
-    ) {
+    if ((desdeParam === "mis-trabajos" || desdeParam === "seguimiento") && solIdParam) {
       setConvActiva(Number(solIdParam));
     }
   }, [desdeParam, solIdParam]);
@@ -211,70 +225,21 @@ export default function Chat() {
   // ── VISTA: LISTA DE CONVERSACIONES ──
   if (!convActiva) {
     return (
-      <div
-        style={{
-          background: "var(--tp-crema)",
-          minHeight: "100vh",
-          fontFamily: "var(--fuente)",
-        }}
-      >
-        <header
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            background: "var(--tp-crema)",
-            borderBottom: "1px solid rgba(61,31,31,0.08)",
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <button
-            onClick={() => navigate(-1)}
-            style={{
-              padding: 4,
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--tp-marron)"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M15 18l-6-6 6-6" />
+      <div style={{ background: "var(--tp-crema)", minHeight: "100vh", fontFamily: "var(--fuente)" }}>
+        <header style={{
+          position: "sticky", top: 0, zIndex: 100,
+          background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)",
+          padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <button onClick={() => navigate(-1)} style={{ padding: 4, border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center" }}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tp-marron)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6"/>
             </svg>
           </button>
-          <h1
-            style={{
-              fontSize: 16,
-              fontWeight: 800,
-              color: "var(--tp-marron)",
-              margin: 0,
-            }}
-          >
-            Mensajes
-          </h1>
+          <h1 style={{ fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>Mensajes</h1>
         </header>
 
-        <div
-          style={{
-            padding: "12px 16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 2,
-          }}
-        >
+        <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 2 }}>
           {MENSAJES.map((conv) => {
             const sol = getSolucionador(conv.solucionadorId);
             return (
@@ -283,108 +248,47 @@ export default function Chat() {
                 type="button"
                 onClick={() => setConvActiva(conv.solucionadorId)}
                 style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "14px 12px",
-                  borderRadius: "var(--r-md)",
-                  background:
-                    conv.sinLeer > 0 ? "var(--tp-crema-clara)" : "none",
-                  border: "none",
-                  cursor: "pointer",
-                  fontFamily: "var(--fuente)",
+                  width: "100%", display: "flex", alignItems: "center", gap: 12,
+                  padding: "14px 12px", borderRadius: "var(--r-md)",
+                  background: conv.sinLeer > 0 ? "var(--tp-crema-clara)" : "none",
+                  border: "none", cursor: "pointer", fontFamily: "var(--fuente)",
                   borderBottom: "1px solid rgba(61,31,31,0.06)",
                 }}
               >
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "50%",
-                    flexShrink: 0,
-                    background: sol.color,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 16,
-                    fontWeight: 800,
-                    color: "white",
-                  }}
-                >
+                <div style={{
+                  width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+                  background: sol.color,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 16, fontWeight: 800, color: "white",
+                }}>
                   {sol.inicial}
                 </div>
                 <div style={{ flex: 1, textAlign: "left", minWidth: 0 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: "var(--tp-marron)",
-                      }}
-                    >
-                      {sol.nombre}
-                    </span>
-                    <span
-                      style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}
-                    >
-                      {conv.hora}
-                    </span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tp-marron)" }}>{sol.nombre}</span>
+                    <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>{conv.hora}</span>
                   </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginTop: 2,
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 12,
-                        color:
-                          conv.sinLeer > 0
-                            ? "var(--tp-marron)"
-                            : "var(--tp-marron-suave)",
-                        fontWeight: conv.sinLeer > 0 ? 600 : 400,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                        maxWidth: "70%",
-                      }}
-                    >
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 2 }}>
+                    <span style={{
+                      fontSize: 12, color: conv.sinLeer > 0 ? "var(--tp-marron)" : "var(--tp-marron-suave)",
+                      fontWeight: conv.sinLeer > 0 ? 600 : 400,
+                      overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                      maxWidth: "70%",
+                    }}>
                       {conv.ultimoMensaje}
                     </span>
                     {conv.sinLeer > 0 && (
-                      <div
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: "50%",
-                          background: "var(--tp-rojo)",
-                          color: "white",
-                          fontSize: 11,
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                        }}
-                      >
+                      <div style={{
+                        width: 20, height: 20, borderRadius: "50%",
+                        background: "var(--tp-rojo)", color: "white",
+                        fontSize: 11, fontWeight: 700,
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                      }}>
                         {conv.sinLeer}
                       </div>
                     )}
                   </div>
-                  <span
-                    style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}
-                  >
-                    {sol.oficio}
-                  </span>
+                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>{sol.oficio}</span>
                 </div>
               </button>
             );
@@ -399,22 +303,12 @@ export default function Chat() {
     <div className={styles.pantalla}>
       {/* ── HEADER ── */}
       <header className={styles.header}>
-        <button
-          className={styles.btnVolver}
-          onClick={() =>
-            desdeParam === "busqueda"
-              ? navigate("/busqueda?paso=3")
-              : desdeParam === "seguimiento"
-                ? navigate(-1)
-                : desdeParam === "mis-trabajos"
-                  ? navigate("/trabajos")
-                  : desdeParam === "presupuestos" && trabajoIdBack
-                    ? navigate(`/presupuestos?trabajoId=${trabajoIdBack}`)
-                    : desdeParam === "presupuestos"
-                      ? navigate(-1)
-                      : setConvActiva(null)
-          }
-        >
+        <button className={styles.btnVolver} onClick={() => desdeParam === "busqueda" ? navigate("/busqueda?paso=3") :
+            desdeParam === "seguimiento" ? navigate(-1) :
+            desdeParam === "mis-trabajos" ? navigate("/trabajos") :
+            desdeParam === "presupuestos" && trabajoIdBack ? navigate(`/presupuestos?trabajoId=${trabajoIdBack}`) :
+            desdeParam === "presupuestos" ? navigate(-1) :
+            setConvActiva(null)}>
           <IconoVolver size={20} />
         </button>
 

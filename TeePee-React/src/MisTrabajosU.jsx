@@ -1,3 +1,4 @@
+import { getTrabajosDeUsuario, getSolucionador } from "./MockData";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavInferior from "./NavInferior";
@@ -10,116 +11,98 @@ const TRABAJOS = {
     {
       id: 1,
       solucionadorId: 1,
-      titulo: "Reparación cañería",
-      solucionador: "Carlos Méndez",
+      solucionador: "Carlos Mendoza",
       inicial: "C",
       nivel: "🥇",
+      color: "#B84030",
       oficio: "Plomero",
+      titulo: "Pérdida de agua en baño principal",
+      descripcion: "Pérdida de agua en baño principal",
+      fecha: "Hoy 09:00 – 12:00 hs",
+      monto: "$22.000",
+      estado: "en-curso",
       etapa: 2,
       totalEtapas: 3,
-      progreso: 65,
-      monto: "$15.000",
-      fecha: "Hoy 14:30 hs",
-      estado: "en-curso",
+      progreso: 40,
     },
     {
       id: 2,
       solucionadorId: 2,
-      titulo: "Instalación toma corrientes",
-      solucionador: "Ana Rodríguez",
-      inicial: "A",
-      nivel: "🥇",
-      oficio: "Electricista",
-      etapa: 1,
-      totalEtapas: 3,
-      progreso: 20,
-      monto: "$22.000",
-      fecha: "Mañana 10:00 hs",
-      estado: "en-curso",
-    },
-    {
-      id: 3,
-      solucionadorId: 3,
-      titulo: "Pintura living y comedor",
-      solucionador: "Miguel Torres",
-      inicial: "M",
+      solucionador: "Roberto Flores",
+      inicial: "R",
       nivel: "🥈",
-      oficio: "Pintor",
-      etapa: 3,
-      totalEtapas: 4,
-      progreso: 75,
-      monto: "$45.000",
-      fecha: "Vie 09:00 hs",
+      color: "#534AB7",
+      oficio: "Plomero",
+      titulo: "Instalación calefón",
+      descripcion: "Instalación calefón",
+      fecha: "Mié 10:00 – 13:00 hs",
+      monto: "$32.000",
       estado: "en-curso",
+      etapa: 1,
+      totalEtapas: 1,
+      progreso: 0,
     },
   ],
   finalizados: [
     {
       id: 3,
-      titulo: "Reparación canilla",
-      solucionador: "Carlos Mendoza",
-      inicial: "C",
-      nivel: "🥇",
-      oficio: "Plomero",
-      monto: "$12.000",
-      fecha: "28 Feb",
-      calificacion: 5,
-      estado: "finalizado",
-    },
-    {
-      id: 4,
-      titulo: "Instalación AA",
-      solucionador: "Roberto Flores",
-      inicial: "R",
-      nivel: "🥈",
-      oficio: "Técnico",
-      monto: "$65.000",
-      fecha: "15 Feb",
-      calificacion: 4,
-      estado: "finalizado",
-    },
-    {
-      id: 5,
-      titulo: "Cambio de cerradura",
+      solucionadorId: 3,
       solucionador: "Miguel Saracho",
       inicial: "M",
       nivel: "🥇",
-      oficio: "Cerrajero",
+      color: "#8C6820",
+      oficio: "Plomero",
+      titulo: "Cambio de canilla cocina",
+      descripcion: "Cambio de canilla cocina",
+      fecha: "15/03/2025",
       monto: "$8.500",
-      fecha: "2 Feb",
-      calificacion: null,
       estado: "finalizado",
+      etapa: 1,
+      totalEtapas: 1,
+      progreso: 100,
+      calificacion: 5,
     },
   ],
   cancelados: [
     {
-      id: 6,
-      titulo: "Pintura exterior",
-      solucionador: "Lucas Vera",
-      inicial: "L",
-      nivel: "🥉",
-      oficio: "Pintor",
-      monto: "$22.000",
-      montoDevuelto: "$22.000",
-      fecha: "20 Ene",
-      motivoCancelacion: "Tuve un imprevisto personal",
+      id: 4,
+      solucionadorId: 2,
+      solucionador: "Roberto Flores",
+      inicial: "R",
+      nivel: "🥈",
+      color: "#534AB7",
+      oficio: "Plomero",
+      titulo: "Reparación canilla exterior",
+      descripcion: "Reparación canilla exterior",
+      fecha: "10/03/2025",
+      monto: "$6.000",
       estado: "cancelado",
+      etapa: 1,
+      totalEtapas: 1,
+      progreso: 0,
+      motivoCancelacion: "El solucionador no pudo asistir",
+      montoDevuelto: "$0 (sin anticipo)",
     },
   ],
   disputas: [
     {
-      id: 7,
-      titulo: "Instalación gas",
-      solucionador: "Héctor Giménez",
-      inicial: "H",
-      nivel: "🥈",
-      oficio: "Gasista",
-      monto: "$38.000",
-      fecha: "5 Feb",
-      motivoDisputa: "El trabajo quedó mal hecho",
-      estadoDisputa: "En revisión",
-      nroCaso: "#CASO-2024-0289",
+      id: 5,
+      solucionadorId: 3,
+      solucionador: "Miguel Saracho",
+      inicial: "M",
+      nivel: "🥇",
+      color: "#8C6820",
+      oficio: "Plomero",
+      titulo: "Destapación cañería cocina",
+      descripcion: "Destapación cañería cocina",
+      fecha: "05/03/2025",
+      monto: "$12.000",
       estado: "disputa",
+      etapa: 1,
+      totalEtapas: 2,
+      progreso: 50,
+      motivoDisputa: "El problema volvió a aparecer al día siguiente",
+      estadoDisputa: "En revisión",
     },
   ],
 };
@@ -181,13 +164,22 @@ export default function MisTrabajosU() {
         {trabajosActuales.length === 0 ? (
           <div className={styles.vacio}>
             <span className={styles.vacioIcono}>
-              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : tab === "cancelados" ? "🚫" : "⚖️"}
+              {tab === "enCurso"
+                ? "🔧"
+                : tab === "finalizados"
+                  ? "✅"
+                  : tab === "cancelados"
+                    ? "🚫"
+                    : "⚖️"}
             </span>
             <p className={styles.vacioTexto}>
-              {tab === "enCurso"    ? "Sin trabajos en curso"     :
-               tab === "finalizados" ? "Sin trabajos finalizados"  :
-               tab === "cancelados"  ? "Sin trabajos cancelados"   :
-               "Sin disputas activas"}
+              {tab === "enCurso"
+                ? "Sin trabajos en curso"
+                : tab === "finalizados"
+                  ? "Sin trabajos finalizados"
+                  : tab === "cancelados"
+                    ? "Sin trabajos cancelados"
+                    : "Sin disputas activas"}
             </p>
           </div>
         ) : (
@@ -196,7 +188,10 @@ export default function MisTrabajosU() {
               <div key={trabajo.id} className={styles.card}>
                 {/* Header del trabajo */}
                 <div className={styles.cardHeader}>
-                  <div className={styles.cardAvatar}>
+                  <div
+                    className={styles.cardAvatar}
+                    style={{ background: trabajo.color, color: "white" }}
+                  >
                     {trabajo.inicial}
                     <span className={styles.cardNivel}>{trabajo.nivel}</span>
                   </div>
@@ -296,14 +291,22 @@ export default function MisTrabajosU() {
                       <button
                         type="button"
                         className={styles.btnSecundario}
-                        onClick={() => navigate(`/chat?solId=${trabajo.solucionadorId || 1}&nombre=${encodeURIComponent(trabajo.solucionador)}&desde=mis-trabajos`)}
+                        onClick={() =>
+                          navigate(
+                            `/chat?solId=${trabajo.solucionadorId}&nombre=${encodeURIComponent(trabajo.solucionador)}&inicial=${trabajo.inicial}&oficio=${encodeURIComponent(trabajo.oficio)}&desde=mis-trabajos`,
+                          )
+                        }
                       >
                         💬 Chat
                       </button>
                       <button
                         type="button"
                         className={styles.btnPrimario}
-                        onClick={() => navigate(`/seguimiento?solId=${trabajo.solucionadorId || trabajo.id}&trabajoId=${trabajo.id}`)}
+                        onClick={() =>
+                          navigate(
+                            `/seguimiento?trabajoId=${trabajo.id}&solNombre=${encodeURIComponent(trabajo.solucionador)}&solInicial=${trabajo.inicial}&solOficio=${encodeURIComponent(trabajo.oficio)}&solColor=${encodeURIComponent(trabajo.color)}`,
+                          )
+                        }
                       >
                         Ver seguimiento →
                       </button>

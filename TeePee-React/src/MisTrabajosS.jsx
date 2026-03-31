@@ -22,8 +22,8 @@ const TRABAJOS = {
       id: 1,
       usuarioId: 1,
       titulo: "Tablero eléctrico",
-      cliente: "Martín García",
-      inicial: "M",
+      cliente: "Laura Pérez",
+      inicial: "L",
       direccion: "Av. Mitre 1234, Posadas",
       horario: "Hoy 09:00 – 12:00",
       monto: "$35.200",
@@ -148,7 +148,7 @@ const PRESUPUESTOS_MOCK = [
   {
     id: 1,
     clienteId: 1,
-    cliente: "Martín García",
+    cliente: "Laura Pérez",
     inicial: "M",
     color: "#B84030",
     servicio: "Pérdida de agua en baño",
@@ -342,26 +342,28 @@ export default function MisTrabajosS() {
                     <span className={styles.cardMonto}>{trabajo.monto}</span>
                   </div>
 
-                  {/* HOY / EN CURSO — progreso */}
+                  {/* EN CURSO — progreso solo si ya tiene avance */}
                   {(trabajo.estado === "hoy" ||
-                    trabajo.estado === "en-curso") && (
-                    <div className={styles.progresoBloque}>
-                      <div className={styles.progresoLabels}>
-                        <span className={styles.progresoTexto}>
-                          Etapa {trabajo.etapa} de {trabajo.totalEtapas}
-                        </span>
-                        <span className={styles.progresoPct}>
-                          {trabajo.progreso}%
-                        </span>
+                    trabajo.estado === "en-curso" ||
+                    trabajo.estado === "enCurso") &&
+                    trabajo.progreso > 0 && (
+                      <div className={styles.progresoBloque}>
+                        <div className={styles.progresoLabels}>
+                          <span className={styles.progresoTexto}>
+                            Avance de obra
+                          </span>
+                          <span className={styles.progresoPct}>
+                            {trabajo.progreso}%
+                          </span>
+                        </div>
+                        <div className={styles.progresoBarra}>
+                          <div
+                            className={styles.progresoRelleno}
+                            style={{ width: `${trabajo.progreso}%` }}
+                          />
+                        </div>
                       </div>
-                      <div className={styles.progresoBarra}>
-                        <div
-                          className={styles.progresoRelleno}
-                          style={{ width: `${trabajo.progreso}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
+                    )}
 
                   {/* FINALIZADO — calificación recibida */}
                   {trabajo.estado === "finalizado" && (

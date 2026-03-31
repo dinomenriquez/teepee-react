@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferior from "./NavInferior";
-import {
-  CALIFICACIONES_PENDIENTES,
-  getSolucionador,
-  TRABAJOS,
-} from "./MockData";
+import { CALIFICACIONES_PENDIENTES, getSolucionador, TRABAJOS } from "./MockData";
 import styles from "./Calificacion.module.css";
 import { IconoVolver } from "./Iconos";
 import {
@@ -69,11 +65,8 @@ function Estrellas({ valor, onChange, size = "normal" }) {
           key={n}
           type="button"
           className={`${styles.estrella} ${
-            size === "grande"
-              ? styles.estrellaGrande
-              : size === "pequena"
-                ? styles.estrellaPequena
-                : ""
+            size === "grande" ? styles.estrellaGrande : 
+            size === "pequena" ? styles.estrellaPequena : ""
           } ${n <= (hover || valor) ? styles.estrellaActiva : ""}`}
           onClick={() => onChange(n)}
           onMouseEnter={() => setHover(n)}
@@ -89,27 +82,22 @@ function Estrellas({ valor, onChange, size = "normal" }) {
 export default function Calificacion() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const solNombreParam = searchParams.get("solNombre");
-  const solOficioParam = searchParams.get("solOficio");
+  const solNombreParam  = searchParams.get("solNombre");
+  const solOficioParam  = searchParams.get("solOficio");
   const solInicialParam = searchParams.get("solInicial");
-  const solNivelParam = searchParams.get("solNivel");
+  const solNivelParam   = searchParams.get("solNivel");
 
   // Si viene desde Seguimiento con datos del solucionador, ir directo al formulario
-  const trabajoDesdeParams = solNombreParam
-    ? {
-        solucionador: {
-          nombre: decodeURIComponent(solNombreParam),
-          oficio: solOficioParam
-            ? decodeURIComponent(solOficioParam)
-            : "Solucionador",
-          inicial:
-            solInicialParam || decodeURIComponent(solNombreParam).charAt(0),
-          nivel: solNivelParam ? decodeURIComponent(solNivelParam) : "🥇",
-        },
-        descripcion: "Trabajo completado",
-        fecha: "Hoy",
-      }
-    : null;
+  const trabajoDesdeParams = solNombreParam ? {
+    solucionador: {
+      nombre:  decodeURIComponent(solNombreParam),
+      oficio:  solOficioParam  ? decodeURIComponent(solOficioParam)  : "Solucionador",
+      inicial: solInicialParam || decodeURIComponent(solNombreParam).charAt(0),
+      nivel:   solNivelParam   ? decodeURIComponent(solNivelParam)   : "🥇",
+    },
+    descripcion: "Trabajo completado",
+    fecha: "Hoy",
+  } : null;
 
   const [trabajoActivo, setTrabajoActivo] = useState(trabajoDesdeParams); // null = lista, objeto = detalle
   const [estrellasPrincipal, setEstrellasPrincipal] = useState(0);
@@ -138,186 +126,83 @@ export default function Calificacion() {
 
   // ── VISTA: LISTA DE PENDIENTES ──
   if (!trabajoActivo) {
-    const pendientes = CALIFICACIONES_PENDIENTES.map((c) => ({
+    const pendientes = CALIFICACIONES_PENDIENTES.map(c => ({
       ...c,
       solucionador: getSolucionador(c.solucionadorId),
-      trabajo: TRABAJOS.find((t) => t.id === c.trabajoId),
+      trabajo: TRABAJOS.find(t => t.id === c.trabajoId),
     }));
 
     return (
-      <div
-        style={{
-          background: "var(--tp-crema)",
-          minHeight: "100vh",
-          fontFamily: "var(--fuente)",
-        }}
-      >
-        <header
-          style={{
-            position: "sticky",
-            top: 0,
-            zIndex: 100,
-            background: "var(--tp-crema)",
-            borderBottom: "1px solid rgba(61,31,31,0.08)",
-            padding: "14px 16px",
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-          }}
-        >
-          <button
-            onClick={() => navigate(-1)}
-            style={{
-              padding: 4,
-              border: "none",
-              background: "none",
-              cursor: "pointer",
-            }}
-          >
+      <div style={{ background: "var(--tp-crema)", minHeight: "100vh", fontFamily: "var(--fuente)" }}>
+        <header style={{
+          position: "sticky", top: 0, zIndex: 100,
+          background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)",
+          padding: "14px 16px", display: "flex", alignItems: "center", gap: 12,
+        }}>
+          <button onClick={() => navigate(-1)} style={{ padding: 4, border: "none", background: "none", cursor: "pointer" }}>
             <IconoVolver size={20} />
           </button>
           <div>
-            <h1
-              style={{
-                fontSize: 16,
-                fontWeight: 800,
-                color: "var(--tp-marron)",
-                margin: 0,
-              }}
-            >
-              Calificaciones
-            </h1>
-            <p
-              style={{
-                fontSize: 11,
-                color: "var(--tp-marron-suave)",
-                margin: 0,
-              }}
-            >
-              {pendientes.length}{" "}
-              {pendientes.length === 1
-                ? "trabajo pendiente"
-                : "trabajos pendientes"}
+            <h1 style={{ fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>Calificaciones</h1>
+            <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>
+              {pendientes.length} {pendientes.length === 1 ? "trabajo pendiente" : "trabajos pendientes"}
             </p>
           </div>
         </header>
 
-        <div
-          style={{
-            padding: "12px 16px",
-            display: "flex",
-            flexDirection: "column",
-            gap: 10,
-          }}
-        >
+        <div style={{ padding: "12px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
           {pendientes.length === 0 ? (
             <div style={{ textAlign: "center", padding: "40px 20px" }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>⭐</div>
-              <p
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: "var(--tp-marron)",
-                }}
-              >
-                Todo calificado
-              </p>
-              <p
-                style={{
-                  fontSize: 12,
-                  color: "var(--tp-marron-suave)",
-                  marginTop: 4,
-                }}
-              >
-                No tenés calificaciones pendientes
-              </p>
+              <p style={{ fontSize: 14, fontWeight: 700, color: "var(--tp-marron)" }}>Todo calificado</p>
+              <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", marginTop: 4 }}>No tenés calificaciones pendientes</p>
             </div>
-          ) : (
-            pendientes.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setTrabajoActivo(item)}
-                style={{
-                  width: "100%",
-                  textAlign: "left",
-                  background: "var(--tp-crema-clara)",
-                  border: "1px solid rgba(61,31,31,0.10)",
-                  borderRadius: "var(--r-md)",
-                  padding: "14px",
-                  cursor: "pointer",
-                  fontFamily: "var(--fuente)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                }}
-              >
-                {/* Avatar solucionador */}
-                <div
-                  style={{
-                    width: 44,
-                    height: 44,
-                    borderRadius: "50%",
-                    flexShrink: 0,
-                    background: item.solucionador?.color || "var(--tp-rojo)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 16,
-                    fontWeight: 800,
-                    color: "white",
-                  }}
-                >
-                  {item.solucionador?.inicial || "?"}
-                </div>
+          ) : pendientes.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => setTrabajoActivo(item)}
+              style={{
+                width: "100%", textAlign: "left",
+                background: "var(--tp-crema-clara)",
+                border: "1px solid rgba(61,31,31,0.10)",
+                borderRadius: "var(--r-md)", padding: "14px",
+                cursor: "pointer", fontFamily: "var(--fuente)",
+                display: "flex", alignItems: "center", gap: 12,
+              }}
+            >
+              {/* Avatar solucionador */}
+              <div style={{
+                width: 44, height: 44, borderRadius: "50%", flexShrink: 0,
+                background: item.solucionador?.color || "var(--tp-rojo)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 16, fontWeight: 800, color: "white",
+              }}>
+                {item.solucionador?.inicial || "?"}
+              </div>
 
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 700,
-                        color: "var(--tp-marron)",
-                      }}
-                    >
-                      {item.solucionador?.nombre || "Solucionador"}
-                    </span>
-                    <span
-                      style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}
-                    >
-                      {item.fecha}
-                    </span>
-                  </div>
-                  <span
-                    style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}
-                  >
-                    {item.solucionador?.oficio} ·{" "}
-                    {item.trabajo?.descripcion || item.descripcion}
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ fontSize: 14, fontWeight: 700, color: "var(--tp-marron)" }}>
+                    {item.solucionador?.nombre || "Solucionador"}
                   </span>
-                  <div style={{ marginTop: 6 }}>
-                    <span
-                      style={{
-                        fontSize: 11,
-                        fontWeight: 700,
-                        background: "var(--tp-rojo-suave)",
-                        color: "var(--tp-rojo)",
-                        padding: "3px 8px",
-                        borderRadius: 20,
-                      }}
-                    >
-                      ⭐ Calificar →
-                    </span>
-                  </div>
+                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>{item.fecha}</span>
                 </div>
-              </button>
-            ))
-          )}
+                <span style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}>
+                  {item.solucionador?.oficio} · {item.trabajo?.descripcion || item.descripcion}
+                </span>
+                <div style={{ marginTop: 6 }}>
+                  <span style={{
+                    fontSize: 11, fontWeight: 700,
+                    background: "var(--tp-rojo-suave)", color: "var(--tp-rojo)",
+                    padding: "3px 8px", borderRadius: 20,
+                  }}>
+                    ⭐ Calificar →
+                  </span>
+                </div>
+              </div>
+            </button>
+          ))}
         </div>
         <NavInferior />
       </div>
@@ -376,9 +261,7 @@ export default function Calificacion() {
                 {trabajoActivo?.solucionador?.inicial || SOLUCIONADOR.inicial}
               </div>
               <div>
-                <p className={styles.completadoNombre}>
-                  {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}
-                </p>
+                <p className={styles.completadoNombre}>{trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}</p>
                 <div className={styles.completadoEstrellas}>
                   {"⭐".repeat(estrellasPrincipal)}
                   {"☆".repeat(5 - estrellasPrincipal)}
@@ -442,12 +325,7 @@ export default function Calificacion() {
   return (
     <div className={styles.pantalla}>
       <header className={styles.header}>
-        <button
-          className={styles.btnVolver}
-          onClick={() =>
-            solNombreParam ? navigate(-1) : setTrabajoActivo(null)
-          }
-        >
+        <button className={styles.btnVolver} onClick={() => solNombreParam ? navigate(-1) : setTrabajoActivo(null)}>
           <IconoVolver size={20} />
         </button>
         <span className={styles.headerTitulo}>Calificar servicio</span>
@@ -461,23 +339,15 @@ export default function Calificacion() {
         <section className={styles.trabajoCard}>
           <div className={styles.trabajoAvatar}>
             {trabajoActivo?.solucionador?.inicial || SOLUCIONADOR.inicial}
-            <span className={styles.trabajoNivel}>
-              {trabajoActivo?.solucionador?.nivel || SOLUCIONADOR.nivel}
-            </span>
+            <span className={styles.trabajoNivel}>{trabajoActivo?.solucionador?.nivel || SOLUCIONADOR.nivel}</span>
           </div>
           <div className={styles.trabajoInfo}>
-            <p className={styles.trabajoNombre}>
-              {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}
-            </p>
+            <p className={styles.trabajoNombre}>{trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}</p>
             <p className={styles.trabajoOficio}>
-              {trabajoActivo?.solucionador?.oficio || SOLUCIONADOR.oficio} ·{" "}
-              {trabajoActivo?.trabajo?.descripcion ||
-                trabajoActivo?.descripcion ||
-                TRABAJO.titulo}
+              {trabajoActivo?.solucionador?.oficio || SOLUCIONADOR.oficio} · {trabajoActivo?.trabajo?.descripcion || trabajoActivo?.descripcion || TRABAJO.titulo}
             </p>
             <p className={styles.trabajoFecha}>
-              {trabajoActivo?.fecha || TRABAJO.fecha} ·{" "}
-              {trabajoActivo?.trabajo?.monto || TRABAJO.monto}
+              {trabajoActivo?.fecha || TRABAJO.fecha} · {trabajoActivo?.trabajo?.monto || TRABAJO.monto}
             </p>
           </div>
         </section>
@@ -506,19 +376,9 @@ export default function Calificacion() {
             <div className={styles.aspectosLista}>
               {ASPECTOS.map((aspecto) => (
                 <div key={aspecto.id} className={styles.aspectoFila}>
-                  <div
-                    className={styles.aspectoLabel}
-                    style={{ flex: 1, minWidth: 0 }}
-                  >
+                  <div className={styles.aspectoLabel} style={{ flex: 1, minWidth: 0 }}>
                     <span className={styles.aspectoIcono}>{aspecto.icono}</span>
-                    <span
-                      className={styles.aspectoNombre}
-                      style={{
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
+                    <span className={styles.aspectoNombre} style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                       {aspecto.label}
                     </span>
                   </div>
@@ -613,9 +473,8 @@ export default function Calificacion() {
               <AlertTriangle size={14} />
             </span>
             <p>
-              Tu calificación será pública en el perfil de{" "}
-              {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre} y
-              afectará su posición en el posicionamiento en TeePee.
+              Tu calificación será pública en el perfil de {trabajoActivo?.solucionador?.nombre || SOLUCIONADOR.nombre}{" "}
+              y afectará su posición en el posicionamiento en TeePee.
             </p>
           </div>
         )}

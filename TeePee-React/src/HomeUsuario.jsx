@@ -18,8 +18,8 @@ import { IconoCampana, IconoConfig } from "./Iconos";
 
 
 const USUARIO = {
-  nombre: "Martín García",
-  inicial: "M",
+  nombre: "Laura Pérez",
+  inicial: "L",
   reputacion: 4.8,
   totalTrabajos: 12,
 };
@@ -39,7 +39,7 @@ const TRABAJOS_ACTIVOS = [
   {
     id: 2,
     solucionador: "Ana Rodríguez",
-    oficio: "Electricista",
+    oficio: "Plomero",
     descripcion: "Instalación de toma corrientes cocina",
     horario: "Mañana 10:00 hs",
     etapaActual: 1,
@@ -49,7 +49,7 @@ const TRABAJOS_ACTIVOS = [
   },
   {
     id: 3,
-    solucionador: "Miguel Torres",
+    solucionador: "Carlos Mendoza",
     oficio: "Pintor",
     descripcion: "Pintura living y comedor",
     horario: "Vie 09:00 hs",
