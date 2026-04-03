@@ -97,9 +97,10 @@ const TRABAJOS = [
 ];
 
 const HORARIOS_DISPONIBILIDAD = [
-  { id: "manana", label: "Mañana", rango: "08:00 – 12:00" },
-  { id: "tarde", label: "Tarde", rango: "13:00 – 18:00" },
-  { id: "noche", label: "Noche", rango: "18:00 – 21:00" },
+  { id: "manana",  label: "Mañana", rango: "7:00 – 12:00" },
+  { id: "siesta",  label: "Siesta", rango: "12:00 – 15:00" },
+  { id: "tarde",   label: "Tarde",  rango: "15:00 – 19:00" },
+  { id: "noche",   label: "Noche",  rango: "19:00 – 21:00" },
 ];
 
 const ESTADO_CONFIG = {
@@ -299,17 +300,25 @@ export default function Agenda() {
         {/* ── DISPONIBILIDAD ── */}
         <section className={styles.disponibilidadCard}>
           <div className={styles.disponibilidadHeader}>
-            <span className={styles.disponibilidadTitulo}>
-              Mi disponibilidad
-            </span>
+            <div>
+              <span className={styles.disponibilidadTitulo}>
+                Disponibilidad del día
+              </span>
+              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "2px 0 0", fontFamily: "var(--fuente)" }}>
+                {diaActual?.esHoy ? "Hoy" : diaActual ? `${diaActual.diaNombre} ${diaActual.diaNum}` : "—"} · Solo aplica a este día
+              </p>
+            </div>
             <button
               type="button"
               className={styles.disponibilidadGuardar}
-              onClick={() => mostrarToast("✅ Disponibilidad guardada")}
+              onClick={() => mostrarToast("✅ Disponibilidad del día guardada")}
             >
               Guardar
             </button>
           </div>
+          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 8px", fontFamily: "var(--fuente)", lineHeight: 1.5 }}>
+            No modifica tu disponibilidad general de perfil
+          </p>
           <div className={styles.disponibilidadOpciones}>
             {HORARIOS_DISPONIBILIDAD.map((h) => (
               <button

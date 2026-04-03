@@ -131,7 +131,7 @@ export default function Busqueda() {
   const [horariosSeleccionados, setHorariosSeleccionados] = useState([]);
   const [horasPuntuales, setHorasPuntuales] = useState({});
   const [direccion, setDireccion] = useState(DOMICILIOS_USUARIO.find(d => d.principal)?.direccion || "");
-  const [editandoDireccion, setEditandoDireccion] = useState(false);
+  const [direccionManual, setDireccionManual] = useState("");
   const [toast, setToast] = useState(null);
 
   function mostrarToast(mensaje) {
@@ -429,72 +429,60 @@ export default function Busqueda() {
           <section className={styles.campoBloque}>
             <p className={styles.campoLabel}>Dirección del servicio</p>
 
-            {/* Domicilios guardados del perfil */}
-            {!editandoDireccion && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 8 }}>
-                {DOMICILIOS_USUARIO.map(d => (
-                  <button key={d.id} type="button"
-                    onClick={() => setDireccion(d.direccion)}
-                    style={{
-                      display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                      borderRadius: "var(--r-md)", border: "none", cursor: "pointer",
-                      fontFamily: "var(--fuente)", textAlign: "left",
-                      background: direccion === d.direccion ? "var(--tp-marron)" : "rgba(61,31,31,0.06)",
-                    }}>
-                    <span style={{ fontSize: 16 }}>📍</span>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, margin: 0,
-                        color: direccion === d.direccion ? "var(--tp-crema)" : "var(--tp-marron)" }}>
-                        {d.label}
-                      </p>
-                      <p style={{ fontSize: 11, margin: 0,
-                        color: direccion === d.direccion ? "rgba(240,234,214,0.70)" : "var(--tp-marron-suave)" }}>
-                        {d.direccion}
-                      </p>
-                    </div>
-                    {direccion === d.direccion && (
-                      <span style={{ fontSize: 14, color: "var(--tp-crema)" }}>✓</span>
-                    )}
-                  </button>
-                ))}
-                <button type="button"
-                  onClick={() => setEditandoDireccion(true)}
-                  style={{ padding: "8px 12px", borderRadius: "var(--r-md)", border: "1px dashed rgba(61,31,31,0.20)", background: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, color: "var(--tp-marron-suave)", textAlign: "left" }}>
-                  ✏️ Ingresar otra dirección
-                </button>
-              </div>
-            )}
-
-            {/* Edición manual */}
-            {editandoDireccion && (
-              <div>
-                <div className={styles.direccionInput} style={{ border: "2px solid var(--tp-rojo)", borderRadius: "var(--r-md)", background: "var(--tp-crema)" }}>
-                  <span className={styles.direccionIcono}>📍</span>
-                  <input type="text" className={styles.direccionCampo}
-                    placeholder="Ej: Av. Mitre 1240, Posadas"
-                    value={direccion}
-                    onChange={e => setDireccion(e.target.value)}
-                    autoFocus
-                  />
-                </div>
-                {direccion && (
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, padding: "7px 10px", borderRadius: "var(--r-md)", background: "rgba(184,64,48,0.08)", border: "1px solid rgba(184,64,48,0.25)" }}>
-                    <span style={{ fontSize: 13 }}>📍</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-rojo)", fontFamily: "var(--fuente)" }}>{direccion}</span>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              {/* Domicilios guardados — siempre visibles, toggle al tocar */}
+              {DOMICILIOS_USUARIO.map(d => (
+                <button key={d.id} type="button"
+                  onClick={() => setDireccion(prev => prev === d.direccion ? "" : d.direccion)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
+                    borderRadius: "var(--r-md)", border: "none", cursor: "pointer",
+                    fontFamily: "var(--fuente)", textAlign: "left",
+                    background: direccion === d.direccion ? "var(--tp-marron)" : "rgba(61,31,31,0.06)",
+                  }}>
+                  <span style={{ fontSize: 16 }}>📍</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 12, fontWeight: 700, margin: 0,
+                      color: direccion === d.direccion ? "var(--tp-crema)" : "var(--tp-marron)" }}>
+                      {d.label}
+                    </p>
+                    <p style={{ fontSize: 11, margin: 0,
+                      color: direccion === d.direccion ? "rgba(240,234,214,0.70)" : "var(--tp-marron-suave)" }}>
+                      {d.direccion}
+                    </p>
                   </div>
-                )}
-                <button type="button"
-                  onClick={() => setEditandoDireccion(false)}
-                  style={{ fontSize: 11, color: "var(--tp-rojo)", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", marginTop: 6 }}>
-                  ← Usar domicilio guardado
+                  {direccion === d.direccion && (
+                    <span style={{ fontSize: 14, color: "var(--tp-crema)" }}>✓</span>
+                  )}
                 </button>
-              </div>
-            )}
+              ))}
 
-            <button type="button" className={styles.btnUbicacion}
-              onClick={() => { setDireccion("Ubicación actual"); setEditandoDireccion(false); mostrarToast("Usando tu ubicación actual"); }}>
-              🎯 Usar mi ubicación actual
-            </button>
+              {/* Otra dirección — siempre visible, se suma a las guardadas */}
+              <div style={{ borderRadius: "var(--r-md)", border: direccionManual ? "2px solid var(--tp-rojo)" : "1px dashed rgba(61,31,31,0.20)", background: "var(--tp-crema)", overflow: "hidden" }}>
+                <div className={styles.direccionInput} style={{ border: "none", background: "none" }}>
+                  <span className={styles.direccionIcono}>✏️</span>
+                  <input type="text" className={styles.direccionCampo}
+                    placeholder="Ingresar otra dirección..."
+                    value={direccionManual}
+                    onChange={e => {
+                      setDireccionManual(e.target.value);
+                      if (e.target.value) setDireccion(e.target.value);
+                    }}
+                  />
+                  {direccionManual && (<>
+                    <button type="button" onClick={() => { setDireccion(direccionManual); }}
+                      style={{ border: "none", background: "none", cursor: "pointer", color: "var(--verde)", fontSize: 18, padding: "0 2px", fontWeight: 900 }}>✓</button>
+                    <button type="button" onClick={() => { setDireccionManual(""); setDireccion(""); }}
+                      style={{ border: "none", background: "none", cursor: "pointer", color: "var(--tp-marron-suave)", fontSize: 16, padding: "0 4px" }}>✕</button>
+                  </>)}
+                </div>
+              </div>
+
+              <button type="button" className={styles.btnUbicacion}
+                onClick={() => { setDireccion("Ubicación actual"); setDireccionManual(""); mostrarToast("Usando tu ubicación actual"); }}>
+                🎯 Usar mi ubicación actual
+              </button>
+            </div>
           </section>
 
           {/* Domicilio seleccionado — confirmación visible */}
@@ -513,11 +501,7 @@ export default function Busqueda() {
                   {direccion}
                 </p>
               </div>
-              <button type="button"
-                onClick={() => setEditandoDireccion(true)}
-                style={{ fontSize: 11, color: "rgba(240,234,214,0.65)", background: "none", border: "1px solid rgba(240,234,214,0.25)", borderRadius: 20, padding: "3px 8px", cursor: "pointer", fontFamily: "var(--fuente)", flexShrink: 0 }}>
-                Cambiar
-              </button>
+
             </div>
           )}
 

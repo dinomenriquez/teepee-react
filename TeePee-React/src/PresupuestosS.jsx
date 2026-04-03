@@ -139,6 +139,12 @@ const ESTADO = {
 };
 
 // ── FORMULARIO ─────────────────────────────────────────────────
+// Formato monetario argentino: punto en miles, coma en decimales
+function fmt(n) {
+  if (!n && n !== 0) return "";
+  return Number(n).toLocaleString("es-AR", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+}
+
 function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
   const [paso, setPaso]             = useState(1);
   const [tipo, setTipo]             = useState("cerrado");
@@ -153,34 +159,54 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
   const [modalVisita, setModalVisita] = useState(false);
   const [costoVisita, setCostoVisita] = useState("");
   const [enviandoChat, setEnviandoChat] = useState(false);
+  const [mostrarVisita, setMostrarVisita] = useState(false);
+  const [anticipo, setAnticipo]           = useState("30");
+  const [items, setItems]                 = useState([]); // items del presupuesto
+  const [mostrarItems, setMostrarItems]   = useState(false);
   const sol = solicitud.solicitud;
+  const COM = 0.06;
+  const montoNum = tipo === "cerrado" ? Number(monto) :
+    (montoMin && montoMax ? (Number(montoMin) + Number(montoMax)) / 2 : 0);
+  const montoItemizado = items.reduce((s, i) => s + (Number(i.precio) * Number(i.cantidad || 1)), 0);
+  const montoBase = mostrarItems && montoItemizado > 0 ? montoItemizado : montoNum;
+  const netoSol = Math.round(montoBase * (1 - COM));
+  const comisionApp = Math.round(montoBase * COM);
 
   const etapasOpciones = [
-    { id: "total",   label: "100%",        sub: "Pago total al finalizar" },
-    { id: "5050",    label: "50 / 50",     sub: "Anticipo + cierre" },
-    { id: "304030",  label: "30 / 40 / 30", sub: "Anticipo + avance + cierre" },
-    { id: "custom",  label: "A convenir",  sub: "Lo definís con el cliente" },
+    { id: "total",    label: "100% al cierre",              sub: "Pago total al finalizar el trabajo" },
+    { id: "anticipo", label: "Anticipo + saldo al cierre",  sub: "El cliente propone el % de anticipo" },
+    { id: "etapas",   label: "Anticipo + avance + cierre",  sub: "Pago en 3 etapas según avance" },
+    { id: "convenir", label: "A convenir",                  sub: "Lo definís directamente con el cliente" },
   ];
 
   const montoFinal = tipo === "cerrado"
-    ? (monto ? `$${Number(monto).toLocaleString()}` : "")
-    : (montoMin && montoMax ? `$${Number(montoMin).toLocaleString()} – $${Number(montoMax).toLocaleString()}` : "");
+    ? (monto ? `$${fmt(monto)}` : "")
+    : (montoMin && montoMax ? `$${fmt(montoMin)} – $${fmt(montoMax)}` : "");
 
-  const paso1Completo = tipo === "cerrado" ? !!monto : !!(montoMin && montoMax);
+  const paso1Completo = tipo === "cerrado" ? !!monto : true; // visita: monto opcional
 
   function enviarAlChat() {
     setEnviandoChat(true);
-    const montoEncode = encodeURIComponent(montoFinal || "A convenir");
+    const montoBase2 = mostrarItems && montoItemizado > 0 ? montoItemizado : montoNum;
+    const montoDisplay = tipo === "cerrado"
+      ? (mostrarItems && montoItemizado > 0 ? `$${fmt(montoItemizado)}` : monto ? `$${fmt(monto)}` : "A confirmar")
+      : (montoMin || montoMax ? `$${fmt(montoMin)} – $${fmt(montoMax)}` : "A confirmar tras la visita");
+    const montoEncode = encodeURIComponent(montoDisplay);
     const etapasEncode = encodeURIComponent(
-      etapas === "total" ? "Pago total" :
-      etapas === "5050" ? "50% anticipo · 50% cierre" :
-      etapas === "304030" ? "30% anticipo · 40% avance · 30% cierre" :
+      etapas === "total"    ? "100% al cierre del trabajo" :
+      etapas === "anticipo" ? `Anticipo ${anticipo}% + saldo al cierre` :
+      etapas === "etapas"   ? `Anticipo ${anticipo}% + avance + cierre` :
       "A convenir con el cliente"
     );
-    const garantiaEncode = encodeURIComponent(garantia === "0" ? "Sin garantía" : `${garantia} días`);
-    const matEncode = encodeURIComponent(materiales ? "Incluidos" : "No incluidos");
+    const garantiaEncode = encodeURIComponent(garantia === "0" ? "Sin garantía" : `Garantía ${garantia} días`);
+    const matEncode = encodeURIComponent(materiales ? "Materiales incluidos" : "Materiales no incluidos");
+    const tipoEncode = encodeURIComponent(tipo === "cerrado" ? (mostrarItems ? "Precio itemizado" : "Precio fijo") : "Con visita previa");
+    const descEncode = encodeURIComponent(descripcionTrabajo);
+    const itemsEncode = mostrarItems ? encodeURIComponent(JSON.stringify(items)) : "";
+    const visitaEncode = encodeURIComponent(costoVisita ? `$${fmt(costoVisita)}` : "");
+    const netoEncode = encodeURIComponent(`$${fmt(Math.round(montoBase2 * 0.94))}`);
     setTimeout(() => {
-      navigate(`/chat-s?usuarioId=1&nombre=${encodeURIComponent(solicitud.cliente)}&inicial=${solicitud.inicial}&mensaje=presupuesto&monto=${montoEncode}&etapas=${etapasEncode}&garantia=${garantiaEncode}&materiales=${matEncode}`);
+      navigate(`/chat-s?usuarioId=1&nombre=${encodeURIComponent(solicitud.cliente)}&inicial=${solicitud.inicial}&mensaje=presupuesto&monto=${montoEncode}&etapas=${etapasEncode}&garantia=${garantiaEncode}&materiales=${matEncode}&tipo=${tipoEncode}&desc=${descEncode}&neto=${netoEncode}&visita=${visitaEncode}`);
     }, 400);
   }
 
@@ -299,11 +325,11 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
             <p style={sLabel}>¿Cómo es el precio?</p>
             <div style={{ display: "flex", gap: 8 }}>
               {[
-                { id: "cerrado",  emoji: "🔒", titulo: "Precio fijo",  sub: "Monto exacto" },
-                { id: "estimado", emoji: "🔍", titulo: "Con visita",   sub: "Requiere ver el trabajo" },
+                { id: "cerrado",  emoji: "🔒", titulo: "Precio fijo",              sub: "Monto exacto acordado" },
+                { id: "estimado", emoji: "🔍", titulo: "Precio con visita previa", sub: "Se confirma luego de ver el trabajo" },
               ].map(op => (
                 <button key={op.id} type="button"
-                  onClick={() => { setTipo(op.id); if (op.id === "estimado") setModalVisita(true); }}
+                  onClick={() => { setTipo(op.id); if (op.id === "estimado") setMostrarVisita(true); }}
                   style={{
                     flex: 1, padding: 12, borderRadius: "var(--r-md)", cursor: "pointer",
                     fontFamily: "var(--fuente)", textAlign: "center", border: "none",
@@ -316,39 +342,126 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
                 </button>
               ))}
             </div>
+
+            {/* Costo de visita — segundo nivel, compacto */}
+            {tipo === "estimado" && (
+              <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: "var(--r-md)", background: "rgba(61,31,31,0.04)", border: "1px dashed rgba(61,31,31,0.15)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Costo de visita (opcional)</span>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 4, flex: 1 }}>
+                    <span style={{ fontSize: 14, color: "var(--tp-marron-suave)" }}>$</span>
+                    <input type="number" placeholder="0 = gratis"
+                      value={costoVisita} onChange={e => setCostoVisita(e.target.value)}
+                      style={{ flex: 1, fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
+                  </div>
+                </div>
+                <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)", lineHeight: 1.5 }}>
+                  El costo de visita está incluido en el monto total acordado. Si el cliente no acepta el presupuesto luego de la visita, se cobra aparte.
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Monto */}
           <div style={sCard}>
-            <p style={sLabel}>{tipo === "cerrado" ? "Monto total" : "Rango estimado"}</p>
+            <p style={sLabel}>{tipo === "cerrado" ? "Monto total" : "Rango estimado (opcional)"}</p>
+
             {tipo === "cerrado" ? (
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span style={{ fontSize: 24, color: "var(--tp-marron-suave)", fontWeight: 300 }}>$</span>
-                <input type="number" placeholder="0"
-                  value={monto} onChange={e => setMonto(e.target.value)}
-                  style={{ flex: 1, fontSize: 32, fontWeight: 900, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
-              </div>
+              <>
+                {/* Opción itemizado o monto único */}
+                <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
+                  {[false, true].map(v => (
+                    <button key={String(v)} type="button" onClick={() => setMostrarItems(v)}
+                      style={{ flex: 1, padding: "6px 0", borderRadius: 8, border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 11, fontWeight: 600,
+                        background: mostrarItems === v ? "var(--tp-marron)" : "rgba(61,31,31,0.06)",
+                        color: mostrarItems === v ? "var(--tp-crema)" : "var(--tp-marron-suave)" }}>
+                      {v ? "📋 Itemizado" : "💰 Monto total"}
+                    </button>
+                  ))}
+                </div>
+
+                {!mostrarItems ? (
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
+                    <span style={{ fontSize: 24, color: "var(--tp-marron-suave)", fontWeight: 300 }}>$</span>
+                    <input type="number" placeholder="0"
+                      value={monto} onChange={e => setMonto(e.target.value)}
+                      style={{ flex: 1, fontSize: 32, fontWeight: 900, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
+                  </div>
+                ) : (
+                  <div>
+                    {/* Encabezados */}
+                  <div style={{ display: "flex", gap: 6, marginBottom: 4 }}>
+                    <span style={{ flex: 2, fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)", textTransform: "uppercase", letterSpacing: "0.4px" }}>Detalle ítem</span>
+                    <span style={{ width: 50, fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)", textTransform: "uppercase", textAlign: "center" }}>Cant.</span>
+                    <span style={{ flex: 1, fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)", textTransform: "uppercase" }}>Precio unit.</span>
+                    <span style={{ width: 20 }} />
+                  </div>
+                  {items.map((item, i) => (
+                      <div key={i} style={{ display: "flex", gap: 6, marginBottom: 6, alignItems: "center" }}>
+                        <input type="text" placeholder="Descripción" value={item.desc}
+                          onChange={e => setItems(prev => prev.map((x, j) => j === i ? { ...x, desc: e.target.value } : x))}
+                          style={{ flex: 2, padding: "6px 8px", borderRadius: 8, border: "1px solid rgba(61,31,31,0.15)", fontFamily: "var(--fuente)", fontSize: 12, background: "var(--tp-crema)", color: "var(--tp-marron)", outline: "none" }} />
+                        <input type="number" placeholder="Cant." value={item.cantidad}
+                          onChange={e => setItems(prev => prev.map((x, j) => j === i ? { ...x, cantidad: e.target.value } : x))}
+                          style={{ width: 50, padding: "6px 6px", borderRadius: 8, border: "1px solid rgba(61,31,31,0.15)", fontFamily: "var(--fuente)", fontSize: 12, background: "var(--tp-crema)", color: "var(--tp-marron)", outline: "none", textAlign: "center" }} />
+                        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 2, padding: "4px 8px", borderRadius: 8, border: "1px solid rgba(61,31,31,0.15)", background: "var(--tp-crema)" }}>
+                          <span style={{ fontSize: 12, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>$</span>
+                          <input type="number" placeholder="0" value={item.precio}
+                            onChange={e => setItems(prev => prev.map((x, j) => j === i ? { ...x, precio: e.target.value } : x))}
+                            style={{ width: "100%", border: "none", background: "none", fontFamily: "var(--fuente)", fontSize: 12, color: "var(--tp-marron)", outline: "none" }} />
+                        </div>
+                        <button type="button" onClick={() => setItems(prev => prev.filter((_, j) => j !== i))}
+                          style={{ border: "none", background: "none", cursor: "pointer", color: "var(--tp-rojo)", fontSize: 16 }}>✕</button>
+                      </div>
+                    ))}
+                    <button type="button" onClick={() => setItems(prev => [...prev, { desc: "", cantidad: "1", precio: "" }])}
+                      style={{ fontSize: 12, color: "var(--tp-rojo)", border: "none", background: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontWeight: 600 }}>
+                      + Agregar ítem
+                    </button>
+                    {montoItemizado > 0 && (
+                      <div style={{ marginTop: 8, display: "flex", justifyContent: "space-between", borderTop: "1px dashed rgba(61,31,31,0.12)", paddingTop: 8 }}>
+                        <span style={{ fontSize: 12, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Total itemizado</span>
+                        <span style={{ fontSize: 16, fontWeight: 900, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>${fmt(montoItemizado)}</span>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             ) : (
+              // Visita previa — rango opcional
               <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", alignItems: "center", gap: 8 }}>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
                   <span style={{ fontSize: 13, color: "var(--tp-marron-suave)", flexShrink: 0 }}>$ mín</span>
-                  <input type="number" placeholder="0" value={montoMin}
+                  <input type="number" placeholder="optativo" value={montoMin}
                     onChange={e => setMontoMin(e.target.value)}
-                    style={{ width: "100%", fontSize: 18, fontWeight: 800, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
+                    style={{ width: "100%", fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
                 </div>
                 <span style={{ color: "var(--tp-marron-suave)", flexShrink: 0 }}>—</span>
                 <div style={{ display: "flex", alignItems: "baseline", gap: 4 }}>
                   <span style={{ fontSize: 13, color: "var(--tp-marron-suave)", flexShrink: 0 }}>$ máx</span>
-                  <input type="number" placeholder="0" value={montoMax}
+                  <input type="number" placeholder="optativo" value={montoMax}
                     onChange={e => setMontoMax(e.target.value)}
-                    style={{ width: "100%", fontSize: 18, fontWeight: 800, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
+                    style={{ width: "100%", fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)" }} />
                 </div>
               </div>
             )}
-            {costoVisita && tipo === "estimado" && (
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>
-                + ${Number(costoVisita).toLocaleString()} costo de visita (se descuenta del total)
-              </p>
+
+            {/* Desglose neto/comisión */}
+            {montoBase > 0 && (
+              <div style={{ marginTop: 10, paddingTop: 8, borderTop: "1px dashed rgba(61,31,31,0.12)", display: "flex", flexDirection: "column", gap: 3 }}>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Tu cobro neto (94%)</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>${fmt(netoSol)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Comisión TeePee (6%)</span>
+                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>${fmt(comisionApp)}</span>
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", borderTop: "1px solid rgba(61,31,31,0.08)", paddingTop: 4, marginTop: 2 }}>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Monto total al cliente</span>
+                  <span style={{ fontSize: 14, fontWeight: 900, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>${fmt(montoBase)}</span>
+                </div>
+              </div>
             )}
           </div>
 
@@ -364,16 +477,39 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
             />
           </div>
 
+          {/* Confirmación del monto antes de continuar */}
+          {paso1Completo && (
+            <div style={{ padding: "12px 14px", borderRadius: "var(--r-md)", background: "var(--tp-marron)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(240,234,214,0.55)", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 3px", fontFamily: "var(--fuente)" }}>
+                  {tipo === "cerrado" && !mostrarItems ? "Monto total" :
+                   tipo === "cerrado" && mostrarItems ? "Total itemizado" :
+                   "Precio con visita previa"}
+                </p>
+                <p style={{ fontSize: 20, fontWeight: 900, color: "var(--tp-crema)", margin: 0, fontFamily: "var(--fuente)" }}>
+                  {tipo === "cerrado" && !mostrarItems && monto ? `$${fmt(monto)}` :
+                   tipo === "cerrado" && mostrarItems && montoItemizado > 0 ? `$${fmt(montoItemizado)}` :
+                   tipo === "estimado" && (montoMin || montoMax) ? `$${fmt(montoMin)} – $${fmt(montoMax)}` :
+                   tipo === "estimado" ? "A confirmar tras la visita" :
+                   "—"}
+                </p>
+              </div>
+              <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", fontFamily: "var(--fuente)" }}>
+                {tipo === "cerrado" ? `Neto: $${fmt(netoSol)}` : costoVisita ? `Visita: $${fmt(costoVisita)}` : ""}
+              </span>
+            </div>
+          )}
+
           <button type="button"
             disabled={!paso1Completo}
             onClick={() => setPaso(2)}
             style={{
               width: "100%", padding: 16, borderRadius: "var(--r-md)", cursor: paso1Completo ? "pointer" : "not-allowed",
               fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700, border: "none",
-              background: paso1Completo ? "var(--tp-marron)" : "rgba(61,31,31,0.15)",
+              background: paso1Completo ? "var(--tp-rojo)" : "rgba(61,31,31,0.15)",
               color: paso1Completo ? "var(--tp-crema)" : "var(--tp-marron-suave)",
             }}>
-            Continuar →
+            Continuar con este monto →
           </button>
         </div>
       )}
@@ -395,7 +531,7 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
 
           {/* Forma de cobro */}
           <div style={sCard}>
-            <p style={sLabel}>¿Cómo cobrás?</p>
+            <p style={sLabel}>Forma de cobro</p>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {etapasOpciones.map(op => (
                 <button key={op.id} type="button" onClick={() => setEtapas(op.id)}
@@ -417,6 +553,24 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
                 </button>
               ))}
             </div>
+
+            {/* Anticipo — input de % cuando aplica */}
+            {(etapas === "anticipo" || etapas === "etapas") && (
+              <div style={{ marginTop: 10, padding: "10px 12px", borderRadius: "var(--r-md)", background: "rgba(61,31,31,0.04)", border: "1px solid rgba(61,31,31,0.08)" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", margin: "0 0 6px", fontFamily: "var(--fuente)" }}>
+                  % de anticipo propuesto
+                </p>
+                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                  <input type="range" min={10} max={50} step={5}
+                    value={anticipo} onChange={e => setAnticipo(e.target.value)}
+                    style={{ flex: 1, accentColor: "var(--tp-rojo)" }} />
+                  <span style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-rojo)", fontFamily: "var(--fuente)", minWidth: 40, textAlign: "right" }}>{anticipo}%</span>
+                </div>
+                <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: "4px 0 0", fontFamily: "var(--fuente)" }}>
+                  El cliente deberá aceptar o proponer un % diferente
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Garantía + Materiales */}

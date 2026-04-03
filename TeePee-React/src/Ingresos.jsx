@@ -4,17 +4,10 @@ import NavInferiorS from "./NavInferiorS";
 import styles from "./Ingresos.module.css";
 import { IconoVolver, IconoPerfil } from "./Iconos";
 
-const NIVELES = [
-  { id: "bronce", label: "Bronce", comision: 10, desde: 0, hasta: 50000 },
-  { id: "plata", label: "Plata", comision: 8, desde: 50000, hasta: 150000 },
-  { id: "oro", label: "Oro", comision: 6, desde: 150000, hasta: 300000 },
-  { id: "elite", label: "Élite", comision: 4, desde: 300000, hasta: null },
-];
-
 const SEMANAS = [
   {
     id: 1,
-    label: "Semana del 4 al 8 Mar",
+    label: "Semana del 4 al 10 Mar",
     total: 87200,
     liquidado: true,
     trabajos: [
@@ -43,7 +36,7 @@ const SEMANAS = [
   },
   {
     id: 2,
-    label: "Semana del 25 Feb al 1 Mar",
+    label: "Semana del 25 Feb al 3 Mar",
     total: 64500,
     liquidado: true,
     trabajos: [
@@ -65,7 +58,7 @@ const SEMANAS = [
   },
   {
     id: 3,
-    label: "Semana del 18 al 22 Feb",
+    label: "Semana del 18 al 24 Feb",
     total: 45000,
     liquidado: true,
     trabajos: [
@@ -80,16 +73,14 @@ const SEMANAS = [
   },
 ];
 
-const NIVEL_ACTUAL = NIVELES[1]; // Plata
 const INGRESOS_MES = 196700;
-const PROXIMO_NIVEL = NIVELES[2]; // Oro
-const FALTAN = PROXIMO_NIVEL.desde - INGRESOS_MES;
 
 export default function Ingresos() {
   const navigate = useNavigate();
   const [semanaAbierta, setSemanaAbierta] = useState(1);
 
-  const comisionMes = Math.round(INGRESOS_MES * (NIVEL_ACTUAL.comision / 100));
+  const COM = 0.06;
+  const comisionMes = Math.round(INGRESOS_MES * COM);
   const netoMes = INGRESOS_MES - comisionMes;
 
   return (
@@ -108,91 +99,10 @@ export default function Ingresos() {
           <p className={styles.heroLabel}>Ingresos netos este mes</p>
           <p className={styles.heroMonto}>${netoMes.toLocaleString("es-AR")}</p>
           <p className={styles.heroBruto}>
-            Bruto: ${INGRESOS_MES.toLocaleString("es-AR")} — Comisión{" "}
-            {NIVEL_ACTUAL.comision}%: -${comisionMes.toLocaleString("es-AR")}
+            Bruto: ${INGRESOS_MES.toLocaleString("es-AR")} · Comisión 6%: -$
+            {comisionMes.toLocaleString("es-AR")}
           </p>
-
-          {/* Nivel actual */}
-          <div className={styles.nivelRow}>
-            <span className={styles.nivelBadge}>
-              {NIVEL_ACTUAL.id === "bronce"
-                ? "🥉"
-                : NIVEL_ACTUAL.id === "plata"
-                  ? "🥈"
-                  : NIVEL_ACTUAL.id === "oro"
-                    ? "🥇"
-                    : "💎"}{" "}
-              {NIVEL_ACTUAL.label}
-            </span>
-            <span className={styles.nivelComision}>
-              Comisión {NIVEL_ACTUAL.comision}%
-            </span>
-          </div>
-
-          {/* Progreso hacia próximo nivel */}
-          {PROXIMO_NIVEL && (
-            <div className={styles.progresoBloque}>
-              <div className={styles.progresoLabels}>
-                <span className={styles.progresoTexto}>
-                  Faltan ${FALTAN.toLocaleString("es-AR")} para{" "}
-                  {PROXIMO_NIVEL.label}
-                </span>
-                <span className={styles.progresoPct}>
-                  {Math.round((INGRESOS_MES / PROXIMO_NIVEL.desde) * 100)}%
-                </span>
-              </div>
-              <div className={styles.progresoBarra}>
-                <div
-                  className={styles.progresoRelleno}
-                  style={{
-                    width: `${Math.min(
-                      (INGRESOS_MES / PROXIMO_NIVEL.desde) * 100,
-                      100,
-                    )}%`,
-                  }}
-                />
-              </div>
-            </div>
-          )}
         </div>
-
-        {/* ── ESCALA DE COMISIONES ── */}
-        <section className={styles.seccion}>
-          <h2 className={styles.seccionTitulo}>Escala de comisiones</h2>
-          <div className={styles.escalaLista}>
-            {NIVELES.map((n) => (
-              <div
-                key={n.id}
-                className={`${styles.escalaItem} ${
-                  n.id === NIVEL_ACTUAL.id ? styles.escalaItemActivo : ""
-                }`}
-              >
-                <span className={styles.escalaIcono}>
-                  {n.id === "bronce"
-                    ? "🥉"
-                    : n.id === "plata"
-                      ? "🥈"
-                      : n.id === "oro"
-                        ? "🥇"
-                        : "💎"}
-                </span>
-                <span className={styles.escalaLabel}>{n.label}</span>
-                <span className={styles.escalaRango}>
-                  {n.hasta
-                    ? `$${(n.desde / 1000).toFixed(0)}k – $${(n.hasta / 1000).toFixed(0)}k`
-                    : `+$${(n.desde / 1000).toFixed(0)}k`}
-                </span>
-                <span
-                  className={`${styles.escalaComision} ${
-                    n.id === NIVEL_ACTUAL.id ? styles.escalaComisionActiva : ""
-                  }`}
-                >
-                  {n.comision}%
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
 
         {/* ── CUENTA CORRIENTE ── */}
         <section className={styles.seccion}>
@@ -242,7 +152,7 @@ export default function Ingresos() {
                           ${t.bruto.toLocaleString("es-AR")}
                         </span>
                         <span className={styles.trabajoComision}>
-                          -{t.comision.toLocaleString("es-AR")}
+                          Comisión 6%: -{t.comision.toLocaleString("es-AR")}
                         </span>
                         <span className={styles.trabajoNeto}>
                           ${t.neto.toLocaleString("es-AR")}

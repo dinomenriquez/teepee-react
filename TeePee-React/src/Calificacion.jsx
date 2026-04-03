@@ -101,6 +101,16 @@ export default function Calificacion() {
 
   const [trabajoActivo, setTrabajoActivo] = useState(trabajoDesdeParams); // null = lista, objeto = detalle
   const [estrellasPrincipal, setEstrellasPrincipal] = useState(0);
+  // Fórmula: 80% general + 5% calidad + 5% puntualidad + 5% comunicación + 5% limpieza
+  const calcularRating = (general, aspectos) => {
+    if (!general) return 0;
+    const cal  = aspectos.calidad       || general;
+    const pun  = aspectos.puntualidad   || general;
+    const com  = aspectos.comunicacion  || general;
+    const lim  = aspectos.limpieza      || general;
+    return Math.round((0.80 * general + 0.05 * cal + 0.05 * pun + 0.05 * com + 0.05 * lim) * 10) / 10;
+  };
+
   const [estrellasAspectos, setEstrellasAspectos] = useState({
     puntualidad: 0,
     calidad: 0,
@@ -210,6 +220,7 @@ export default function Calificacion() {
   }
 
   function enviarCalificacion() {
+    const rating = calcularRating(estrellasPrincipal, estrellasAspectos);
     if (estrellasPrincipal === 0) {
       mostrarToast("Elegí al menos una estrella");
       return;
@@ -294,7 +305,7 @@ export default function Calificacion() {
                 Impacto en la reputación de Juan
               </p>
               <p className={styles.impactoDesc}>
-                Tu calificación de {estrellasPrincipal} estrellas actualiza su
+                Puntaje calculado: ⭐ {calcularRating(estrellasPrincipal, estrellasAspectos)} · Tu calificación actualiza su
                 reputación en tiempo real
               </p>
             </div>

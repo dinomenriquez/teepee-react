@@ -1,4 +1,4 @@
-import { getTrabajosDeUsuario, getSolucionador } from "./MockData";
+import { getTrabajosDeUsuario, getSolucionador } from './MockData';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavInferior from "./NavInferior";
@@ -108,10 +108,10 @@ const TRABAJOS = {
 };
 
 const TABS = [
-  { id: "enCurso", label: "En curso", icono: <RefreshCw size={14} /> },
-  { id: "finalizados", label: "Finalizados", icono: <CheckCircle size={14} /> },
-  { id: "cancelados", label: "Cancelados", icono: <XCircle size={14} /> },
-  { id: "disputas", label: "Disputas", icono: <AlertTriangle size={14} /> },
+  { id: "enCurso",     label: "En curso",     icono: <RefreshCw    size={14} /> },
+  { id: "finalizados", label: "Finalizados",   icono: <CheckCircle  size={14} /> },
+  { id: "cancelados",  label: "Cancelados",    icono: <XCircle      size={14} /> },
+  { id: "disputas",    label: "Disputas",      icono: <AlertTriangle size={14} /> },
 ];
 
 export default function MisTrabajosU() {
@@ -164,22 +164,13 @@ export default function MisTrabajosU() {
         {trabajosActuales.length === 0 ? (
           <div className={styles.vacio}>
             <span className={styles.vacioIcono}>
-              {tab === "enCurso"
-                ? "🔧"
-                : tab === "finalizados"
-                  ? "✅"
-                  : tab === "cancelados"
-                    ? "🚫"
-                    : "⚖️"}
+              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : tab === "cancelados" ? "🚫" : "⚖️"}
             </span>
             <p className={styles.vacioTexto}>
-              {tab === "enCurso"
-                ? "Sin trabajos en curso"
-                : tab === "finalizados"
-                  ? "Sin trabajos finalizados"
-                  : tab === "cancelados"
-                    ? "Sin trabajos cancelados"
-                    : "Sin disputas activas"}
+              {tab === "enCurso"    ? "Sin trabajos en curso"     :
+               tab === "finalizados" ? "Sin trabajos finalizados"  :
+               tab === "cancelados"  ? "Sin trabajos cancelados"   :
+               "Sin disputas activas"}
             </p>
           </div>
         ) : (
@@ -188,10 +179,7 @@ export default function MisTrabajosU() {
               <div key={trabajo.id} className={styles.card}>
                 {/* Header del trabajo */}
                 <div className={styles.cardHeader}>
-                  <div
-                    className={styles.cardAvatar}
-                    style={{ background: trabajo.color, color: "white" }}
-                  >
+                  <div className={styles.cardAvatar} style={{ background: trabajo.color, color: "white" }}>
                     {trabajo.inicial}
                     <span className={styles.cardNivel}>{trabajo.nivel}</span>
                   </div>
@@ -205,22 +193,15 @@ export default function MisTrabajosU() {
                   <span className={styles.cardMonto}>{trabajo.monto}</span>
                 </div>
 
-                {/* EN CURSO — barra de progreso */}
-                {trabajo.estado === "en-curso" && (
+                {/* EN CURSO — barra de avance solo si hay progreso */}
+                {trabajo.estado === "en-curso" && trabajo.progreso > 0 && (
                   <div className={styles.progresoBloque}>
                     <div className={styles.progresoLabels}>
-                      <span className={styles.progresoTexto}>
-                        Etapa {trabajo.etapa} de {trabajo.totalEtapas}
-                      </span>
-                      <span className={styles.progresoPct}>
-                        {trabajo.progreso}%
-                      </span>
+                      <span className={styles.progresoTexto}>Avance de obra</span>
+                      <span className={styles.progresoPct}>{trabajo.progreso}%</span>
                     </div>
                     <div className={styles.progresoBarra}>
-                      <div
-                        className={styles.progresoRelleno}
-                        style={{ width: `${trabajo.progreso}%` }}
-                      />
+                      <div className={styles.progresoRelleno} style={{ width: `${trabajo.progreso}%` }} />
                     </div>
                   </div>
                 )}
@@ -291,22 +272,14 @@ export default function MisTrabajosU() {
                       <button
                         type="button"
                         className={styles.btnSecundario}
-                        onClick={() =>
-                          navigate(
-                            `/chat?solId=${trabajo.solucionadorId}&nombre=${encodeURIComponent(trabajo.solucionador)}&inicial=${trabajo.inicial}&oficio=${encodeURIComponent(trabajo.oficio)}&desde=mis-trabajos`,
-                          )
-                        }
+                        onClick={() => navigate(`/chat?solId=${trabajo.solucionadorId}&nombre=${encodeURIComponent(trabajo.solucionador)}&inicial=${trabajo.inicial}&oficio=${encodeURIComponent(trabajo.oficio)}&desde=mis-trabajos`)}
                       >
                         💬 Chat
                       </button>
                       <button
                         type="button"
                         className={styles.btnPrimario}
-                        onClick={() =>
-                          navigate(
-                            `/seguimiento?trabajoId=${trabajo.id}&solNombre=${encodeURIComponent(trabajo.solucionador)}&solInicial=${trabajo.inicial}&solOficio=${encodeURIComponent(trabajo.oficio)}&solColor=${encodeURIComponent(trabajo.color)}`,
-                          )
-                        }
+                        onClick={() => navigate(`/seguimiento?trabajoId=${trabajo.id}&solNombre=${encodeURIComponent(trabajo.solucionador)}&solInicial=${trabajo.inicial}&solOficio=${encodeURIComponent(trabajo.oficio)}&solColor=${encodeURIComponent(trabajo.color)}`)}
                       >
                         Ver seguimiento →
                       </button>
