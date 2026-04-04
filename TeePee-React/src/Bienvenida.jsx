@@ -449,7 +449,7 @@ export default function Bienvenida() {
 
             <div className={styles.campo}>
               <label className={styles.campoLabel}>Oficio principal</label>
-              <select className={styles.campoSelect}>
+              <select className={styles.campoSelect} value={formSolucionador.oficio} onChange={e => setFormSolucionador({...formSolucionador, oficio: e.target.value})}>
                 <option value="">Seleccioná tu oficio</option>
                 <option>Plomería</option>
                 <option>Electricidad</option>
@@ -459,6 +459,23 @@ export default function Bienvenida() {
                 <option>Aire Acondicionado</option>
                 <option>Albañilería</option>
                 <option>Limpieza</option>
+                <option>Cerrajería</option>
+                <option>Jardinería</option>
+                <option>Herrería</option>
+                <option>Soldadura</option>
+                <option>Techista</option>
+                <option>Plaquista / Durlock</option>
+                <option>Pisos y revestimientos</option>
+                <option>Vidriería</option>
+                <option>Fumigación</option>
+                <option>Mudanzas</option>
+                <option>Electricista industrial</option>
+                <option>Gasista matriculado</option>
+                <option>Refrigeración</option>
+                <option>Techos y cubiertas</option>
+                <option>Antenas y CCTV</option>
+                <option>Redes y cableado</option>
+                <option>Tapicería</option>
               </select>
             </div>
 

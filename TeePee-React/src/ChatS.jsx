@@ -5,6 +5,12 @@ import NavInferiorS from "./NavInferiorS";
 import { IconoVolver } from "./Iconos";
 import { MessageCircle, Send, Paperclip, DollarSign } from "lucide-react";
 
+function dec(val, fallback = "") {
+  if (!val) return fallback;
+  try { return dec(val); } catch { return val; }
+}
+
+
 // Chats del solucionador con sus clientes
 const CHATS_CLIENTES = [
   {
@@ -54,7 +60,8 @@ export default function ChatS() {
   const usuarioIdParam = searchParams.get("usuarioId");
   const nombreParam    = searchParams.get("nombre");
   const inicialParam   = searchParams.get("inicial");
-  const desdeParam     = searchParams.get("desde");
+  const desdeParam        = searchParams.get("desde");
+  const solicitudIdBack   = searchParams.get("solicitudId");
   const mensajeParam   = searchParams.get("mensaje");
   const montoPptoParam    = searchParams.get("monto");
   const etapasPptoParam   = searchParams.get("etapas");
@@ -71,8 +78,8 @@ export default function ChatS() {
 
   // Si viene con usuarioId o nombre, ir directo al hilo
   const clienteDirecto = usuarioIdParam || nombreParam ? {
-    nombre:  nombreParam ? decodeURIComponent(nombreParam) : CHATS_CLIENTES.find(c => c.clienteId === Number(usuarioIdParam))?.nombre || "Cliente",
-    inicial: inicialParam || (nombreParam ? decodeURIComponent(nombreParam).charAt(0) : "C"),
+    nombre:  nombreParam ? dec(nombreParam) : CHATS_CLIENTES.find(c => c.clienteId === Number(usuarioIdParam))?.nombre || "Cliente",
+    inicial: inicialParam || (nombreParam ? dec(nombreParam).charAt(0) : "C"),
     color:   "#B84030",
     clienteId: Number(usuarioIdParam) || 1,
   } : null;
@@ -92,14 +99,14 @@ export default function ChatS() {
         hora: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
         leido: false,
         presupuesto: {
-          monto:      montoPptoParam     ? decodeURIComponent(montoPptoParam)     : "A confirmar",
-          tipo:       tipoPptoParam      ? decodeURIComponent(tipoPptoParam)      : "Precio fijo",
-          etapas:     etapasPptoParam    ? decodeURIComponent(etapasPptoParam)    : "A convenir",
-          garantia:   garantiaPptoParam  ? decodeURIComponent(garantiaPptoParam)  : "Sin garantía",
-          materiales: matPptoParam       ? decodeURIComponent(matPptoParam)       : "",
-          desc:       descPptoParam      ? decodeURIComponent(descPptoParam)      : "",
-          neto:       netoPptoParam      ? decodeURIComponent(netoPptoParam)      : "",
-          visita:     visitaPptoParam    ? decodeURIComponent(visitaPptoParam)    : "",
+          monto:      montoPptoParam     ? dec(montoPptoParam)     : "A confirmar",
+          tipo:       tipoPptoParam      ? dec(tipoPptoParam)      : "Precio fijo",
+          etapas:     etapasPptoParam    ? dec(etapasPptoParam)    : "A convenir",
+          garantia:   garantiaPptoParam  ? dec(garantiaPptoParam)  : "Sin garantía",
+          materiales: matPptoParam       ? dec(matPptoParam)       : "",
+          desc:       descPptoParam      ? dec(descPptoParam)      : "",
+          neto:       netoPptoParam      ? dec(netoPptoParam)      : "",
+          visita:     visitaPptoParam    ? dec(visitaPptoParam)    : "",
         },
       }]
     : mensajeParam === "solicitud" && categoriaParam
@@ -110,10 +117,10 @@ export default function ChatS() {
         hora: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
         leido: false,
         solicitud: {
-          categoria:   categoriaParam   ? decodeURIComponent(categoriaParam)   : "",
-          descripcion: descripcionParam ? decodeURIComponent(descripcionParam) : "",
-          direccion:   direccionParam   ? decodeURIComponent(direccionParam)   : "",
-          urgencia:    urgenciaParam    ? decodeURIComponent(urgenciaParam)    : "Normal",
+          categoria:   categoriaParam   ? dec(categoriaParam)   : "",
+          descripcion: descripcionParam ? dec(descripcionParam) : "",
+          direccion:   direccionParam   ? dec(direccionParam)   : "",
+          urgencia:    urgenciaParam    ? dec(urgenciaParam)    : "Normal",
         },
       }]
     : MENSAJES_INICIALES;
@@ -139,6 +146,7 @@ export default function ChatS() {
     else if (desdeParam === "trabajos-s") navigate("/trabajos-s");
     else if (desdeParam === "agenda") navigate("/agenda");
     else if (desdeParam === "perfil-usuario-publico") navigate(-1);
+    else if (desdeParam === "presupuestos-s") navigate(`/presupuestos-s?solicitudId=${solicitudIdBack || 1}&volverPaso=1`);
     else setConvActiva(null); // vuelve a la lista de chats
   }
 

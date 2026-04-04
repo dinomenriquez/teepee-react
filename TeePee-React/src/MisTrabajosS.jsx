@@ -379,7 +379,8 @@ export default function MisTrabajosS() {
                 {/* Botones */}
                 <div className={styles.cardBotones}>
                   {(trabajo.estado === "hoy" ||
-                    trabajo.estado === "en-curso") && (
+                    trabajo.estado === "en-curso" ||
+                    trabajo.estado === "enCurso") && (
                     <>
                       <button
                         type="button"

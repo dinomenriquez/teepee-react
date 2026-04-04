@@ -5,6 +5,13 @@ import styles from "./Ingresos.module.css";
 import { IconoVolver, IconoPerfil } from "./Iconos";
 
 
+function fmt(n) {
+  const num = Number(n);
+  if (isNaN(num)) return "0";
+  const dec = num % 1 === 0 ? 0 : 2;
+  return num.toLocaleString("es-AR", { minimumFractionDigits: dec, maximumFractionDigits: 2 });
+}
+
 
 const SEMANAS = [
   {
@@ -99,9 +106,9 @@ export default function Ingresos() {
         {/* ── HERO ── */}
         <div className={styles.hero}>
           <p className={styles.heroLabel}>Ingresos netos este mes</p>
-          <p className={styles.heroMonto}>${netoMes.toLocaleString("es-AR")}</p>
+          <p className={styles.heroMonto}>${fmt(netoMes)}</p>
           <p className={styles.heroBruto}>
-            Bruto: ${INGRESOS_MES.toLocaleString("es-AR")} · Comisión 6%: -${comisionMes.toLocaleString("es-AR")}
+            Bruto: ${fmt(INGRESOS_MES)} · Comisión 6%: -${fmt(comisionMes)}
           </p>
         </div>
 
@@ -125,7 +132,7 @@ export default function Ingresos() {
                 <div className={styles.semanaHeaderLeft}>
                   <span className={styles.semanaLabel}>{semana.label}</span>
                   <span className={styles.semanaTotal}>
-                    ${semana.total.toLocaleString("es-AR")}
+                    ${fmt(semana.total)}
                   </span>
                 </div>
                 <div className={styles.semanaHeaderRight}>
@@ -150,13 +157,13 @@ export default function Ingresos() {
                       </div>
                       <div className={styles.trabajoMontos}>
                         <span className={styles.trabajoBruto}>
-                          ${t.bruto.toLocaleString("es-AR")}
+                          ${fmt(t.bruto)}
                         </span>
                         <span className={styles.trabajoComision}>
                           Comisión 6%: -{t.comision.toLocaleString("es-AR")}
                         </span>
                         <span className={styles.trabajoNeto}>
-                          ${t.neto.toLocaleString("es-AR")}
+                          ${fmt(t.neto)}
                         </span>
                       </div>
                     </div>

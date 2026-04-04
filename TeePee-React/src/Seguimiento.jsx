@@ -1,331 +1,260 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferior from "./NavInferior";
-import styles from "./Seguimiento.module.css";
 import { IconoVolver } from "./Iconos";
-import { MessageCircle, CheckCircle, Lock, Clock, ChevronDown, ChevronUp, AlertCircle } from "lucide-react";
-
+import { MessageCircle, AlertCircle, FileText } from "lucide-react";
 import { getTrabajoActivo, getSolucionador } from "./MockData";
 
-const ESTADO_PAGO = {
-  pagado:     { label: "Pagado ✓",    color: "#2A7D5A", bg: "rgba(42,125,90,0.12)"  },
-  habilitado: { label: "⚡ Pagar ahora", color: "var(--tp-rojo)", bg: "rgba(184,64,48,0.10)" },
-  bloqueado:  { label: "🔒 Bloqueado", color: "var(--tp-marron-suave)", bg: "rgba(61,31,31,0.05)" },
-};
+function fmt(n) {
+  const num = Number(n);
+  if (isNaN(num)) return "0";
+  const dec = num % 1 === 0 ? 0 : 2;
+  return num.toLocaleString("es-AR", { minimumFractionDigits: dec, maximumFractionDigits: 2 });
+}
 
 export default function Seguimiento() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const solId       = searchParams.get("solId");
-  const solNombre   = searchParams.get("solNombre");
-  const solInicial  = searchParams.get("solInicial");
-  const solOficio   = searchParams.get("solOficio");
-  const solColor    = searchParams.get("solColor");
 
-  // Cargar datos ANTES de los useState
+  const solNombre  = searchParams.get("solNombre");
+  const solInicial = searchParams.get("solInicial");
+  const solOficio  = searchParams.get("solOficio");
+  const solColor   = searchParams.get("solColor");
+
   const trabajoData = getTrabajoActivo(searchParams.get("trabajoId") || 1);
   const solData     = getSolucionador(trabajoData.solucionadorId);
-  // Si vienen datos del solucionador por URL (desde MisTrabajosU), usarlos
-  const t = {
-    ...trabajoData,
-    solucionador: {
-      nombre:  solNombre  ? decodeURIComponent(solNombre)  : solData.nombre,
-      oficio:  solOficio  ? decodeURIComponent(solOficio)  : solData.oficio,
-      inicial: solInicial || solData.inicial,
-      color:   solColor   ? decodeURIComponent(solColor)   : solData.color,
-      nivel:   solData.nivel,
-    },
+  const sol = {
+    nombre:  solNombre  ? decodeURIComponent(solNombre)  : solData.nombre,
+    oficio:  solOficio  ? decodeURIComponent(solOficio)  : solData.oficio,
+    inicial: solInicial || solData.inicial,
+    color:   solColor   ? decodeURIComponent(solColor)   : solData.color,
+    nivel:   solData.nivel,
   };
 
-  const [avanceAprobado, setAvanceAprobado] = useState(t.avanceAprobado);
-  const [pendiente, setPendiente]           = useState(t.pendienteAprobacion);
-  const [mostrarPagos, setMostrarPagos]     = useState(false);
-  const [modalPago, setModalPago]           = useState(null);
-  const [ajusteActivo, setAjusteActivo]     = useState(null); // ajuste aceptado con barra de avance
-  // Mock de ajustes pendientes enviados por el solucionador
-  const [ajustesPendientes, setAjustesPendientes] = useState([
+  const [avanceAprobado, setAvanceAprobado] = useState(trabajoData.avanceAprobado);
+  const [toast, setToast] = useState(null);
+
+  // Ajustes propuestos por el solucionador
+  const [ajustes, setAjustes] = useState([
     {
       id: 1,
       monto: 4500,
-      descripcion: "Materiales adicionales: sellador especial y cañería de repuesto no contemplada en el presupuesto original.",
-      estado: "pendiente",
-      fecha: "10:32",
+      descripcion: "Materiales adicionales: sellador especial y cañería de repuesto.",
+      estado: "pendiente", // pendiente | aceptado | rechazado
+      avanceAprobado: 0,
+      avancePropuesto: trabajoData.avanceReportado,
+      etapasPago: [
+        { id: "a1", label: "Pago del ajuste", monto: 4500, estado: "bloqueado" },
+      ],
     },
   ]);
-  const [toast, setToast]                   = useState(null);
-  const montoPagado = t.etapasPago.filter(e => e.estado === "pagado").reduce((s, e) => s + e.monto, 0);
-  // Monto del certificado de avance pendiente de aprobar
-  const montoAvancePendiente = Math.round(((t.avanceReportado - avanceAprobado) / 100) * t.monto);
-  const montoPendiente = t.monto - montoPagado;
-  const pctPagado = Math.round((montoPagado / t.monto) * 100);
+
+  const montoTotal = trabajoData.monto + ajustes.filter(a => a.estado === "aceptado").reduce((s, a) => s + a.monto, 0);
+  const montoPagado = trabajoData.etapasPago.filter(e => e.estado === "pagado").reduce((s, e) => s + e.monto, 0);
+
+  function navPago(monto, concepto) {
+    navigate(`/pago?monto=${monto}&concepto=${encodeURIComponent(concepto)}&solNombre=${encodeURIComponent(sol.nombre)}&solOficio=${encodeURIComponent(sol.oficio)}&solInicial=${sol.inicial}&solColor=${encodeURIComponent(sol.color)}&trabajoId=${trabajoData.id}&desde=seguimiento`);
+  }
 
   function mostrarToast(msg) { setToast(msg); setTimeout(() => setToast(null), 2500); }
 
-  function aprobarAvance() {
-    setAvanceAprobado(t.avanceReportado);
-    setPendiente(false);
-    mostrarToast("✅ Avance aprobado — instancia de pago habilitada");
-  }
+  const sCard = { background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", padding: "16px", marginBottom: 12, border: "1px solid rgba(61,31,31,0.08)" };
+  const sSecLabel = { fontSize: 10, fontWeight: 800, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 12px", fontFamily: "var(--fuente)" };
 
   return (
-    <div style={{ background: "var(--tp-crema)", minHeight: "100vh", fontFamily: "var(--fuente)" }}>
+    <div style={{ minHeight: "100vh", background: "var(--tp-crema)", fontFamily: "var(--fuente)", paddingBottom: 80 }}>
 
       {/* Header */}
-      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => navigate(-1)} style={{ border: "none", background: "none", cursor: "pointer", display: "flex" }}>
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)", padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+        <button onClick={() => navigate(-1)} style={{ border: "none", background: "none", cursor: "pointer", padding: 4 }}>
           <IconoVolver size={20} />
         </button>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-marron)", margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{t.titulo}</p>
-          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>{t.ordenId}</p>
+        <div style={{ flex: 1 }}>
+          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>{trabajoData.titulo}</p>
+          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>{sol.nombre} · {sol.oficio}</p>
         </div>
-        <button type="button"
-          onClick={() => navigate(`/chat?solId=${trabajoData.solucionadorId}&nombre=${encodeURIComponent(t.solucionador.nombre)}&inicial=${t.solucionador.inicial}&oficio=${encodeURIComponent(t.solucionador.oficio)}&desde=seguimiento&trabajoId=${trabajoData.id}`)}
-          style={{ width: 36, height: 36, borderRadius: "50%", border: "1px solid rgba(61,31,31,0.15)", background: "none", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--tp-marron-suave)" }}>
-          <MessageCircle size={18} />
+        <button onClick={() => navigate(`/chat?solId=${trabajoData.solucionadorId}&nombre=${encodeURIComponent(sol.nombre)}&desde=seguimiento&trabajoId=${trabajoData.id}`)}
+          style={{ border: "none", background: "rgba(61,31,31,0.06)", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <MessageCircle size={18} color="var(--tp-marron)" />
+        </button>
+        <button onClick={() => navigate(`/acuerdo-digital?trabajoId=${trabajoData.id}&modo=firmado`)}
+          style={{ border: "none", background: "rgba(61,31,31,0.06)", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <FileText size={18} color="var(--tp-marron)" />
         </button>
       </header>
 
-      <div style={{ padding: "14px 16px 90px" }}>
+      <div style={{ padding: "16px 16px 0" }}>
 
-        {/* Solucionador */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", marginBottom: 12, border: "1px solid rgba(61,31,31,0.08)" }}>
-          <div style={{ width: 40, height: 40, borderRadius: "50%", background: t.solucionador.color, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, fontWeight: 800, flexShrink: 0 }}>
-            {t.solucionador.inicial}
+        {/* ── AVANCE DE OBRA ─────────────────────── */}
+        <p style={sSecLabel}>📊 Avance de obra</p>
+        <div style={sCard}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)" }}>Progreso del trabajo</span>
+            <span style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-marron)" }}>{trabajoData.avanceReportado}%</span>
           </div>
-          <div style={{ flex: 1 }}>
-            <p style={{ fontSize: 14, fontWeight: 700, color: "var(--tp-marron)", margin: 0 }}>{t.solucionador.nombre}</p>
-            <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>{t.solucionador.oficio} · {t.solucionador.nivel}</p>
+          {/* Barra */}
+          <div style={{ height: 14, borderRadius: 7, background: "rgba(61,31,31,0.08)", overflow: "hidden", position: "relative", marginBottom: 6 }}>
+            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 7, background: "var(--verde)", width: `${avanceAprobado}%`, transition: "width 0.5s" }} />
+            {trabajoData.avanceReportado > avanceAprobado && (
+              <div style={{ position: "absolute", left: `${avanceAprobado}%`, top: 0, bottom: 0, width: `${trabajoData.avanceReportado - avanceAprobado}%`, background: "repeating-linear-gradient(45deg, rgba(245,200,66,0.6), rgba(245,200,66,0.6) 4px, rgba(245,200,66,0.25) 4px, rgba(245,200,66,0.25) 8px)" }} />
+            )}
           </div>
-          <button type="button"
-            onClick={() => navigate(`/acuerdo-digital?desde=seguimiento&trabajoId=${trabajoData.id}&modo=firmado`)}
-            style={{ fontSize: 11, color: "var(--tp-rojo)", background: "none", border: "1px solid rgba(184,64,48,0.25)", borderRadius: 20, padding: "4px 10px", cursor: "pointer", fontFamily: "var(--fuente)", fontWeight: 600 }}>
-            Ver orden
-          </button>
-        </div>
-
-        {/* ── AVANCE DE OBRA ── */}
-        <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", padding: 16, marginBottom: 12, border: "1px solid rgba(61,31,31,0.08)" }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0 }}>Avance de obra</p>
-            <span style={{ fontSize: 22, fontWeight: 900, color: "var(--tp-marron)" }}>{avanceAprobado}%</span>
-          </div>
-
-          {/* Barra de avance */}
-          <div style={{ position: "relative", height: 12, borderRadius: 6, background: "rgba(61,31,31,0.08)", marginBottom: 8, overflow: "hidden" }}>
-            {/* Avance aprobado */}
-            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 6, background: "var(--verde)", width: `${avanceAprobado}%`, transition: "width 0.6s ease" }} />
-            {/* Avance reportado (pendiente) */}
-            {pendiente && (
-              <div style={{ position: "absolute", left: `${avanceAprobado}%`, top: 0, bottom: 0, borderRadius: "0 6px 6px 0", width: `${t.avanceReportado - avanceAprobado}%`, background: "repeating-linear-gradient(45deg, rgba(245,200,66,0.6), rgba(245,200,66,0.6) 4px, rgba(245,200,66,0.25) 4px, rgba(245,200,66,0.25) 8px)" }} />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>✓ Aprobado: {avanceAprobado}%</span>
+            {trabajoData.avanceReportado > avanceAprobado && (
+              <span style={{ fontSize: 11, color: "#8C6820", fontWeight: 600 }}>⏳ Reportado: {trabajoData.avanceReportado}%</span>
             )}
           </div>
 
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>
-              Aprobado: {avanceAprobado}%
-              {pendiente && <span style={{ color: "var(--tp-rojo)", marginLeft: 6 }}>· Reportado: {t.avanceReportado}%</span>}
-            </p>
-            <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>100%</p>
-          </div>
-
-          {/* Alerta de avance pendiente */}
-          {pendiente && (
-            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: "var(--r-md)", background: "rgba(184,64,48,0.08)", border: "1px solid rgba(184,64,48,0.20)" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-rojo)", margin: 0, display: "flex", alignItems: "center", gap: 6 }}>
-                  <AlertCircle size={14} /> {t.solucionador.nombre.split(" ")[0]} reportó {t.avanceReportado}% de avance
+          {/* Alerta avance pendiente */}
+          {trabajoData.avanceReportado > avanceAprobado && (
+            <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: "var(--r-md)", background: "rgba(245,200,66,0.15)", border: "1px solid rgba(245,200,66,0.40)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 4 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#8C6820", margin: 0, display: "flex", alignItems: "center", gap: 5 }}>
+                  <AlertCircle size={14} /> {sol.nombre.split(" ")[0]} reportó {trabajoData.avanceReportado}%
                 </p>
-                <p style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-rojo)", margin: 0, fontFamily: "var(--fuente)" }}>
-                  ${montoAvancePendiente.toLocaleString("es-AR")}
+                <p style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-rojo)", margin: 0 }}>
+                  ${fmt(Math.round(((trabajoData.avanceReportado - avanceAprobado) / 100) * montoTotal))}
                 </p>
               </div>
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 4px" }}>
-                Incremento {avanceAprobado}% → {t.avanceReportado}% · {t.avanceReportado - avanceAprobado}% del total
+              <p style={{ fontSize: 11, color: "#8C6820", margin: "0 0 10px", lineHeight: 1.4 }}>
+                Incremento {avanceAprobado}% → {trabajoData.avanceReportado}% · Al aprobar se habilitará el pago
               </p>
-              <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: "0 0 10px" }}>
-                Al aprobar se habilitará el pago de este certificado.
-              </p>
-              <div style={{ display: "flex", gap: 8 }}>
-                <button type="button" onClick={aprobarAvance}
-                  style={{ flex: 1, padding: "10px 0", borderRadius: "var(--r-md)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 700 }}>
-                  ✓ Aprobar avance
-                </button>
-                <button type="button"
-                  onClick={() => navigate(`/chat?solId=${trabajoData.solucionadorId}&nombre=${encodeURIComponent(t.solucionador.nombre)}&inicial=${t.solucionador.inicial}&oficio=${encodeURIComponent(t.solucionador.oficio)}&desde=seguimiento&trabajoId=${trabajoData.id}`)}
-                  style={{ flex: 1, padding: "10px 0", borderRadius: "var(--r-md)", background: "none", color: "var(--tp-marron)", border: "1px solid rgba(61,31,31,0.20)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 600 }}>
-                  💬 Consultar
-                </button>
-              </div>
+              <button type="button" onClick={() => { setAvanceAprobado(trabajoData.avanceReportado); mostrarToast("✅ Avance aprobado"); }}
+                style={{ width: "100%", padding: "9px 0", borderRadius: "var(--r-md)", background: "var(--verde)", color: "white", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 700 }}>
+                ✓ Aprobar avance
+              </button>
             </div>
           )}
         </div>
 
-        {/* ── PAGOS ── */}
-        <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", border: "1px solid rgba(61,31,31,0.08)", marginBottom: 12, overflow: "hidden" }}>
-          <button type="button" onClick={() => setMostrarPagos(!mostrarPagos)}
-            style={{ width: "100%", padding: "14px 16px", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", display: "flex", alignItems: "center" }}>
-            <div style={{ flex: 1, textAlign: "left" }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 4px" }}>Pagos</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 8 }}>
-                <span style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-marron)" }}>${montoPagado.toLocaleString("es-AR")}</span>
-                <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>pagado de ${t.monto.toLocaleString("es-AR")} · {pctPagado}%</span>
-              </div>
-            </div>
-            {/* Barra de pagos compacta */}
-            <div style={{ width: 60, height: 6, borderRadius: 3, background: "rgba(61,31,31,0.08)", marginRight: 10, overflow: "hidden" }}>
-              <div style={{ height: "100%", borderRadius: 3, background: "var(--verde)", width: `${pctPagado}%` }} />
-            </div>
-            {mostrarPagos ? <ChevronUp size={16} color="var(--tp-marron-suave)" /> : <ChevronDown size={16} color="var(--tp-marron-suave)" />}
-          </button>
-
-          {mostrarPagos && (
-            <div style={{ borderTop: "1px solid rgba(61,31,31,0.08)", padding: "12px 16px" }}>
-              {t.etapasPago.map(e => {
-                const est = ESTADO_PAGO[e.estado];
-                return (
-                  <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0", borderBottom: "1px solid rgba(61,31,31,0.05)" }}>
-                    <div style={{ width: 36, height: 36, borderRadius: "50%", background: e.estado === "pagado" ? "rgba(42,125,90,0.12)" : e.estado === "habilitado" ? "rgba(184,64,48,0.10)" : "rgba(61,31,31,0.05)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                      {e.estado === "pagado" ? <CheckCircle size={16} color="var(--verde)" /> : e.estado === "habilitado" ? <span style={{ fontSize: 14 }}>💳</span> : <Lock size={14} color="var(--tp-marron-suave)" />}
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: "0 0 1px" }}>{e.label}</p>
-                      <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>${e.monto.toLocaleString("es-AR")}</p>
-                    </div>
-                    {e.estado === "habilitado" ? (
-                      <button type="button"
-                        onClick={() => navigate("/pago")}
-                        style={{ padding: "7px 14px", borderRadius: "var(--r-full)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700 }}>
-                        Pagar
-                      </button>
-                    ) : (
-                      <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20, background: est.bg, color: est.color }}>{est.label}</span>
-                    )}
-                  </div>
-                );
-              })}
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", paddingTop: 10 }}>
-                <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>Saldo pendiente</p>
-                <p style={{ fontSize: 15, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>${montoPendiente.toLocaleString("es-AR")}</p>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Nota de tiempo real */}
-        <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", textAlign: "center", margin: "4px 0 16px", fontFamily: "var(--fuente)" }}>
-          📡 Avance reportado por {t.solucionador.nombre} en tiempo real
-        </p>
-
-        {/* Ajustes de monto propuestos por el solucionador */}
-        {ajustesPendientes.length > 0 && (
-          <div style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}>
-            <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", margin: 0, fontFamily: "var(--fuente)" }}>
-              Ajustes de monto propuestos
-            </p>
-            {ajustesPendientes.map(aj => (
-              <div key={aj.id} style={{ padding: "12px 14px", borderRadius: "var(--r-md)", background: "var(--tp-crema-clara)", border: `1px solid ${aj.estado === "aprobado" ? "rgba(42,125,90,0.25)" : "rgba(245,200,66,0.50)"}` }}>
+        {/* ── AJUSTES PROPUESTOS ─────────────────── */}
+        {ajustes.length > 0 && (
+          <>
+            <p style={sSecLabel}>📝 Ajustes de monto</p>
+            {ajustes.map((aj, idx) => (
+              <div key={aj.id} style={{ ...sCard, border: `1px solid ${aj.estado === "aceptado" ? "rgba(42,125,90,0.25)" : aj.estado === "rechazado" ? "rgba(61,31,31,0.12)" : "rgba(245,200,66,0.40)"}` }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                  <p style={{ fontSize: 16, fontWeight: 900, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>
-                    +${aj.monto.toLocaleString("es-AR")}
-                  </p>
-                  <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20, fontFamily: "var(--fuente)",
-                    background: aj.estado === "aprobado" ? "rgba(42,125,90,0.12)" : "rgba(245,200,66,0.25)",
-                    color: aj.estado === "aprobado" ? "var(--verde)" : "#8C6820" }}>
-                    {aj.estado === "aprobado" ? "✓ Aprobado" : "⏳ Pendiente tu aprobación"}
+                  <div>
+                    <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron-suave)", margin: "0 0 2px" }}>Ajuste #{idx + 1}</p>
+                    <p style={{ fontSize: 16, fontWeight: 900, color: "var(--tp-marron)", margin: 0 }}>+${fmt(aj.monto)}</p>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20,
+                    background: aj.estado === "aceptado" ? "rgba(42,125,90,0.12)" : aj.estado === "rechazado" ? "rgba(61,31,31,0.08)" : "rgba(245,200,66,0.25)",
+                    color: aj.estado === "aceptado" ? "var(--verde)" : aj.estado === "rechazado" ? "var(--tp-marron-suave)" : "#8C6820" }}>
+                    {aj.estado === "aceptado" ? "✓ Aceptado" : aj.estado === "rechazado" ? "Rechazado" : "⏳ Pendiente"}
                   </span>
                 </div>
-                <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: "0 0 10px", fontFamily: "var(--fuente)", lineHeight: 1.5 }}>{aj.descripcion}</p>
+                <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: "0 0 10px", lineHeight: 1.5 }}>{aj.descripcion}</p>
+
+                {/* Acciones si pendiente */}
                 {aj.estado === "pendiente" && (
-                  <div style={{ display: "flex", gap: 8 }}>
+                  <div style={{ display: "flex", gap: 8, marginBottom: 10 }}>
                     <button type="button"
-                      onClick={() => {
-                        setAjustesPendientes(prev => prev.map(a => a.id === aj.id ? { ...a, estado: "aprobado", avancePropuesto: t.avanceReportado } : a));
-                        setAjusteActivo({ ...aj, avancePropuesto: t.avanceReportado });
-                        mostrarToast("✅ Ajuste aceptado · Carlos Mendoza fue notificado");
-                      }}
+                      onClick={() => { setAjustes(prev => prev.map(a => a.id === aj.id ? { ...a, estado: "aceptado", etapasPago: [{ ...a.etapasPago[0], estado: "habilitado" }] } : a)); mostrarToast("✅ Ajuste aceptado · Carlos fue notificado"); }}
                       style={{ flex: 1, padding: "9px 0", borderRadius: "var(--r-md)", background: "var(--verde)", color: "white", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 700 }}>
                       ✓ Aceptar
                     </button>
                     <button type="button"
-                      onClick={() => setAjustesPendientes(prev => prev.filter(a => a.id !== aj.id))}
-                      style={{ flex: 1, padding: "9px 0", borderRadius: "var(--r-md)", background: "none", color: "var(--tp-rojo)", border: "1px solid rgba(184,64,48,0.25)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 600 }}>
+                      onClick={() => setAjustes(prev => prev.map(a => a.id === aj.id ? { ...a, estado: "rechazado" } : a))}
+                      style={{ flex: 1, padding: "9px 0", borderRadius: "var(--r-md)", background: "none", color: "var(--tp-rojo)", border: "1px solid rgba(184,64,48,0.25)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13 }}>
                       Rechazar
                     </button>
                   </div>
                 )}
 
-                {/* Barra de avance del ajuste aprobado */}
-                {aj.estado === "aprobado" && ajusteActivo?.id === aj.id && (
-                  <div style={{ marginTop: 10, padding: "12px 14px", borderRadius: "var(--r-md)", background: "rgba(42,125,90,0.06)", border: "1px solid rgba(42,125,90,0.20)" }}>
+                {/* Barra de avance del ajuste (si aceptado) */}
+                {aj.estado === "aceptado" && (
+                  <div style={{ marginBottom: 10, padding: "10px 12px", borderRadius: "var(--r-md)", background: "rgba(42,125,90,0.06)", border: "1px solid rgba(42,125,90,0.15)" }}>
                     <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                      <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)" }}>Confirmá el avance de este trabajo</p>
-                      <span style={{ fontSize: 15, fontWeight: 900, color: "var(--verde)", fontFamily: "var(--fuente)" }}>{aj.avancePropuesto || t.avanceReportado}%</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: "var(--tp-marron-suave)" }}>Avance de este ajuste</span>
+                      <span style={{ fontSize: 14, fontWeight: 900, color: "var(--verde)" }}>{aj.avancePropuesto}%</span>
                     </div>
-                    {/* Barra */}
-                    <div style={{ height: 12, borderRadius: 6, background: "rgba(61,31,31,0.08)", marginBottom: 8, overflow: "hidden", position: "relative" }}>
-                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 6, background: "var(--verde)", width: `${avanceAprobado}%` }} />
-                      <div style={{ position: "absolute", left: `${avanceAprobado}%`, top: 0, bottom: 0, borderRadius: "0 6px 6px 0", width: `${(aj.avancePropuesto || t.avanceReportado) - avanceAprobado}%`, background: "repeating-linear-gradient(45deg, rgba(245,200,66,0.6), rgba(245,200,66,0.6) 4px, rgba(245,200,66,0.25) 4px, rgba(245,200,66,0.25) 8px)" }} />
+                    <div style={{ height: 10, borderRadius: 5, background: "rgba(61,31,31,0.08)", overflow: "hidden", position: "relative", marginBottom: 4 }}>
+                      <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 5, background: "var(--verde)", width: `${aj.avancePropuesto}%` }} />
                     </div>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-                      <span style={{ fontSize: 10, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Aprobado: {avanceAprobado}%</span>
-                      <span style={{ fontSize: 10, color: "#8C6820", fontFamily: "var(--fuente)" }}>Propuesto: {aj.avancePropuesto || t.avanceReportado}%</span>
-                    </div>
-                    <button type="button"
-                      onClick={() => { setAjusteActivo(null); setModalPago(aj); }}
-                      style={{ width: "100%", padding: 11, borderRadius: "var(--r-md)", background: "var(--verde)", color: "white", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 700 }}>
-                      Confirmar avance y pagar ${aj.monto.toLocaleString("es-AR")}
-                    </button>
+                    <p style={{ fontSize: 10, color: "var(--tp-marron-suave)", margin: 0 }}>Avance acordado en este ajuste</p>
                   </div>
                 )}
+
+                {/* Etapas de pago del ajuste (si aceptado) */}
+                {aj.estado === "aceptado" && aj.etapasPago.map(ep => (
+                  <div key={ep.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: "var(--r-md)", background: "var(--tp-crema)", border: "1px solid rgba(61,31,31,0.08)" }}>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: "0 0 1px" }}>{ep.label}</p>
+                      <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>${fmt(ep.monto)}</p>
+                    </div>
+                    {ep.estado === "habilitado" ? (
+                      <button type="button" onClick={() => navPago(ep.monto, ep.label)}
+                        style={{ padding: "7px 14px", borderRadius: "var(--r-full)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700 }}>
+                        Pagar
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
+                        background: ep.estado === "pagado" ? "rgba(42,125,90,0.12)" : "rgba(61,31,31,0.05)",
+                        color: ep.estado === "pagado" ? "var(--verde)" : "var(--tp-marron-suave)" }}>
+                        {ep.estado === "pagado" ? "Pagado ✓" : "🔒 Bloqueado"}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
             ))}
-          </div>
+          </>
         )}
 
-        {/* ref para el texto de avance */}
-        <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", textAlign: "center", margin: "4px 0 16px", fontFamily: "var(--fuente)", display: "none" }}>placeholder
-        </p>
+        {/* ── PAGOS ──────────────────────────────── */}
+        <p style={sSecLabel}>💳 Pagos</p>
+        <div style={sCard}>
+          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
+            <div>
+              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 2px" }}>Monto total</p>
+              <p style={{ fontSize: 22, fontWeight: 900, color: "var(--tp-marron)", margin: 0 }}>${fmt(montoTotal)}</p>
+            </div>
+            <div style={{ textAlign: "right" }}>
+              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 2px" }}>Pagado</p>
+              <p style={{ fontSize: 18, fontWeight: 800, color: "var(--verde)", margin: 0 }}>${fmt(montoPagado)}</p>
+            </div>
+          </div>
+          {/* Barra de pago */}
+          <div style={{ height: 8, borderRadius: 4, background: "rgba(61,31,31,0.08)", overflow: "hidden", marginBottom: 14 }}>
+            <div style={{ height: "100%", borderRadius: 4, background: "var(--verde)", width: `${Math.round((montoPagado / montoTotal) * 100)}%` }} />
+          </div>
+          {/* Etapas */}
+          {trabajoData.etapasPago.map(e => (
+            <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: "var(--r-md)", background: "var(--tp-crema)", border: "1px solid rgba(61,31,31,0.08)", marginBottom: 8 }}>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: "0 0 1px" }}>{e.label}</p>
+                <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>${fmt(e.monto)}</p>
+              </div>
+              {e.estado === "habilitado" ? (
+                <button type="button" onClick={() => navPago(e.monto, e.label)}
+                  style={{ padding: "7px 14px", borderRadius: "var(--r-full)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700 }}>
+                  Pagar
+                </button>
+              ) : (
+                <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
+                  background: e.estado === "pagado" ? "rgba(42,125,90,0.12)" : "rgba(61,31,31,0.05)",
+                  color: e.estado === "pagado" ? "var(--verde)" : "var(--tp-marron-suave)" }}>
+                  {e.estado === "pagado" ? "Pagado ✓" : "🔒 Bloqueado"}
+                </span>
+              )}
+            </div>
+          ))}
+          <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 10, borderTop: "1px solid rgba(61,31,31,0.08)" }}>
+            <span style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}>Saldo pendiente</span>
+            <span style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-marron)" }}>${fmt(montoTotal - montoPagado)}</span>
+          </div>
+        </div>
 
-        {/* Botón calificar si terminó */}
+        {/* Calificar si 100% */}
         {avanceAprobado === 100 && (
-          <button type="button"
-            onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(t.solucionador.nombre)}&solOficio=${encodeURIComponent(t.solucionador.oficio)}`)}
-            style={{ width: "100%", padding: 16, borderRadius: "var(--r-md)", background: "var(--tp-marron)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700 }}>
-            ⭐ Calificar a {t.solucionador.nombre}
+          <button type="button" onClick={() => navigate(`/calificacion?solNombre=${encodeURIComponent(sol.nombre)}&solOficio=${encodeURIComponent(sol.oficio)}`)}
+            style={{ width: "100%", padding: 16, borderRadius: "var(--r-md)", background: "var(--tp-marron)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700, marginBottom: 12 }}>
+            ⭐ Calificar a {sol.nombre}
           </button>
         )}
       </div>
-
-      {/* Modal de pago al aprobar ajuste */}
-      {modalPago && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(61,31,31,0.60)", zIndex: 200, display: "flex", alignItems: "flex-end" }}>
-          <div style={{ background: "var(--tp-crema)", borderRadius: "20px 20px 0 0", padding: 24, width: "100%" }}>
-            <p style={{ fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", margin: "0 0 4px", fontFamily: "var(--fuente)" }}>Pagar ajuste aprobado</p>
-            <p style={{ fontSize: 13, color: "var(--tp-marron-suave)", margin: "0 0 16px", fontFamily: "var(--fuente)", lineHeight: 1.6 }}>
-              {modalPago.descripcion}
-            </p>
-            <div style={{ padding: "12px 16px", borderRadius: "var(--r-md)", background: "var(--tp-marron)", marginBottom: 16, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ fontSize: 13, color: "rgba(240,234,214,0.65)", fontFamily: "var(--fuente)" }}>Monto a pagar</span>
-              <span style={{ fontSize: 22, fontWeight: 900, color: "var(--tp-crema)", fontFamily: "var(--fuente)" }}>${modalPago.monto.toLocaleString("es-AR")}</span>
-            </div>
-            {/* Opciones de pago */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-              {["💳 Tarjeta de crédito / débito", "🏦 Transferencia bancaria", "💙 MercadoPago", "💵 Efectivo (sin garantía)"].map(medio => (
-                <button key={medio} type="button"
-                  onClick={() => { setModalPago(null); mostrarToast("✅ Pago procesado"); }}
-                  style={{ width: "100%", padding: "12px 16px", borderRadius: "var(--r-md)", background: "var(--tp-crema-clara)", border: "1px solid rgba(61,31,31,0.10)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 600, color: "var(--tp-marron)", textAlign: "left" }}>
-                  {medio}
-                </button>
-              ))}
-            </div>
-            <button type="button" onClick={() => setModalPago(null)}
-              style={{ width: "100%", padding: 12, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, color: "var(--tp-marron-suave)" }}>
-              Pagar más tarde
-            </button>
-          </div>
-        </div>
-      )}
 
       {toast && <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "var(--tp-marron)", color: "var(--tp-crema)", padding: "10px 20px", borderRadius: "var(--r-full)", fontSize: 13, fontWeight: 600, zIndex: 200, whiteSpace: "nowrap", fontFamily: "var(--fuente)" }}>{toast}</div>}
       <NavInferior />

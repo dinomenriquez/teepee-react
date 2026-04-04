@@ -1,418 +1,157 @@
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./Pago.module.css";
 import { IconoVolver } from "./Iconos";
-import {
-  Lock,
-  Shield,
-  Copy,
-  CreditCard,
-  Building2,
-  Banknote,
-} from "lucide-react";
 
-const TRABAJO = {
-  titulo: "Tablero eléctrico",
-  solucionador: "Juan Ledesma",
-  inicial: "J",
-  nivel: "🥇",
-  montoTrabajo: 32000,
-  comisionPct: 10,
-  garantia: "30 días",
-};
+function fmt(n) {
+  return Number(n).toLocaleString("es-AR");
+}
 
-const METODOS_PAGO = [
-  {
-    id: "mercadopago",
-    icono: <CreditCard size={20} color="#009ee3" />,
-    nombre: "MercadoPago",
-    desc: "Pagá con tu cuenta de MercadoPago",
-    badge: "Recomendado",
-  },
-  {
-    id: "tarjeta",
-    icono: <CreditCard size={20} />,
-    nombre: "Tarjeta de crédito / débito",
-    desc: "Visa, Mastercard, American Express",
-    badge: null,
-  },
-  {
-    id: "transferencia",
-    icono: <Building2 size={20} />,
-    nombre: "Transferencia bancaria",
-    desc: "CBU / CVU · Acreditación inmediata",
-    badge: null,
-  },
-  {
-    id: "efectivo",
-    icono: <Banknote size={20} />,
-    nombre: "Efectivo",
-    desc: "Pagás directamente al solucionador al finalizar",
-    badge: null,
-  },
+const MEDIOS = [
+  { id: "tarjeta",      icono: "💳", label: "Tarjeta de crédito / débito" },
+  { id: "transferencia",icono: "🏦", label: "Transferencia bancaria"       },
+  { id: "mp",           icono: "💙", label: "MercadoPago"                  },
+  { id: "efectivo",     icono: "💵", label: "Efectivo"                     },
 ];
 
 export default function Pago() {
   const navigate = useNavigate();
-  const [metodoSeleccionado, setMetodoSeleccionado] = useState("mercadopago");
-  const [estado, setEstado] = useState("formulario");
-  // estados: formulario | procesando | exito | error
+  const [searchParams] = useSearchParams();
 
-  const [datosCard, setDatosCard] = useState({
-    numero: "",
-    nombre: "",
-    vencimiento: "",
-    cvv: "",
-  });
-
-  const [toast, setToast] = useState(null);
-
-  function mostrarToast(msg) {
-    setToast(msg);
-    setTimeout(() => setToast(null), 2500);
+  // Helper seguro para decodificar params
+  function dec(key, fallback = "") {
+    try { const v = searchParams.get(key); return v ? decodeURIComponent(v) : fallback; }
+    catch { return fallback; }
   }
 
-  const comision = Math.round(
-    (TRABAJO.montoTrabajo * TRABAJO.comisionPct) / 100,
-  );
-  const total = TRABAJO.montoTrabajo + comision;
-  const formatPesos = (n) => "$" + n.toLocaleString("es-AR");
+  // Params que vienen desde Seguimiento
+  const monto      = Number(searchParams.get("monto") || 0);
+  const concepto   = dec("concepto",  "Pago de servicio");
+  const solNombre  = dec("solNombre", "Carlos Mendoza");
+  const solOficio  = dec("solOficio", "Plomero");
+  const solInicial = searchParams.get("solInicial") || "C";
+  const solColor   = dec("solColor",  "#B84030");
+  const trabajoId  = searchParams.get("trabajoId")  || "1";
+  const desde      = searchParams.get("desde")      || "seguimiento";
 
-  function procesarPago() {
-    setEstado("procesando");
-    setTimeout(() => {
-      setEstado("exito");
-    }, 2500);
+  const [medioSel, setMedioSel] = useState(null);
+  const [pagado, setPagado]     = useState(false);
+  const [pendiente, setPendiente] = useState(false);
+
+  function confirmarPago() {
+    if (!medioSel) return;
+    setPagado(true);
   }
 
-  // ── PANTALLA: PROCESANDO ──
-  if (estado === "procesando") {
+  function omitirPago() {
+    setPendiente(true);
+  }
+
+  function volver() {
+    navigate(`/${desde}?trabajoId=${trabajoId}`);
+  }
+
+  if (pagado) {
     return (
-      <div className={styles.pantalla}>
-        <div className={styles.procesandoBloque}>
-          <div className={styles.procesandoSpinner}></div>
-          <h2 className={styles.procesandoTitulo}>Procesando pago</h2>
-          <p className={styles.procesandoDesc}>No cierres la aplicación...</p>
-          <div className={styles.procesandoMonto}>{formatPesos(total)}</div>
-        </div>
+      <div style={{ minHeight: "100vh", background: "var(--verde)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, fontFamily: "var(--fuente)" }}>
+        <div style={{ fontSize: 64, marginBottom: 16 }}>✅</div>
+        <p style={{ fontSize: 22, fontWeight: 900, color: "white", margin: "0 0 8px", textAlign: "center" }}>¡Pago confirmado!</p>
+        <p style={{ fontSize: 14, color: "rgba(255,255,255,0.80)", margin: "0 0 6px", textAlign: "center" }}>{concepto}</p>
+        <p style={{ fontSize: 28, fontWeight: 900, color: "white", margin: "0 0 32px" }}>${fmt(monto)}</p>
+        <button type="button" onClick={volver}
+          style={{ padding: "14px 32px", borderRadius: "var(--r-full)", background: "white", color: "var(--verde)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 800 }}>
+          Volver al seguimiento →
+        </button>
       </div>
     );
   }
 
-  // ── PANTALLA: ÉXITO ──
-  if (estado === "exito") {
+  if (pendiente) {
     return (
-      <div className={styles.pantalla}>
-        <div className={styles.exitoBloque}>
-          <div className={styles.exitoCirculo}>
-            <span className={styles.exitoCheck}>✓</span>
-          </div>
-
-          <h2 className={styles.exitoTitulo}>¡Pago exitoso!</h2>
-          <p className={styles.exitoDesc}>
-            El dinero está retenido en escrow. Se liberará a Juan cuando
-            confirmes el trabajo completo.
-          </p>
-
-          <div className={styles.exitoCard}>
-            <div className={styles.exitoFila}>
-              <span>Trabajo</span>
-              <span>{TRABAJO.titulo}</span>
-            </div>
-            <div className={styles.exitoFila}>
-              <span>Solucionador</span>
-              <span>{TRABAJO.solucionador}</span>
-            </div>
-            <div className={styles.exitoFila}>
-              <span>Total pagado</span>
-              <span className={styles.exitoMonto}>{formatPesos(total)}</span>
-            </div>
-            <div className={styles.exitoFila}>
-              <span>Estado del escrow</span>
-              <span className={styles.exitoEscrow}>
-                <Lock size={12} /> Retenido
-              </span>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className={styles.btnSeguimiento}
-            onClick={() => navigate("/seguimiento")}
-          >
-            Ver seguimiento del trabajo →
-          </button>
-
-          <button
-            type="button"
-            className={styles.btnInicio}
-            onClick={() => navigate("/home")}
-          >
-            Volver al inicio
-          </button>
-        </div>
-        {toast && <div className={styles.toast}>{toast}</div>}
+      <div style={{ minHeight: "100vh", background: "var(--tp-crema)", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 32, fontFamily: "var(--fuente)" }}>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>⏳</div>
+        <p style={{ fontSize: 20, fontWeight: 900, color: "var(--tp-marron)", margin: "0 0 8px", textAlign: "center" }}>Pago pendiente</p>
+        <p style={{ fontSize: 13, color: "var(--tp-marron-suave)", margin: "0 0 6px", textAlign: "center" }}>{concepto}</p>
+        <p style={{ fontSize: 26, fontWeight: 900, color: "var(--tp-marron)", margin: "0 0 12px" }}>${fmt(monto)}</p>
+        <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: "0 0 32px", textAlign: "center", lineHeight: 1.5 }}>
+          Podés realizar el pago en cualquier momento desde la pantalla de seguimiento.
+        </p>
+        <button type="button" onClick={volver}
+          style={{ padding: "14px 32px", borderRadius: "var(--r-full)", background: "var(--tp-marron)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 800 }}>
+          Volver al seguimiento
+        </button>
       </div>
     );
   }
 
-  // ── PANTALLA: FORMULARIO ──
   return (
-    <div className={styles.pantalla}>
-      <header className={styles.header}>
-        <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+    <div style={{ minHeight: "100vh", background: "var(--tp-crema)", fontFamily: "var(--fuente)", paddingBottom: 32 }}>
+
+      {/* Header */}
+      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)", padding: "14px 16px", display: "flex", alignItems: "center", gap: 12 }}>
+        <button onClick={volver} style={{ border: "none", background: "none", cursor: "pointer", padding: 4, display: "flex" }}>
           <IconoVolver size={20} />
         </button>
-        <span className={styles.headerTitulo}>Confirmar pago</span>
-        <div className={styles.headerSeguro}>
-          <Lock size={12} /> SSL
-        </div>
+        <p style={{ fontSize: 16, fontWeight: 900, color: "var(--tp-marron)", margin: 0 }}>Confirmar pago</p>
       </header>
 
-      <main className={styles.contenido}>
-        {/* ── RESUMEN DEL TRABAJO ── */}
-        <section className={styles.resumenCard}>
-          <div className={styles.resumenTop}>
-            <div className={styles.resumenAvatar}>
-              {TRABAJO.inicial}
-              <span className={styles.resumenNivel}>{TRABAJO.nivel}</span>
-            </div>
-            <div className={styles.resumenInfo}>
-              <span className={styles.resumenTitulo}>{TRABAJO.titulo}</span>
-              <span className={styles.resumenSolucionador}>
-                {TRABAJO.solucionador}
-              </span>
-              <span className={styles.resumenGarantia}>
-                <Shield size={12} /> Garantía {TRABAJO.garantia}
-              </span>
-            </div>
+      <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: 16 }}>
+
+        {/* Datos del solucionador */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: "var(--r-lg)", background: "var(--tp-crema-clara)", border: "1px solid rgba(61,31,31,0.08)" }}>
+          <div style={{ width: 44, height: 44, borderRadius: "50%", background: solColor, color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 800, flexShrink: 0 }}>
+            {solInicial}
           </div>
-        </section>
-
-        {/* ── DESGLOSE DE MONTOS ── */}
-        <section className={styles.montoCard}>
-          <h2 className={styles.seccionTitulo}>Detalle del pago</h2>
-
-          <div className={styles.montoFilas}>
-            <div className={styles.montoFila}>
-              <span className={styles.montoLabel}>Servicio</span>
-              <span className={styles.montoValor}>
-                {formatPesos(TRABAJO.montoTrabajo)}
-              </span>
-            </div>
-            <div className={styles.montoFila}>
-              <span className={styles.montoLabel}>
-                Comisión TeePee ({TRABAJO.comisionPct}%)
-              </span>
-              <span className={styles.montoValor}>{formatPesos(comision)}</span>
-            </div>
-            <div className={`${styles.montoFila} ${styles.montoFilaTotal}`}>
-              <span className={styles.montoTotalLabel}>Total</span>
-              <span className={styles.montoTotalValor}>
-                {formatPesos(total)}
-              </span>
-            </div>
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>{solNombre}</p>
+            <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>{solOficio}</p>
           </div>
+        </div>
 
-          <div className={styles.escrowInfo}>
-            <span>
-              <Lock size={16} />
-            </span>
-            <p className={styles.escrowTexto}>
-              El dinero queda retenido en escrow hasta que confirmés que el
-              trabajo está completo.
-            </p>
-          </div>
-        </section>
+        {/* Concepto y monto — SIN desglose de comisión */}
+        <div style={{ padding: "20px 16px", borderRadius: "var(--r-lg)", background: "var(--tp-marron)", textAlign: "center" }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: "rgba(240,234,214,0.60)", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 8px" }}>{concepto}</p>
+          <p style={{ fontSize: 40, fontWeight: 900, color: "var(--tp-crema)", margin: "0 0 4px", letterSpacing: "-1px" }}>${fmt(monto)}</p>
+          <p style={{ fontSize: 11, color: "rgba(240,234,214,0.45)", margin: 0 }}>Monto total a pagar</p>
+        </div>
 
-        {/* ── MÉTODOS DE PAGO ── */}
-        <section className={styles.metodosSección}>
-          <h2 className={styles.seccionTitulo}>Método de pago</h2>
-
-          <div className={styles.metodosList}>
-            {METODOS_PAGO.map((metodo) => (
-              <button
-                key={metodo.id}
-                type="button"
-                className={`${styles.metodoCard} ${
-                  metodoSeleccionado === metodo.id
-                    ? styles.metodoCardActivo
-                    : ""
-                }`}
-                onClick={() => setMetodoSeleccionado(metodo.id)}
-              >
-                <span className={styles.metodoIcono}>{metodo.icono}</span>
-                <div className={styles.metodoInfo}>
-                  <div className={styles.metodoNombreRow}>
-                    <span className={styles.metodoNombre}>{metodo.nombre}</span>
-                    {metodo.badge && (
-                      <span className={styles.metodoBadge}>{metodo.badge}</span>
-                    )}
-                  </div>
-                  <span className={styles.metodoDesc}>{metodo.desc}</span>
-                </div>
-                <div
-                  className={`${styles.metodoRadio} ${
-                    metodoSeleccionado === metodo.id
-                      ? styles.metodoRadioActivo
-                      : ""
-                  }`}
-                ></div>
+        {/* Medios de pago */}
+        <div>
+          <p style={{ fontSize: 11, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.5px", margin: "0 0 10px" }}>Elegí cómo pagar</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {MEDIOS.map(m => (
+              <button key={m.id} type="button" onClick={() => setMedioSel(m.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 14, padding: "14px 16px",
+                  borderRadius: "var(--r-md)", border: medioSel === m.id ? "2px solid var(--tp-rojo)" : "1px solid rgba(61,31,31,0.10)",
+                  background: medioSel === m.id ? "rgba(184,64,48,0.05)" : "var(--tp-crema-clara)",
+                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+                }}>
+                <span style={{ fontSize: 22 }}>{m.icono}</span>
+                <span style={{ fontSize: 14, fontWeight: 600, color: "var(--tp-marron)", flex: 1 }}>{m.label}</span>
+                {medioSel === m.id && <span style={{ fontSize: 18, color: "var(--tp-rojo)" }}>✓</span>}
               </button>
             ))}
           </div>
-        </section>
-
-        {/* ── FORMULARIO TARJETA ── */}
-        {metodoSeleccionado === "tarjeta" && (
-          <section className={styles.tarjetaForm}>
-            <h2 className={styles.seccionTitulo}>Datos de la tarjeta</h2>
-
-            <div className={styles.campoBloque}>
-              <label className={styles.campoLabel}>Número de tarjeta</label>
-              <input
-                type="text"
-                className={styles.campoInput}
-                placeholder="0000 0000 0000 0000"
-                maxLength={19}
-                value={datosCard.numero}
-                onChange={(e) =>
-                  setDatosCard({
-                    ...datosCard,
-                    numero: e.target.value,
-                  })
-                }
-              />
-            </div>
-
-            <div className={styles.campoBloque}>
-              <label className={styles.campoLabel}>Nombre en la tarjeta</label>
-              <input
-                type="text"
-                className={styles.campoInput}
-                placeholder="MARTIN GARCIA"
-                value={datosCard.nombre}
-                onChange={(e) =>
-                  setDatosCard({
-                    ...datosCard,
-                    nombre: e.target.value.toUpperCase(),
-                  })
-                }
-              />
-            </div>
-
-            <div className={styles.campoFila}>
-              <div className={styles.campoBloque}>
-                <label className={styles.campoLabel}>Vencimiento</label>
-                <input
-                  type="text"
-                  className={styles.campoInput}
-                  placeholder="MM/AA"
-                  maxLength={5}
-                  value={datosCard.vencimiento}
-                  onChange={(e) =>
-                    setDatosCard({
-                      ...datosCard,
-                      vencimiento: e.target.value,
-                    })
-                  }
-                />
-              </div>
-              <div className={styles.campoBloque}>
-                <label className={styles.campoLabel}>CVV</label>
-                <input
-                  type="text"
-                  className={styles.campoInput}
-                  placeholder="123"
-                  maxLength={4}
-                  value={datosCard.cvv}
-                  onChange={(e) =>
-                    setDatosCard({
-                      ...datosCard,
-                      cvv: e.target.value,
-                    })
-                  }
-                />
-              </div>
-            </div>
-
-            <div className={styles.tarjetaSeguridad}>
-              <Lock size={12} /> Tus datos están encriptados con SSL de 256 bits
-            </div>
-          </section>
-        )}
-
-        {/* Info MercadoPago */}
-        {metodoSeleccionado === "mercadopago" && (
-          <section className={styles.mpInfo}>
-            <span className={styles.mpIcono}>
-              <CreditCard size={24} />
-            </span>
-            <p className={styles.mpTexto}>
-              Serás redirigido a MercadoPago para completar el pago de forma
-              segura.
-            </p>
-          </section>
-        )}
-
-        {/* Info Transferencia */}
-        {metodoSeleccionado === "transferencia" && (
-          <section className={styles.transferenciaInfo}>
-            <h2 className={styles.seccionTitulo}>Datos bancarios</h2>
-            <div className={styles.transferenciaCard}>
-              {[
-                { label: "Destinatario", valor: "TeePee S.A." },
-                { label: "CBU", valor: "0000003100012345678901" },
-                { label: "Alias", valor: "TEEPEE.PAGOS" },
-                { label: "Monto exacto", valor: formatPesos(total) },
-                { label: "Referencia", valor: "TP-2024-0847" },
-              ].map((item) => (
-                <div key={item.label} className={styles.transferenciaFila}>
-                  <span className={styles.transferenciaLabel}>
-                    {item.label}
-                  </span>
-                  <span className={styles.transferenciaValor}>
-                    {item.valor}
-                  </span>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              className={styles.btnCopiarCBU}
-              onClick={() => mostrarToast("CBU copiado al portapapeles")}
-            >
-              <Copy size={14} /> Copiar CBU
-            </button>
-          </section>
-        )}
-        {metodoSeleccionado === "efectivo" && (
-          <section className={styles.mpInfo}>
-            <Banknote size={24} color="#5C2E2E" />
-            <p className={styles.mpTexto}>
-              El pago se realiza en mano al solucionador al finalizar el
-              trabajo. El escrow no aplica para pagos en efectivo.
-            </p>
-          </section>
-        )}
-      </main>
-
-      {/* ── FOOTER CON BOTÓN PAGAR ── */}
-      <div className={styles.footer}>
-        <div className={styles.footerResumen}>
-          <span className={styles.footerLabel}>Total a pagar</span>
-          <span className={styles.footerMonto}>{formatPesos(total)}</span>
         </div>
-        <button
-          type="button"
-          className={styles.btnPagar}
-          onClick={procesarPago}
-        >
-          <Lock size={16} /> Pagar {formatPesos(total)}
-        </button>
-      </div>
 
-      {toast && <div className={styles.toast}>{toast}</div>}
+        {/* Botón confirmar */}
+        <button type="button" onClick={confirmarPago} disabled={!medioSel}
+          style={{
+            width: "100%", padding: "15px 0", borderRadius: "var(--r-md)", border: "none",
+            cursor: medioSel ? "pointer" : "not-allowed", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 800,
+            background: medioSel ? "var(--tp-rojo)" : "rgba(61,31,31,0.12)",
+            color: medioSel ? "var(--tp-crema)" : "var(--tp-marron-suave)",
+          }}>
+          Confirmar pago ${fmt(monto)}
+        </button>
+
+        {/* Omitir pago */}
+        <button type="button" onClick={omitirPago}
+          style={{ width: "100%", padding: "12px 0", background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, color: "var(--tp-marron-suave)" }}>
+          Pagar más tarde — quedará pendiente
+        </button>
+
+      </div>
     </div>
   );
 }
