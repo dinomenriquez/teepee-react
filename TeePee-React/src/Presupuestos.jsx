@@ -101,6 +101,8 @@ const PRESUPUESTOS_POR_TRABAJO = {
 export default function Presupuestos() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const desdeParam = searchParams.get("desde");
+  const origenEsMisBusquedas = desdeParam === "mis-busquedas";
   const trabajoIdParam = searchParams.get("trabajoId");
   const trabajoInicial = trabajoIdParam
     ? TRABAJOS_MOCK.find(t => t.id === Number(trabajoIdParam)) || null
@@ -118,8 +120,8 @@ export default function Presupuestos() {
   if (!trabajoActivo) {
     return (
       <div className={styles.pantalla}>
-        <header className={styles.header}>
-          <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+        <header className={styles.header} style={{ position: "sticky", top: 0, zIndex: 100 }}>
+          <button className={styles.btnVolver} onClick={() => desdeParam === "mis-busquedas" ? navigate("/mis-busquedas") : navigate(-1)}>
             <IconoVolver size={20} />
           </button>
           <span className={styles.headerTitulo}>Mis presupuestos</span>
@@ -168,8 +170,8 @@ export default function Presupuestos() {
   // ── VISTA: PRESUPUESTOS DE UN TRABAJO ───────────────────
   return (
     <div className={styles.pantalla}>
-      <header className={styles.header}>
-        <button className={styles.btnVolver} onClick={() => { setTrabajoActivo(null); window.history.pushState(null, "", "/presupuestos"); }}>
+      <header className={styles.header} style={{ position: "sticky", top: 0, zIndex: 100 }}>
+        <button className={styles.btnVolver} onClick={() => origenEsMisBusquedas ? navigate("/mis-busquedas") : setTrabajoActivo(null)}>
           <IconoVolver size={20} />
         </button>
         <span className={styles.headerTitulo} style={{ fontSize: 14 }}>

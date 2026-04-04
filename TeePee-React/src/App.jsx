@@ -16,6 +16,7 @@ import Cancelacion from "./Cancelacion";
 import Agenda from "./Agenda";
 import PerfilUsuario from "./PerfilUsuario";
 import Presupuestos from "./Presupuestos";
+import MisBusquedas from './MisBusquedas';
 import MisTrabajosU from "./MisTrabajosU";
 import MisTrabajosS from "./MisTrabajosS";
 import PerfilSolucionadorEdit from "./PerfilSolucionadorEdit";
@@ -44,8 +45,7 @@ function RutaSolucionador({ children }) {
   const { sesion, cargando } = useAuth();
   if (cargando) return null;
   if (!sesion) return <Navigate to="/bienvenida" replace />;
-  if (sesion.rolActivo !== "solucionador")
-    return <Navigate to="/home" replace />;
+  if (sesion.rolActivo !== "solucionador") return <Navigate to="/home" replace />;
   return children;
 }
 
@@ -54,8 +54,7 @@ function RutaInicial() {
   const { sesion, cargando } = useAuth();
   if (cargando) return null;
   if (!sesion) return <Navigate to="/bienvenida" replace />;
-  if (sesion.rolActivo === "solucionador")
-    return <Navigate to="/home-solucionador" replace />;
+  if (sesion.rolActivo === "solucionador") return <Navigate to="/home-solucionador" replace />;
   return <Navigate to="/home" replace />;
 }
 
@@ -69,208 +68,38 @@ function AppRoutes() {
       <Route path="/bienvenida" element={<Bienvenida />} />
 
       {/* Homes */}
-      <Route
-        path="/home"
-        element={
-          <RutaProtegida>
-            <HomeUsuario />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/home-solucionador"
-        element={
-          <RutaProtegida>
-            <HomeSolucionador />
-          </RutaProtegida>
-        }
-      />
+      <Route path="/home" element={
+        <RutaProtegida><HomeUsuario /></RutaProtegida>
+      } />
+      <Route path="/home-solucionador" element={
+        <RutaProtegida><HomeSolucionador /></RutaProtegida>
+      } />
 
       {/* Rutas comunes */}
-      <Route
-        path="/busqueda"
-        element={
-          <RutaProtegida>
-            <Busqueda />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/perfil"
-        element={
-          <RutaProtegida>
-            <PerfilSolucionador />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/chat"
-        element={
-          <RutaProtegida>
-            <Chat />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/seguimiento"
-        element={
-          <RutaProtegida>
-            <Seguimiento />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/seguimiento-s"
-        element={
-          <RutaProtegida>
-            <SeguimientoS />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/pago"
-        element={
-          <RutaProtegida>
-            <Pago />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/calificacion"
-        element={
-          <RutaProtegida>
-            <Calificacion />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/cancelacion"
-        element={
-          <RutaProtegida>
-            <Cancelacion />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/agenda"
-        element={
-          <RutaProtegida>
-            <Agenda />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/perfil-usuario"
-        element={
-          <RutaProtegida>
-            <PerfilUsuario />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/presupuestos"
-        element={
-          <RutaProtegida>
-            <Presupuestos />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/trabajos"
-        element={
-          <RutaProtegida>
-            <MisTrabajosU />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/trabajos-s"
-        element={
-          <RutaProtegida>
-            <MisTrabajosS />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/perfil-solucionador"
-        element={
-          <RutaProtegida>
-            <PerfilSolucionadorEdit />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/notificaciones"
-        element={
-          <RutaProtegida>
-            <Notificaciones />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/notificaciones-s"
-        element={
-          <RutaProtegida>
-            <NotificacionesS />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/ingresos"
-        element={
-          <RutaProtegida>
-            <Ingresos />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/ayuda"
-        element={
-          <RutaProtegida>
-            <Ayuda />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/ayuda-s"
-        element={
-          <RutaProtegida>
-            <AyudaS />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/chat-s"
-        element={
-          <RutaProtegida>
-            <ChatS />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/perfil-usuario-publico"
-        element={
-          <RutaProtegida>
-            <PerfilUsuarioPublico />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/presupuestos-s"
-        element={
-          <RutaProtegida>
-            <PresupuestosS />
-          </RutaProtegida>
-        }
-      />
-      <Route
-        path="/acuerdo-digital"
-        element={
-          <RutaProtegida>
-            <AcuerdoDigital />
-          </RutaProtegida>
-        }
-      />
+      <Route path="/busqueda" element={<RutaProtegida><Busqueda /></RutaProtegida>} />
+      <Route path="/perfil" element={<RutaProtegida><PerfilSolucionador /></RutaProtegida>} />
+      <Route path="/chat" element={<RutaProtegida><Chat /></RutaProtegida>} />
+      <Route path="/seguimiento" element={<RutaProtegida><Seguimiento /></RutaProtegida>} />
+      <Route path="/seguimiento-s" element={<RutaProtegida><SeguimientoS /></RutaProtegida>} />
+      <Route path="/pago" element={<RutaProtegida><Pago /></RutaProtegida>} />
+      <Route path="/calificacion" element={<RutaProtegida><Calificacion /></RutaProtegida>} />
+      <Route path="/cancelacion" element={<RutaProtegida><Cancelacion /></RutaProtegida>} />
+      <Route path="/agenda" element={<RutaProtegida><Agenda /></RutaProtegida>} />
+      <Route path="/perfil-usuario" element={<RutaProtegida><PerfilUsuario /></RutaProtegida>} />
+      <Route path="/presupuestos" element={<RutaProtegida><Presupuestos /></RutaProtegida>} />
+      <Route path="/mis-busquedas" element={<MisBusquedas />} />
+        <Route path="/trabajos" element={<RutaProtegida><MisTrabajosU /></RutaProtegida>} />
+      <Route path="/trabajos-s" element={<RutaProtegida><MisTrabajosS /></RutaProtegida>} />
+      <Route path="/perfil-solucionador" element={<RutaProtegida><PerfilSolucionadorEdit /></RutaProtegida>} />
+      <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
+      <Route path="/notificaciones-s" element={<RutaProtegida><NotificacionesS /></RutaProtegida>} />
+      <Route path="/ingresos" element={<RutaProtegida><Ingresos /></RutaProtegida>} />
+      <Route path="/ayuda" element={<RutaProtegida><Ayuda /></RutaProtegida>} />
+      <Route path="/ayuda-s" element={<RutaProtegida><AyudaS /></RutaProtegida>} />
+      <Route path="/chat-s" element={<RutaProtegida><ChatS /></RutaProtegida>} />
+      <Route path="/perfil-usuario-publico" element={<RutaProtegida><PerfilUsuarioPublico /></RutaProtegida>} />
+      <Route path="/presupuestos-s" element={<RutaProtegida><PresupuestosS /></RutaProtegida>} />
+      <Route path="/acuerdo-digital" element={<RutaProtegida><AcuerdoDigital /></RutaProtegida>} />
 
       {/* Fallback */}
       <Route path="*" element={<RutaInicial />} />

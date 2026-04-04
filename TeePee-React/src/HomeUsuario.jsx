@@ -63,6 +63,11 @@ const TRABAJOS_ACTIVOS = [
 
 
 
+const BUSQUEDAS_HOME = [
+  { id: 1, categoria: "Plomería",     descripcion: "Pérdida de agua en baño principal",          fecha: "Hoy 14:32",   solucionadores: 2, estado: "con_presupuesto" },
+  { id: 2, categoria: "Electricidad", descripcion: "Tablero salta con el aire acondicionado",     fecha: "Ayer 10:15",  solucionadores: 1, estado: "sin_respuesta"   },
+];
+
 export default function HomeUsuario() {
   const navigate = useNavigate();
   const { sesion, tieneDobleRol, cambiarRol, logout } = useAuth();
@@ -359,36 +364,23 @@ export default function HomeUsuario() {
           )}
         </section>
 
-        {/* ── ACCIONES RÁPIDAS ── */}
+        {/* ── ACCIONES RÁPIDAS 2x2 ── */}
         <section>
-          <div className={styles.accionesGrilla}>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
             {[
-              {
-                icono: <IconoTrabajos size={22} />,
-                titulo: "Mis trabajos",
-                sub: "3 activos",
-                ruta: "/trabajos",
-              },
-              {
-                icono: <IconoChat size={22} />,
-                titulo: "Mensajes",
-                sub: "2 sin leer",
-                ruta: "/chat",
-              },
-              {
-                icono: <IconoEstrella size={22} />,
-                titulo: "Calificar",
-                sub: "1 pendiente",
-                ruta: "/calificacion",
-              },
+              { icono: <IconoTrabajos size={22} />, titulo: "Mis trabajos",  sub: "3 activos",     ruta: "/trabajos"      },
+              { icono: "🔍",                        titulo: "Mis búsquedas", sub: "3 realizadas",  ruta: "/mis-busquedas" },
+              { icono: <IconoChat size={22} />,      titulo: "Mensajes",     sub: "2 sin leer",    ruta: "/chat"          },
+              { icono: <IconoEstrella size={22} />,  titulo: "Calificar",    sub: "1 pendiente",   ruta: "/calificacion"  },
             ].map((item) => (
-              <button
-                key={item.titulo}
-                type="button"
+              <button key={item.titulo} type="button"
                 className={styles.btnSecundario}
-                onClick={() => navigate(item.ruta)}
-              >
-                <div className={styles.btnSecIcono}>{item.icono}</div>
+                onClick={() => navigate(item.ruta)}>
+                <div className={styles.btnSecIcono}>
+                  {typeof item.icono === "string"
+                    ? <span style={{ fontSize: 22 }}>{item.icono}</span>
+                    : item.icono}
+                </div>
                 <span className={styles.btnSecTitulo}>{item.titulo}</span>
                 <span className={styles.btnSecSub}>{item.sub}</span>
               </button>

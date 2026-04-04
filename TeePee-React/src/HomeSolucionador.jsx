@@ -189,7 +189,10 @@ export default function HomeSolucionador() {
   return (
     <div className={styles.pantalla}>
       {/* ── HEADER ── */}
-      <header className={styles.header}>
+      <header
+        className={styles.header}
+        style={{ position: "sticky", top: 0, zIndex: 100 }}
+      >
         <div className={styles.headerLogo}>
           <LogoTeePee size={32} />
           <LogoTexto size={16} />

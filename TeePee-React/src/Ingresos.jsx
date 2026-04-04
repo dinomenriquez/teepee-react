@@ -4,6 +4,8 @@ import NavInferiorS from "./NavInferiorS";
 import styles from "./Ingresos.module.css";
 import { IconoVolver, IconoPerfil } from "./Iconos";
 
+
+
 const SEMANAS = [
   {
     id: 1,
@@ -86,7 +88,7 @@ export default function Ingresos() {
   return (
     <div className={styles.pantalla}>
       {/* ── HEADER ── */}
-      <header className={styles.header}>
+      <header className={styles.header} style={{ position: "sticky", top: 0, zIndex: 100 }}>
         <button className={styles.btnVolver} onClick={() => navigate(-1)}>
           <IconoVolver size={20} />
         </button>
@@ -99,8 +101,7 @@ export default function Ingresos() {
           <p className={styles.heroLabel}>Ingresos netos este mes</p>
           <p className={styles.heroMonto}>${netoMes.toLocaleString("es-AR")}</p>
           <p className={styles.heroBruto}>
-            Bruto: ${INGRESOS_MES.toLocaleString("es-AR")} · Comisión 6%: -$
-            {comisionMes.toLocaleString("es-AR")}
+            Bruto: ${INGRESOS_MES.toLocaleString("es-AR")} · Comisión 6%: -${comisionMes.toLocaleString("es-AR")}
           </p>
         </div>
 

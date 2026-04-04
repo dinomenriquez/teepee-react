@@ -139,6 +139,8 @@ export default function Busqueda() {
     setTimeout(() => setToast(null), 2500);
   }
 
+  function scrollTop() { window.scrollTo({ top: 0, behavior: "instant" }); }
+
   function irAPaso2() {
     if (categoriasSeleccionadas.length === 0 && !otraCategoria.trim()) {
       mostrarToast("⚠️ Elegí al menos una categoría");
@@ -149,6 +151,7 @@ export default function Busqueda() {
       return;
     }
     setPaso(2);
+    scrollTop();
   }
 
   function toggleCategoria(id) {
@@ -184,6 +187,7 @@ export default function Busqueda() {
     setTimeout(() => {
       setBuscando(false);
       setPaso(3);
+      scrollTop();
     }, 1800);
     /*
       En el Paso 5 (FastAPI) acá va a ir
@@ -823,7 +827,10 @@ export default function Busqueda() {
                   <button
                     type="button"
                     className={styles.btnContactar}
-                    onClick={() => navigate(`/chat?solId=${sol.id}&nombre=${encodeURIComponent(sol.nombre)}&inicial=${sol.inicial}&oficio=${encodeURIComponent(sol.oficio)}&desde=busqueda&mensaje=presupuesto`)}
+                    onClick={() => {
+                      const cats = categoriasActuales.map(c => c.nombre).join(", ") || otraCategoria || "Servicio";
+navigate(`/chat?solId=${sol.id}&nombre=${encodeURIComponent(sol.nombre)}&inicial=${sol.inicial}&oficio=${encodeURIComponent(sol.oficio)}&desde=busqueda&mensaje=solicitud&categoria=${encodeURIComponent(cats)}&descripcion=${encodeURIComponent(descripcion)}&direccion=${encodeURIComponent(direccion)}&urgencia=${encodeURIComponent(urgenciaActual?.titulo || "Normal")}`);
+                    }}
                   >
                     Solicitar presupuesto y contactar
                   </button>

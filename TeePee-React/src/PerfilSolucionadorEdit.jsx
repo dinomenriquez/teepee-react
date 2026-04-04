@@ -419,14 +419,6 @@ export default function PerfilSolucionadorEdit() {
                 Debés tener al menos 18 años
               </span>
             </div>
-
-            <button
-              type="button"
-              className={styles.btnGuardar}
-              onClick={() => mostrarToast("✅ Datos personales guardados")}
-            >
-              Guardar datos personales
-            </button>
           </section>
         )}
 
@@ -952,14 +944,6 @@ export default function PerfilSolucionadorEdit() {
                 Ofrecer garantía mejora tu ranking un 15%
               </span>
             </div>
-
-            <button
-              type="button"
-              className={styles.btnGuardar}
-              onClick={() => mostrarToast("✅ Datos profesionales guardados")}
-            >
-              Guardar datos profesionales
-            </button>
           </section>
         )}
 
@@ -1109,14 +1093,6 @@ export default function PerfilSolucionadorEdit() {
                 onChange={(e) => set("razonSocial", e.target.value)}
               />
             </div>
-
-            <button
-              type="button"
-              className={styles.btnGuardar}
-              onClick={() => mostrarToast("✅ Datos de cobro guardados")}
-            >
-              Guardar datos de cobro
-            </button>
           </section>
         )}
 
@@ -1235,10 +1211,23 @@ export default function PerfilSolucionadorEdit() {
                 </label>
               )}
             </div>
+
             <button
               type="button"
-              className={styles.btnGuardar}
               onClick={() => mostrarToast("✅ Documentación guardada")}
+              style={{
+                width: "100%",
+                padding: "13px 0",
+                borderRadius: "var(--r-md)",
+                background: "var(--tp-rojo)",
+                color: "var(--tp-crema)",
+                border: "none",
+                cursor: "pointer",
+                fontFamily: "var(--fuente)",
+                fontSize: 14,
+                fontWeight: 700,
+                marginTop: 8,
+              }}
             >
               Guardar documentación
             </button>
@@ -1247,6 +1236,54 @@ export default function PerfilSolucionadorEdit() {
       </main>
 
       {toast && <div className={styles.toast}>{toast}</div>}
+      {/* Botón guardar fijo por tab */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: 64,
+          left: 0,
+          right: 0,
+          zIndex: 90,
+          padding: "12px 16px",
+          background: "var(--tp-crema)",
+          borderTop: "1px solid rgba(61,31,31,0.08)",
+        }}
+      >
+        <button
+          type="button"
+          onClick={() =>
+            mostrarToast(
+              tab === "personal"
+                ? "✅ Datos personales guardados"
+                : tab === "profesional"
+                  ? "✅ Datos profesionales guardados"
+                  : tab === "cobros"
+                    ? "✅ Datos de cobro guardados"
+                    : "✅ Documentación guardada",
+            )
+          }
+          style={{
+            width: "100%",
+            padding: "13px 0",
+            borderRadius: "var(--r-md)",
+            background: "var(--tp-rojo)",
+            color: "var(--tp-crema)",
+            border: "none",
+            cursor: "pointer",
+            fontFamily: "var(--fuente)",
+            fontSize: 14,
+            fontWeight: 700,
+          }}
+        >
+          {tab === "personal"
+            ? "Guardar datos personales"
+            : tab === "profesional"
+              ? "Guardar datos profesionales"
+              : tab === "cobros"
+                ? "Guardar datos de cobro"
+                : "Guardar documentación"}
+        </button>
+      </div>
       <NavInferiorS />
     </div>
   );

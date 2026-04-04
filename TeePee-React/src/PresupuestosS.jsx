@@ -680,6 +680,30 @@ export default function PresupuestosS() {
   const [searchParams] = useSearchParams();
   const solicitudIdParam = searchParams.get("solicitudId");
   const desdeParam       = searchParams.get("desde") || "";
+  const categoriaParam   = searchParams.get("categoria");
+  const descripcionParam = searchParams.get("descripcion");
+  const direccionParam   = searchParams.get("direccion");
+  const urgenciaParam    = searchParams.get("urgencia");
+  const usuarioNomParam  = searchParams.get("nombre");
+  const usuarioIniParam  = searchParams.get("inicial");
+
+  // Solicitud que viene directamente desde Búsqueda (paso 3)
+  const solicitudDesdeBusqueda = desdeParam === "busqueda" && categoriaParam ? {
+    cliente:  usuarioNomParam ? decodeURIComponent(usuarioNomParam) : "Laura Pérez",
+    inicial:  usuarioIniParam || "L",
+    color:    "#2A7D5A",
+    servicio: categoriaParam ? decodeURIComponent(categoriaParam) : "Servicio",
+    monto: null,
+    solicitud: {
+      descripcionDetallada: descripcionParam ? decodeURIComponent(descripcionParam) : "",
+      direccion:  direccionParam ? decodeURIComponent(direccionParam) : "",
+      urgente:    urgenciaParam === "Urgente",
+      distancia:  "Cercano",
+      presupuestoEstimado: "A definir",
+      disponibilidad: [],
+      fotos: [],
+    },
+  } : null;
 
   // Buscar solicitud por id si viene de HomeSolucionador
   const solicitudDesdeHome = solicitudIdParam
@@ -700,7 +724,7 @@ export default function PresupuestosS() {
       })()
     : null;
 
-  const [formulario, setFormulario] = useState(solicitudDesdeHome);
+  const [formulario, setFormulario] = useState(solicitudDesdeBusqueda || solicitudDesdeHome);
   const [toast, setToast]           = useState(null);
   const [filtro, setFiltro]         = useState("todos");
 
