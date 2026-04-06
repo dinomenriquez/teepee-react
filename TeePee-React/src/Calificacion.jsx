@@ -491,6 +491,11 @@ export default function Calificacion() {
         )}
         {/* ── BOTÓN ENVIAR ── */}
         <div style={{ padding: "8px 0 16px" }}>
+          {estrellasPrincipal > 0 && (
+            <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", textAlign: "center", lineHeight: 1.5, margin: "0 0 10px", fontFamily: "var(--fuente)" }}>
+              🔒 La calificación se publicará una vez que ambos se califiquen mutuamente.
+            </p>
+          )}
           <button
             type="button"
             className={`${styles.btnEnviar} ${

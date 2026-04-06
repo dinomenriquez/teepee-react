@@ -7,9 +7,12 @@ import { MessageCircle, Send, Paperclip, DollarSign } from "lucide-react";
 
 function dec(val, fallback = "") {
   if (!val) return fallback;
-  try { return dec(val); } catch { return val; }
+  try {
+    return dec(val);
+  } catch {
+    return val;
+  }
 }
-
 
 // Chats del solucionador con sus clientes
 const CHATS_CLIENTES = [
@@ -49,40 +52,68 @@ const CHATS_CLIENTES = [
 ];
 
 const MENSAJES_INICIALES = [
-  { id: 1, tipo: "texto", autor: "cliente", texto: "Hola! ¿A qué hora podés venir?", hora: "14:20", leido: true },
-  { id: 2, tipo: "texto", autor: "solucionador", texto: "Hola! Puedo estar a las 14:30 hs. ¿Te viene bien?", hora: "14:21", leido: true },
-  { id: 3, tipo: "texto", autor: "cliente", texto: "Confirmo para las 14:30 hs", hora: "14:23", leido: false },
+  {
+    id: 1,
+    tipo: "texto",
+    autor: "cliente",
+    texto: "Hola! ¿A qué hora podés venir?",
+    hora: "14:20",
+    leido: true,
+  },
+  {
+    id: 2,
+    tipo: "texto",
+    autor: "solucionador",
+    texto: "Hola! Puedo estar a las 14:30 hs. ¿Te viene bien?",
+    hora: "14:21",
+    leido: true,
+  },
+  {
+    id: 3,
+    tipo: "texto",
+    autor: "cliente",
+    texto: "Confirmo para las 14:30 hs",
+    hora: "14:23",
+    leido: false,
+  },
 ];
 
 export default function ChatS() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const usuarioIdParam = searchParams.get("usuarioId");
-  const nombreParam    = searchParams.get("nombre");
-  const inicialParam   = searchParams.get("inicial");
-  const desdeParam        = searchParams.get("desde");
-  const solicitudIdBack   = searchParams.get("solicitudId");
-  const mensajeParam   = searchParams.get("mensaje");
-  const montoPptoParam    = searchParams.get("monto");
-  const etapasPptoParam   = searchParams.get("etapas");
+  const nombreParam = searchParams.get("nombre");
+  const inicialParam = searchParams.get("inicial");
+  const desdeParam = searchParams.get("desde");
+  const solicitudIdBack = searchParams.get("solicitudId");
+  const mensajeParam = searchParams.get("mensaje");
+  const montoPptoParam = searchParams.get("monto");
+  const etapasPptoParam = searchParams.get("etapas");
   const garantiaPptoParam = searchParams.get("garantia");
-  const matPptoParam      = searchParams.get("materiales");
-  const tipoPptoParam     = searchParams.get("tipo");
-  const descPptoParam     = searchParams.get("desc");
-  const netoPptoParam     = searchParams.get("neto");
-  const visitaPptoParam   = searchParams.get("visita");
-  const categoriaParam    = searchParams.get("categoria");
-  const descripcionParam  = searchParams.get("descripcion");
-  const direccionParam    = searchParams.get("direccion");
-  const urgenciaParam     = searchParams.get("urgencia");
+  const matPptoParam = searchParams.get("materiales");
+  const tipoPptoParam = searchParams.get("tipo");
+  const descPptoParam = searchParams.get("desc");
+  const netoPptoParam = searchParams.get("neto");
+  const visitaPptoParam = searchParams.get("visita");
+  const categoriaParam = searchParams.get("categoria");
+  const descripcionParam = searchParams.get("descripcion");
+  const direccionParam = searchParams.get("direccion");
+  const urgenciaParam = searchParams.get("urgencia");
 
   // Si viene con usuarioId o nombre, ir directo al hilo
-  const clienteDirecto = usuarioIdParam || nombreParam ? {
-    nombre:  nombreParam ? dec(nombreParam) : CHATS_CLIENTES.find(c => c.clienteId === Number(usuarioIdParam))?.nombre || "Cliente",
-    inicial: inicialParam || (nombreParam ? dec(nombreParam).charAt(0) : "C"),
-    color:   "#B84030",
-    clienteId: Number(usuarioIdParam) || 1,
-  } : null;
+  const clienteDirecto =
+    usuarioIdParam || nombreParam
+      ? {
+          nombre: nombreParam
+            ? dec(nombreParam)
+            : CHATS_CLIENTES.find((c) => c.clienteId === Number(usuarioIdParam))
+                ?.nombre || "Cliente",
+          inicial:
+            inicialParam || (nombreParam ? dec(nombreParam).charAt(0) : "C"),
+          color: "#B84030",
+          clienteId: Number(usuarioIdParam) || 1,
+        }
+      : null;
 
   const [convActiva, setConvActiva] = useState(clienteDirecto);
 
@@ -90,54 +121,96 @@ export default function ChatS() {
   useEffect(() => {
     if (clienteDirecto) setConvActiva(clienteDirecto);
   }, [usuarioIdParam, nombreParam]);
-  const mensajesIniciales = mensajeParam === "presupuesto"
-    ? [...MENSAJES_INICIALES, {
-        id: MENSAJES_INICIALES.length + 1,
-        tipo: "presupuesto",
-        autor: "solucionador",
-        texto: "📋 Presupuesto enviado",
-        hora: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
-        leido: false,
-        presupuesto: {
-          monto:      montoPptoParam     ? dec(montoPptoParam)     : "A confirmar",
-          tipo:       tipoPptoParam      ? dec(tipoPptoParam)      : "Precio fijo",
-          etapas:     etapasPptoParam    ? dec(etapasPptoParam)    : "A convenir",
-          garantia:   garantiaPptoParam  ? dec(garantiaPptoParam)  : "Sin garantía",
-          materiales: matPptoParam       ? dec(matPptoParam)       : "",
-          desc:       descPptoParam      ? dec(descPptoParam)      : "",
-          neto:       netoPptoParam      ? dec(netoPptoParam)      : "",
-          visita:     visitaPptoParam    ? dec(visitaPptoParam)    : "",
-        },
-      }]
-    : mensajeParam === "solicitud" && categoriaParam
-    ? [...MENSAJES_INICIALES, {
-        id: MENSAJES_INICIALES.length + 1,
-        tipo: "solicitud",
-        autor: "cliente",
-        hora: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
-        leido: false,
-        solicitud: {
-          categoria:   categoriaParam   ? dec(categoriaParam)   : "",
-          descripcion: descripcionParam ? dec(descripcionParam) : "",
-          direccion:   direccionParam   ? dec(direccionParam)   : "",
-          urgencia:    urgenciaParam    ? dec(urgenciaParam)    : "Normal",
-        },
-      }]
-    : MENSAJES_INICIALES;
+  const mensajesIniciales =
+    mensajeParam === "presupuesto"
+      ? [
+          ...MENSAJES_INICIALES,
+          {
+            id: MENSAJES_INICIALES.length + 1,
+            tipo: "presupuesto",
+            autor: "solucionador",
+            texto: "📋 Presupuesto enviado",
+            hora: new Date().toLocaleTimeString("es-AR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            }),
+            leido: false,
+            presupuesto: {
+              monto: montoPptoParam ? dec(montoPptoParam) : "A confirmar",
+              tipo: tipoPptoParam ? dec(tipoPptoParam) : "Precio fijo",
+              etapas: etapasPptoParam ? dec(etapasPptoParam) : "A convenir",
+              garantia: garantiaPptoParam
+                ? dec(garantiaPptoParam)
+                : "Sin garantía",
+              materiales: matPptoParam ? dec(matPptoParam) : "",
+              desc: descPptoParam ? dec(descPptoParam) : "",
+              neto: netoPptoParam ? dec(netoPptoParam) : "",
+              visita: visitaPptoParam ? dec(visitaPptoParam) : "",
+            },
+          },
+        ]
+      : mensajeParam === "solicitud" && categoriaParam
+        ? [
+            ...MENSAJES_INICIALES,
+            {
+              id: MENSAJES_INICIALES.length + 1,
+              tipo: "solicitud",
+              autor: "cliente",
+              hora: new Date().toLocaleTimeString("es-AR", {
+                hour: "2-digit",
+                minute: "2-digit",
+              }),
+              leido: false,
+              solicitud: {
+                categoria: categoriaParam ? dec(categoriaParam) : "",
+                descripcion: descripcionParam ? dec(descripcionParam) : "",
+                direccion: direccionParam ? dec(direccionParam) : "",
+                urgencia: urgenciaParam ? dec(urgenciaParam) : "Normal",
+              },
+            },
+          ]
+        : desdeParam === "ayuda-s"
+          ? [
+              {
+                id: 1,
+                tipo: "texto",
+                autor: "cliente",
+                texto:
+                  "¡Hola! Soy el equipo de soporte de TeePee. ¿En qué te puedo ayudar?",
+                hora: new Date().toLocaleTimeString("es-AR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                leido: true,
+              },
+            ]
+          : MENSAJES_INICIALES;
 
-  const [mensajes, setMensajes]     = useState(mensajesIniciales);
+  const [mensajes, setMensajes] = useState(mensajesIniciales);
   const [inputTexto, setInputTexto] = useState("");
-  const [toast, setToast]           = useState(null);
+  const [toast, setToast] = useState(null);
 
-  function mostrarToast(msg) { setToast(msg); setTimeout(() => setToast(null), 2500); }
+  function mostrarToast(msg) {
+    setToast(msg);
+    setTimeout(() => setToast(null), 2500);
+  }
 
   function enviarMensaje() {
     if (!inputTexto.trim()) return;
-    setMensajes(prev => [...prev, {
-      id: prev.length + 1, tipo: "texto", autor: "solucionador",
-      texto: inputTexto.trim(), hora: new Date().toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }),
-      leido: false,
-    }]);
+    setMensajes((prev) => [
+      ...prev,
+      {
+        id: prev.length + 1,
+        tipo: "texto",
+        autor: "solucionador",
+        texto: inputTexto.trim(),
+        hora: new Date().toLocaleTimeString("es-AR", {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        leido: false,
+      },
+    ]);
     setInputTexto("");
   }
 
@@ -146,18 +219,36 @@ export default function ChatS() {
     else if (desdeParam === "trabajos-s") navigate("/trabajos-s");
     else if (desdeParam === "agenda") navigate("/agenda");
     else if (desdeParam === "perfil-usuario-publico") navigate(-1);
-    else if (desdeParam === "presupuestos-s") navigate(`/presupuestos-s?solicitudId=${solicitudIdBack || 1}&volverPaso=1`);
+    else if (desdeParam === "presupuestos-s")
+      navigate(
+        `/presupuestos-s?solicitudId=${solicitudIdBack || 1}&volverPaso=1`,
+      );
     else setConvActiva(null); // vuelve a la lista de chats
   }
 
   // ── LISTA DE CHATS ──
   if (!convActiva) {
     return (
-      <div style={{ background: "var(--tp-crema)", minHeight: "100vh", fontFamily: "var(--fuente)" }}>
+      <div
+        style={{
+          background: "var(--tp-crema)",
+          minHeight: "100vh",
+          fontFamily: "var(--fuente)",
+        }}
+      >
         <header className={stylesCss.header}>
           <button onClick={() => navigate(-1)} className={stylesCss.btnVolver}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tp-marron)" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 18l-6-6 6-6"/>
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--tp-marron)"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
           <h1 className={stylesCss.headerTitulo}>Mensajes</h1>
@@ -171,7 +262,10 @@ export default function ChatS() {
               onClick={() => setConvActiva(conv)}
               className={`${stylesCss.convBtn} ${conv.sinLeer > 0 ? stylesCss.convBtnNoLeido : ""}`}
             >
-              <div className={stylesCss.convAvatar} style={{ background: conv.color }}>
+              <div
+                className={stylesCss.convAvatar}
+                style={{ background: conv.color }}
+              >
                 {conv.inicial}
               </div>
               <div className={stylesCss.convInfo}>
@@ -180,13 +274,13 @@ export default function ChatS() {
                   <span className={stylesCss.convHora}>{conv.hora}</span>
                 </div>
                 <div className={stylesCss.convMensajeFila}>
-                  <span className={`${stylesCss.convUltimo} ${conv.sinLeer > 0 ? stylesCss.convUltimoNoLeido : ""}`}>
+                  <span
+                    className={`${stylesCss.convUltimo} ${conv.sinLeer > 0 ? stylesCss.convUltimoNoLeido : ""}`}
+                  >
                     {conv.ultimoMensaje}
                   </span>
                   {conv.sinLeer > 0 && (
-                    <div className={stylesCss.convBadge}>
-                      {conv.sinLeer}
-                    </div>
+                    <div className={stylesCss.convBadge}>{conv.sinLeer}</div>
                   )}
                 </div>
                 <span className={stylesCss.convTrabajo}>{conv.trabajo}</span>
@@ -218,100 +312,339 @@ export default function ChatS() {
         </div>
         <button
           className={stylesCss.btnPerfil}
-          onClick={() => navigate(`/perfil-usuario-publico?usuarioId=${convActiva.clienteId}&nombre=${encodeURIComponent(convActiva.nombre)}`)}
+          onClick={() =>
+            navigate(
+              `/perfil-usuario-publico?usuarioId=${convActiva.clienteId}&nombre=${encodeURIComponent(convActiva.nombre)}`,
+            )
+          }
           title="Ver perfil"
+          style={{ display: desdeParam === "ayuda-s" ? "none" : undefined }}
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="8" r="4"/>
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
           </svg>
         </button>
       </header>
 
       <div className={stylesCss.mensajes}>
         {mensajes.map((msg) => (
-          <div key={msg.id} className={`${stylesCss.mensajeFila} ${msg.autor === "solucionador" ? stylesCss.mensajeFilaPropio : ""}`}>
-            <div className={`${stylesCss.burbuja} ${msg.autor === "solucionador" ? stylesCss.burbujaPropia : ""}`}>
+          <div
+            key={msg.id}
+            className={`${stylesCss.mensajeFila} ${msg.autor === "solucionador" ? stylesCss.mensajeFilaPropio : ""}`}
+          >
+            <div
+              className={`${stylesCss.burbuja} ${msg.autor === "solucionador" ? stylesCss.burbujaPropia : ""}`}
+            >
               {msg.tipo === "solicitud" && msg.solicitud ? (
                 <div style={{ minWidth: 210 }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid rgba(240,234,214,0.18)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginBottom: 8,
+                      paddingBottom: 8,
+                      borderBottom: "1px solid rgba(240,234,214,0.18)",
+                    }}
+                  >
                     <span style={{ fontSize: 14 }}>🔔</span>
                     <div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "rgba(240,234,214,0.90)", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>Solicitud de presupuesto</span>
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          color: "rgba(240,234,214,0.90)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                          display: "block",
+                        }}
+                      >
+                        Solicitud de presupuesto
+                      </span>
                     </div>
                   </div>
-                  <p style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-crema)", margin: "0 0 6px" }}>{msg.solicitud.categoria}</p>
+                  <p
+                    style={{
+                      fontSize: 14,
+                      fontWeight: 800,
+                      color: "var(--tp-crema)",
+                      margin: "0 0 6px",
+                    }}
+                  >
+                    {msg.solicitud.categoria}
+                  </p>
                   {msg.solicitud.descripcion && (
-                    <p style={{ fontSize: 12, color: "rgba(240,234,214,0.70)", margin: "0 0 10px", lineHeight: 1.5, fontStyle: "italic" }}>"{msg.solicitud.descripcion}"</p>
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: "rgba(240,234,214,0.70)",
+                        margin: "0 0 10px",
+                        lineHeight: 1.5,
+                        fontStyle: "italic",
+                      }}
+                    >
+                      "{msg.solicitud.descripcion}"
+                    </p>
                   )}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 5 }}
+                  >
                     {msg.solicitud.direccion && (
                       <div style={{ display: "flex", gap: 6 }}>
-                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", width: 18 }}>📍</span>
-                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>{msg.solicitud.direccion}</span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(240,234,214,0.55)",
+                            width: 18,
+                          }}
+                        >
+                          📍
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(240,234,214,0.80)",
+                          }}
+                        >
+                          {msg.solicitud.direccion}
+                        </span>
                       </div>
                     )}
                     <div style={{ display: "flex", gap: 6 }}>
-                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", width: 18 }}>⚡</span>
-                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>{msg.solicitud.urgencia}</span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "rgba(240,234,214,0.55)",
+                          width: 18,
+                        }}
+                      >
+                        ⚡
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "rgba(240,234,214,0.80)",
+                        }}
+                      >
+                        {msg.solicitud.urgencia}
+                      </span>
                     </div>
                   </div>
-                  <button type="button"
-                    style={{ marginTop: 12, width: "100%", padding: "8px 0", borderRadius: 8, background: "rgba(240,234,214,0.15)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: 700, color: "var(--tp-crema)" }}>
+                  <button
+                    type="button"
+                    style={{
+                      marginTop: 12,
+                      width: "100%",
+                      padding: "8px 0",
+                      borderRadius: 8,
+                      background: "rgba(240,234,214,0.15)",
+                      border: "none",
+                      cursor: "pointer",
+                      fontFamily: "var(--fuente)",
+                      fontSize: 12,
+                      fontWeight: 700,
+                      color: "var(--tp-crema)",
+                    }}
+                  >
                     📋 Armar presupuesto
                   </button>
                 </div>
               ) : msg.tipo === "presupuesto" && msg.presupuesto ? (
                 <div style={{ minWidth: 220, maxWidth: 280 }}>
                   {/* Header */}
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8, paddingBottom: 8, borderBottom: "1px solid rgba(240,234,214,0.18)" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 6,
+                      marginBottom: 8,
+                      paddingBottom: 8,
+                      borderBottom: "1px solid rgba(240,234,214,0.18)",
+                    }}
+                  >
                     <span style={{ fontSize: 14 }}>📋</span>
                     <div>
-                      <span style={{ fontSize: 11, fontWeight: 800, color: "rgba(240,234,214,0.90)", textTransform: "uppercase", letterSpacing: "0.5px", display: "block" }}>Presupuesto</span>
-                      {msg.presupuesto.tipo && <span style={{ fontSize: 10, color: "rgba(240,234,214,0.55)" }}>{msg.presupuesto.tipo}</span>}
+                      <span
+                        style={{
+                          fontSize: 11,
+                          fontWeight: 800,
+                          color: "rgba(240,234,214,0.90)",
+                          textTransform: "uppercase",
+                          letterSpacing: "0.5px",
+                          display: "block",
+                        }}
+                      >
+                        Presupuesto
+                      </span>
+                      {msg.presupuesto.tipo && (
+                        <span
+                          style={{
+                            fontSize: 10,
+                            color: "rgba(240,234,214,0.55)",
+                          }}
+                        >
+                          {msg.presupuesto.tipo}
+                        </span>
+                      )}
                     </div>
                   </div>
 
                   {/* Monto */}
-                  <p style={{ fontSize: 26, fontWeight: 900, color: "var(--tp-crema)", margin: "0 0 10px", letterSpacing: "-0.5px" }}>{msg.presupuesto.monto}</p>
+                  <p
+                    style={{
+                      fontSize: 26,
+                      fontWeight: 900,
+                      color: "var(--tp-crema)",
+                      margin: "0 0 10px",
+                      letterSpacing: "-0.5px",
+                    }}
+                  >
+                    {msg.presupuesto.monto}
+                  </p>
 
                   {/* Descripción del trabajo */}
                   {msg.presupuesto.desc && (
-                    <p style={{ fontSize: 11, color: "rgba(240,234,214,0.70)", margin: "0 0 8px", lineHeight: 1.5, fontStyle: "italic", paddingBottom: 8, borderBottom: "1px solid rgba(240,234,214,0.12)" }}>
+                    <p
+                      style={{
+                        fontSize: 11,
+                        color: "rgba(240,234,214,0.70)",
+                        margin: "0 0 8px",
+                        lineHeight: 1.5,
+                        fontStyle: "italic",
+                        paddingBottom: 8,
+                        borderBottom: "1px solid rgba(240,234,214,0.12)",
+                      }}
+                    >
                       {msg.presupuesto.desc}
                     </p>
                   )}
 
                   {/* Detalles */}
-                  <div style={{ display: "flex", flexDirection: "column", gap: 5 }}>
+                  <div
+                    style={{ display: "flex", flexDirection: "column", gap: 5 }}
+                  >
                     <div style={{ display: "flex", gap: 6 }}>
-                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", width: 18 }}>💳</span>
-                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>{msg.presupuesto.etapas}</span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "rgba(240,234,214,0.55)",
+                          width: 18,
+                        }}
+                      >
+                        💳
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "rgba(240,234,214,0.80)",
+                        }}
+                      >
+                        {msg.presupuesto.etapas}
+                      </span>
                     </div>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", width: 18 }}>🛡️</span>
-                      <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>{msg.presupuesto.garantia}</span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "rgba(240,234,214,0.55)",
+                          width: 18,
+                        }}
+                      >
+                        🛡️
+                      </span>
+                      <span
+                        style={{
+                          fontSize: 12,
+                          color: "rgba(240,234,214,0.80)",
+                        }}
+                      >
+                        {msg.presupuesto.garantia}
+                      </span>
                     </div>
                     {msg.presupuesto.materiales && (
                       <div style={{ display: "flex", gap: 6 }}>
-                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", width: 18 }}>🔧</span>
-                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>{msg.presupuesto.materiales}</span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(240,234,214,0.55)",
+                            width: 18,
+                          }}
+                        >
+                          🔧
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(240,234,214,0.80)",
+                          }}
+                        >
+                          {msg.presupuesto.materiales}
+                        </span>
                       </div>
                     )}
                     {msg.presupuesto.visita && (
                       <div style={{ display: "flex", gap: 6 }}>
-                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.55)", width: 18 }}>🚗</span>
-                        <span style={{ fontSize: 12, color: "rgba(240,234,214,0.80)" }}>Visita: {msg.presupuesto.visita}</span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(240,234,214,0.55)",
+                            width: 18,
+                          }}
+                        >
+                          🚗
+                        </span>
+                        <span
+                          style={{
+                            fontSize: 12,
+                            color: "rgba(240,234,214,0.80)",
+                          }}
+                        >
+                          Visita: {msg.presupuesto.visita}
+                        </span>
                       </div>
                     )}
                   </div>
 
                   {/* Botones Aceptar / Negociar */}
                   <div style={{ display: "flex", gap: 6, marginTop: 12 }}>
-                    <div style={{ flex: 1, padding: "7px 0", borderRadius: 8, background: "rgba(42,125,90,0.40)", textAlign: "center", fontSize: 12, fontWeight: 700, color: "white", cursor: "pointer" }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "7px 0",
+                        borderRadius: 8,
+                        background: "rgba(42,125,90,0.40)",
+                        textAlign: "center",
+                        fontSize: 12,
+                        fontWeight: 700,
+                        color: "white",
+                        cursor: "pointer",
+                      }}
+                    >
                       ✓ Aceptar
                     </div>
-                    <div style={{ flex: 1, padding: "7px 0", borderRadius: 8, background: "rgba(240,234,214,0.12)", textAlign: "center", fontSize: 12, fontWeight: 600, color: "rgba(240,234,214,0.70)", cursor: "pointer" }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        padding: "7px 0",
+                        borderRadius: 8,
+                        background: "rgba(240,234,214,0.12)",
+                        textAlign: "center",
+                        fontSize: 12,
+                        fontWeight: 600,
+                        color: "rgba(240,234,214,0.70)",
+                        cursor: "pointer",
+                      }}
+                    >
                       Negociar
                     </div>
                   </div>
@@ -326,12 +659,20 @@ export default function ChatS() {
       </div>
 
       <div className={stylesCss.inputArea}>
-        <button className={stylesCss.btnAdjunto} onClick={() => mostrarToast("Adjuntar archivo")}>
+        <button
+          className={stylesCss.btnAdjunto}
+          onClick={() => mostrarToast("Adjuntar archivo")}
+        >
           <Paperclip size={20} />
         </button>
-        <button className={stylesCss.btnAdjunto} onClick={() => mostrarToast("Enviar presupuesto")}>
-          <DollarSign size={20} />
-        </button>
+        {desdeParam !== "ayuda-s" && (
+          <button
+            className={stylesCss.btnAdjunto}
+            onClick={() => mostrarToast("Enviar presupuesto")}
+          >
+            <DollarSign size={20} />
+          </button>
+        )}
         <input
           type="text"
           className={stylesCss.input}

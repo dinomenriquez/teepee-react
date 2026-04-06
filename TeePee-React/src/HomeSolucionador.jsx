@@ -1,3 +1,4 @@
+import { HelpCircle } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
@@ -162,7 +163,7 @@ export default function HomeSolucionador() {
 
   return (
     <div className={styles.pantalla}>
-      {/* ── HEADER ── */}
+            {/* ── HEADER ── */}
       <header className={styles.header} style={{ position: "sticky", top: 0, zIndex: 100 }}>
         <div className={styles.headerLogo}>
           <LogoTeePee size={32} />
@@ -199,132 +200,6 @@ export default function HomeSolucionador() {
           <div className={styles.notifBadge}></div>
         </button>
 
-        {/* Avatar con dot de rol + dropdown */}
-        <div ref={dropdownRef} style={{ position: "relative" }}>
-          <button
-            type="button"
-            style={{
-              width: 36, height: 36, borderRadius: "50%",
-              padding: 0, border: "none", cursor: "pointer",
-              position: "relative", background: "none",
-            }}
-            onClick={() => setDropdownRol((v) => !v)}
-            title="Mi cuenta"
-          >
-            <div style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: "var(--tp-marron)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 14, fontWeight: 800, color: "var(--tp-crema)",
-              fontFamily: "var(--fuente)",
-            }}>
-              {sesion?.nombre?.charAt(0) || SOLUCIONADOR.inicial}
-            </div>
-            {/* Dot verde = modo solucionador */}
-            <div style={{
-              position: "absolute", bottom: 1, right: 1,
-              width: 10, height: 10, borderRadius: "50%",
-              background: "var(--verde)",
-              border: "2px solid var(--tp-crema)",
-            }} />
-          </button>
-
-          {dropdownRol && (
-            <div style={{
-              position: "absolute", top: 44, right: 0,
-              background: "var(--tp-crema-clara)",
-              border: "1px solid rgba(61,31,31,0.12)",
-              borderRadius: 12, minWidth: 210,
-              boxShadow: "0 4px 16px rgba(61,31,31,0.10)",
-              zIndex: 200, overflow: "hidden",
-            }}>
-              <div style={{ padding: "10px 14px", borderBottom: "1px solid rgba(61,31,31,0.08)" }}>
-                <p style={{ fontSize: 13, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>
-                  {sesion?.nombre || SOLUCIONADOR.nombre}
-                </p>
-                <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 3 }}>
-                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: "var(--verde)", flexShrink: 0 }} />
-                  <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Modo solucionador activo</span>
-                </div>
-              </div>
-
-              {tieneDobleRol && (
-                <button
-                  type="button"
-                  style={{
-                    width: "100%", padding: "10px 14px",
-                    display: "flex", alignItems: "center", gap: 8,
-                    background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
-                    cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
-                  }}
-                  onClick={() => {
-                    cambiarRol("usuario");
-                    setDropdownRol(false);
-                    navigate("/home");
-                  }}
-                >
-                  <div style={{ width: 7, height: 7, borderRadius: "50%", background: "#378ADD", flexShrink: 0 }} />
-                  <span style={{ fontSize: 12, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Cambiar a usuario</span>
-                  <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--tp-rojo)" }}>→</span>
-                </button>
-              )}
-
-              {!tieneDobleRol && (
-                <button
-                  type="button"
-                  style={{
-                    width: "100%", padding: "10px 14px",
-                    display: "flex", alignItems: "center", gap: 8,
-                    background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
-                    cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
-                  }}
-                  onClick={() => { setDropdownRol(false); navigate("/home"); }}
-                >
-                  <span style={{ fontSize: 12, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Activar modo usuario</span>
-                  <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--tp-marron-suave)" }}>+</span>
-                </button>
-              )}
-
-              <button
-                type="button"
-                style={{
-                  width: "100%", padding: "10px 14px",
-                  display: "flex", alignItems: "center",
-                  background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
-                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
-                }}
-                onClick={() => { setDropdownRol(false); navigate("/perfil-solucionador"); }}
-              >
-                <span style={{ fontSize: 12, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Mi perfil</span>
-              </button>
-              <button
-                type="button"
-                style={{
-                  width: "100%", padding: "10px 14px",
-                  display: "flex", alignItems: "center", gap: 6,
-                  background: "none", border: "none", borderBottom: "1px solid rgba(61,31,31,0.06)",
-                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
-                }}
-                onClick={() => { setDropdownRol(false); navigate("/ayuda-s"); }}
-              >
-                <span style={{ fontSize: 12, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Centro de ayuda</span>
-                <span style={{ marginLeft: "auto", fontSize: 11, color: "var(--tp-marron-suave)" }}>?</span>
-              </button>
-
-              <button
-                type="button"
-                style={{
-                  width: "100%", padding: "10px 14px",
-                  background: "none", border: "none",
-                  cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
-                }}
-                onClick={() => { logout(); setDropdownRol(false); }}
-              >
-                <span style={{ fontSize: 12, color: "var(--tp-rojo)", fontFamily: "var(--fuente)" }}>Cerrar sesión</span>
-              </button>
-            </div>
-          )}
-        </div>
       </header>
 
       {/*
@@ -357,17 +232,26 @@ export default function HomeSolucionador() {
       <main className={styles.contenido}>
         {/* ── SALUDO ── */}
         <section className={styles.saludo}>
-          <div>
-            <p className={styles.saludoSub}>Panel del Solucionador 🔧</p>
-            <h1 className={styles.saludoNombre}>{sesion?.nombre || SOLUCIONADOR.nombre}</h1>
-            <div className={styles.saludoNivel}>
-              <span>{SOLUCIONADOR.nivelIcono}</span>
-              <span className={styles.saludoNivelTexto}>
-                Nivel {SOLUCIONADOR.nivel}
-              </span>
-              <span className={styles.saludoOficio}>
-                · {SOLUCIONADOR.oficio}
-              </span>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <div style={{
+              width: 54, height: 54, borderRadius: "50%",
+              background: "var(--tp-marron)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 20, fontWeight: 900, color: "var(--tp-crema)",
+              fontFamily: "var(--fuente)", flexShrink: 0,
+              border: "3px solid var(--tp-crema)",
+              boxShadow: "0 2px 8px rgba(61,31,31,0.15)",
+            }}>
+              {(sesion?.nombre || SOLUCIONADOR.nombre).split(" ").map(n => n.charAt(0)).slice(0,2).join("")}
+            </div>
+            <div>
+              <p className={styles.saludoSub}>Panel del Solucionador 🔧</p>
+              <h1 className={styles.saludoNombre}>{sesion?.nombre || SOLUCIONADOR.nombre}</h1>
+              <div style={{ display: "flex", alignItems: "center", gap: 5, marginTop: 2 }}>
+                <span style={{ fontSize: 13 }}>{SOLUCIONADOR.nivelIcono}</span>
+                <span className={styles.saludoNivelTexto}>Nivel {SOLUCIONADOR.nivel}</span>
+                <span className={styles.saludoOficio}>· {SOLUCIONADOR.oficio}</span>
+              </div>
             </div>
           </div>
         </section>
@@ -375,12 +259,15 @@ export default function HomeSolucionador() {
         {/* ── RESUMEN DE INGRESOS ── */}
         <section
           onClick={() => navigate("/ingresos")}
+          onMouseEnter={e => e.currentTarget.style.boxShadow = "0 12px 32px rgba(61,31,31,0.50)"}
+          onMouseLeave={e => e.currentTarget.style.boxShadow = "0 8px 24px rgba(61,31,31,0.35)"}
           style={{
             cursor: "pointer",
             borderRadius: "var(--r-xl)",
             overflow: "hidden",
             background: "linear-gradient(135deg, #3D1F1F 0%, #5C2E2E 60%, #7A2020 100%)",
             boxShadow: "0 8px 24px rgba(61,31,31,0.35)",
+            transition: "box-shadow 0.2s ease",
           }}
         >
           {/* Nivel 1 — Título */}
@@ -478,7 +365,7 @@ export default function HomeSolucionador() {
           </div>
         )}
         {TRABAJOS_ACTIVOS_S.slice(0, 2).map((t) => (
-          <section key={t.id} className={styles.trabajoActivo} style={{ marginBottom: 8 }}>
+          <section key={t.id} className={styles.trabajoActivo} style={{ marginBottom: 10 }}>
             <div className={styles.trabajoActivoHeader}>
               <div className={styles.trabajoActivoLabel}>
                 <div className={styles.puntoActivo} style={{ background: t.color }}></div>
@@ -529,7 +416,7 @@ export default function HomeSolucionador() {
               Solicitudes nuevas
               <span className={styles.seccionBadge}>{SOLICITUDES.length}</span>
             </h2>
-            <button type="button" className={styles.seccionVerTodo} onClick={() => navigate("/trabajos-s")}>
+            <button type="button" className={styles.seccionVerTodo} onClick={() => navigate("/presupuestos-s?desde=home-solucionador")}>
               Ver todas →
             </button>
           </div>
@@ -629,31 +516,31 @@ export default function HomeSolucionador() {
         </section>
 
         {/* ── CENTRO DE AYUDA ── */}
-        <section>
-          <button
-            type="button"
-            onClick={() => navigate("/ayuda-s")}
-            style={{
-              width: "100%", display: "flex", alignItems: "center", gap: 12,
-              padding: "14px 16px", borderRadius: "var(--r-md)",
-              background: "var(--tp-crema-clara)",
-              border: "1px solid rgba(61,31,31,0.10)",
-              cursor: "pointer", fontFamily: "var(--fuente)",
-            }}
-          >
-            <div style={{
-              width: 36, height: 36, borderRadius: "50%",
-              background: "var(--tp-rojo-suave)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontSize: 18, flexShrink: 0,
-            }}>💬</div>
-            <div style={{ textAlign: "left" }}>
-              <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: 0 }}>Centro de ayuda</p>
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>Preguntas frecuentes y soporte</p>
-            </div>
-            <span style={{ marginLeft: "auto", color: "var(--tp-marron-suave)", fontSize: 18 }}>›</span>
-          </button>
-        </section>
+        <button type="button"
+          onClick={() => navigate("/ayuda-s")}
+          onMouseEnter={e => { e.currentTarget.style.background = "var(--tp-crema-oscura)"; e.currentTarget.style.borderColor = "rgba(184,64,48,0.25)"; e.currentTarget.style.transform = "translateY(-1px)"; }}
+          onMouseLeave={e => { e.currentTarget.style.background = "var(--tp-crema-clara)"; e.currentTarget.style.borderColor = "rgba(61,31,31,0.12)"; e.currentTarget.style.transform = "none"; }}
+          style={{
+            width: "100%", display: "flex", alignItems: "center", flexDirection: "row", gap: 12,
+            padding: "var(--sp-md)", borderRadius: "var(--r-md)",
+            background: "var(--tp-crema-clara)", border: "1px solid rgba(61,31,31,0.12)",
+            cursor: "pointer", fontFamily: "var(--fuente)", textAlign: "left",
+            transition: "all var(--trans)",
+          }}>
+          <div style={{
+            width: 38, height: 38, borderRadius: "var(--r-sm)",
+            background: "var(--tp-rojo-suave)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <HelpCircle size={18} color="var(--tp-marron)" />
+          </div>
+          <div>
+            <span style={{ display: "block", fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", fontFamily: "var(--fuente)" }}>Centro de ayuda</span>
+            <span style={{ display: "block", fontSize: 11, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)" }}>Preguntas frecuentes y soporte</span>
+          </div>
+          <span style={{ marginLeft: "auto", color: "var(--tp-marron-suave)", fontSize: 18 }}>›</span>
+        </button>
 
         {/* ── REPUTACIÓN ── */}
         <section className={styles.reputacionCard}>

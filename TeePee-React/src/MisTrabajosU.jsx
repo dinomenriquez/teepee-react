@@ -64,54 +64,16 @@ const TRABAJOS = {
     },
   ],
   cancelados: [
-    {
-      id: 4,
-      solucionadorId: 2,
-      solucionador: "Roberto Flores",
-      inicial: "R",
-      nivel: "🥈",
-      color: "#534AB7",
-      oficio: "Plomero",
-      titulo: "Reparación canilla exterior",
-      descripcion: "Reparación canilla exterior",
-      fecha: "10/03/2025",
-      monto: "$6.000",
-      estado: "cancelado",
-      etapa: 1,
-      totalEtapas: 1,
-      progreso: 0,
-      motivoCancelacion: "El solucionador no pudo asistir",
-      montoDevuelto: "$0 (sin anticipo)",
-    },
+    { id: 4, solucionadorId: 2, solucionador: "Roberto Flores", inicial: "R", nivel: "🥈", color: "#534AB7", oficio: "Plomero", titulo: "Reparación canilla exterior", descripcion: "Reparación canilla exterior", fecha: "10/03/2025", monto: "$6.000", estado: "cancelado", etapa: 1, totalEtapas: 1, progreso: 0, motivoCancelacion: "El solucionador no pudo asistir", montoDevuelto: "$0 (sin anticipo)" },
+    { id: 5, solucionadorId: 3, solucionador: "Miguel Saracho", inicial: "M", nivel: "🥇", color: "#8C6820", oficio: "Plomero", titulo: "Destapación cañería cocina", descripcion: "Destapación cañería cocina", fecha: "05/03/2025", monto: "$12.000", estado: "disputa", etapa: 1, totalEtapas: 2, progreso: 50, motivoDisputa: "El problema volvió a aparecer al día siguiente", estadoDisputa: "En revisión" },
   ],
-  disputas: [
-    {
-      id: 5,
-      solucionadorId: 3,
-      solucionador: "Miguel Saracho",
-      inicial: "M",
-      nivel: "🥇",
-      color: "#8C6820",
-      oficio: "Plomero",
-      titulo: "Destapación cañería cocina",
-      descripcion: "Destapación cañería cocina",
-      fecha: "05/03/2025",
-      monto: "$12.000",
-      estado: "disputa",
-      etapa: 1,
-      totalEtapas: 2,
-      progreso: 50,
-      motivoDisputa: "El problema volvió a aparecer al día siguiente",
-      estadoDisputa: "En revisión",
-    },
-  ],
+  disputas: [],
 };
 
 const TABS = [
   { id: "enCurso",     label: "En curso",     icono: <RefreshCw    size={14} /> },
   { id: "finalizados", label: "Finalizados",   icono: <CheckCircle  size={14} /> },
-  { id: "cancelados",  label: "Cancelados",    icono: <XCircle      size={14} /> },
-  { id: "disputas",    label: "Disputas",      icono: <AlertTriangle size={14} /> },
+  { id: "cancelados",  label: "Cancelados y Disputas", icono: <XCircle size={14} /> },
 ];
 
 export default function MisTrabajosU() {
@@ -137,13 +99,14 @@ export default function MisTrabajosU() {
       </header>
 
       {/* ── TABS ── */}
-      <div className={styles.tabs}>
+      <div className={styles.tabs} style={{ display: "flex", width: "100%" }}>
         {TABS.map((t) => (
           <button
             key={t.id}
             type="button"
             className={`${styles.tab} ${tab === t.id ? styles.tabActivo : ""}`}
             onClick={() => setTab(t.id)}
+            style={{ flex: 1, textAlign: "center", justifyContent: "center" }}
           >
             <span>{t.icono}</span>
             <span>{t.label}</span>
@@ -164,13 +127,13 @@ export default function MisTrabajosU() {
         {trabajosActuales.length === 0 ? (
           <div className={styles.vacio}>
             <span className={styles.vacioIcono}>
-              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : tab === "cancelados" ? "🚫" : "⚖️"}
+              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : tab === "cancelados" ? "🚫" : "🚫"}
             </span>
             <p className={styles.vacioTexto}>
               {tab === "enCurso"    ? "Sin trabajos en curso"     :
                tab === "finalizados" ? "Sin trabajos finalizados"  :
-               tab === "cancelados"  ? "Sin trabajos cancelados"   :
-               "Sin disputas activas"}
+               tab === "cancelados"  ? "Sin cancelaciones ni disputas" :
+               "Sin cancelaciones ni disputas"}
             </p>
           </div>
         ) : (

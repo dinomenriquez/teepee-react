@@ -110,42 +110,17 @@ const TRABAJOS = {
     },
   ],
   cancelados: [
-    {
-      id: 7,
-      titulo: "Pintura exterior",
-      cliente: "Diego Molina",
-      inicial: "D",
-      direccion: "Av. Uruguay 222, Posadas",
-      monto: "$22.000",
-      fecha: "20 Ene",
-      tarifaVisita: "$5.000",
-      motivoCancelacion: "El cliente tuvo un imprevisto",
-      estado: "cancelado",
-    },
+    { id: 7, titulo: "Pintura exterior", cliente: "Diego Molina", inicial: "D", direccion: "Av. Uruguay 222, Posadas", monto: "$22.000", fecha: "20 Ene", tarifaVisita: "$5.000", motivoCancelacion: "El cliente tuvo un imprevisto", estado: "cancelado" },
+    { id: 8, titulo: "Instalación gas", cliente: "Héctor Giménez", inicial: "H", direccion: "Salta 333, Posadas", monto: "$38.000", fecha: "5 Feb", motivoDisputa: "El cliente dice que quedó mal", estadoDisputa: "En revisión", nroCaso: "#CASO-2024-0289", estado: "disputa" },
   ],
-  disputas: [
-    {
-      id: 8,
-      titulo: "Instalación gas",
-      cliente: "Héctor Giménez",
-      inicial: "H",
-      direccion: "Salta 333, Posadas",
-      monto: "$38.000",
-      fecha: "5 Feb",
-      motivoDisputa: "El cliente dice que quedó mal",
-      estadoDisputa: "En revisión",
-      nroCaso: "#CASO-2024-0289",
-      estado: "disputa",
-    },
-  ],
+  disputas: [],
 };
 
 const TABS = [
   { id: "enCurso",      label: "En curso",     icono: <RefreshCw     size={14} /> },
-  { id: "presupuestos", label: "Presupuestos", icono: <FileText      size={14} />, destacada: true, ruta: "/presupuestos-s" },
+  { id: "presupuestos", label: "Presupuestos", icono: <FileText size={14} />, destacada: true, ruta: "/presupuestos-s" },
   { id: "finalizados",  label: "Finalizados",  icono: <CheckCircle   size={14} /> },
-  { id: "cancelados",   label: "Cancelados",   icono: <XCircle       size={14} /> },
-  { id: "disputas",     label: "Disputas",     icono: <AlertTriangle size={14} /> },
+  { id: "cancelados",   label: "Cancelados y Disputas", icono: <XCircle size={14} /> },
 ];
 
 const PRESUPUESTOS_MOCK = [
@@ -217,7 +192,7 @@ export default function MisTrabajosS() {
       </header>
 
       {/* ── TABS ── */}
-      <div className={styles.tabs}>
+      <div className={styles.tabs} style={{ display: "flex", width: "100%" }}>
         {TABS.map((t) => {
           const pptosPendientes = PRESUPUESTOS_MOCK.filter(p => p.estado === "pendiente").length;
           const count = t.id === "presupuestos"
@@ -229,10 +204,13 @@ export default function MisTrabajosS() {
               type="button"
               className={`${styles.tab} ${tab === t.id ? styles.tabActivo : ""}`}
               onClick={() => t.ruta ? navigate(t.ruta) : setTab(t.id)}
-              style={t.destacada && tab !== t.id ? {
-                color: "var(--tp-rojo)", fontWeight: 700,
-                borderBottom: "2px solid rgba(184,64,48,0.25)",
-              } : {}}
+              style={{
+                flex: 1, minWidth: 0, textAlign: "center", justifyContent: "center",
+                ...(t.destacada && tab !== t.id ? {
+                  color: "var(--tp-rojo)", fontWeight: 700,
+                  borderBottom: "2px solid rgba(184,64,48,0.25)",
+                } : {})
+              }}
             >
               <span>{t.icono}</span>
               <span>{t.label}</span>
@@ -252,13 +230,12 @@ export default function MisTrabajosS() {
         {trabajosActuales.length === 0 ? (
           <div className={styles.vacio}>
             <span className={styles.vacioIcono}>
-              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : tab === "cancelados" ? "🚫" : "⚖️"}
+              {tab === "enCurso" ? "🔧" : tab === "finalizados" ? "✅" : "🚫"}
             </span>
             <p className={styles.vacioTexto}>
               {tab === "enCurso"     ? "Sin trabajos en curso"     :
                tab === "finalizados" ? "Sin trabajos finalizados"  :
-               tab === "cancelados"  ? "Sin trabajos cancelados"   :
-               "Sin disputas activas"}
+               tab === "cancelados" ? "Sin cancelaciones ni disputas" : "Sin cancelaciones ni disputas"}
             </p>
           </div>
         ) : (

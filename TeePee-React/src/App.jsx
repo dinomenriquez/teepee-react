@@ -11,6 +11,7 @@ import PerfilSolucionador from "./PerfilSolucionador";
 import Chat from "./Chat";
 import Seguimiento from "./Seguimiento";
 import Pago from "./Pago";
+import CalificacionS from "./CalificacionS";
 import Calificacion from "./Calificacion";
 import Cancelacion from "./Cancelacion";
 import Agenda from "./Agenda";
@@ -81,7 +82,8 @@ function AppRoutes() {
       <Route path="/chat" element={<RutaProtegida><Chat /></RutaProtegida>} />
       <Route path="/seguimiento" element={<RutaProtegida><Seguimiento /></RutaProtegida>} />
       <Route path="/seguimiento-s" element={<RutaProtegida><SeguimientoS /></RutaProtegida>} />
-      <Route path="/pago" element={<RutaProtegida><Pago /></RutaProtegida>} />
+      <Route path="/calificacion-s" element={<CalificacionS />} />
+        <Route path="/pago" element={<RutaProtegida><Pago /></RutaProtegida>} />
       <Route path="/calificacion" element={<RutaProtegida><Calificacion /></RutaProtegida>} />
       <Route path="/cancelacion" element={<RutaProtegida><Cancelacion /></RutaProtegida>} />
       <Route path="/agenda" element={<RutaProtegida><Agenda /></RutaProtegida>} />

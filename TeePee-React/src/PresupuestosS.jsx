@@ -1438,7 +1438,13 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
                   margin: 0,
                 }}
               >
-                {montoFinal}
+                {montoFinal || (
+                  <span
+                    style={{ color: "var(--tp-marron-suave)", fontSize: 14 }}
+                  >
+                    Sin monto definido
+                  </span>
+                )}
               </p>
             </div>
             <button
@@ -1581,6 +1587,41 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
                     {anticipo}%
                   </span>
                 </div>
+                {/* Monto del anticipo en $ — segundo nivel */}
+                {montoBase > 0 && (
+                  <div
+                    style={{
+                      marginTop: 8,
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "8px 10px",
+                      borderRadius: 8,
+                      background: "rgba(184,64,48,0.06)",
+                      border: "1px solid rgba(184,64,48,0.12)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 11,
+                        color: "var(--tp-marron-suave)",
+                        fontFamily: "var(--fuente)",
+                      }}
+                    >
+                      Anticipo ({anticipo}%)
+                    </span>
+                    <span
+                      style={{
+                        fontSize: 15,
+                        fontWeight: 900,
+                        color: "var(--tp-rojo)",
+                        fontFamily: "var(--fuente)",
+                      }}
+                    >
+                      ${fmtCom(montoBase * (anticipo / 100))}
+                    </span>
+                  </div>
+                )}
                 <p
                   style={{
                     fontSize: 10,
@@ -1992,8 +2033,7 @@ export default function PresupuestosS() {
           solicitud={formulario}
           navigate={navigate}
           onVolver={() => {
-            if (desdeParam === "home-solucionador")
-              navigate("/home-solucionador");
+            if (desdeParam === "home-solucionador") navigate(-1);
             else setFormulario(null);
           }}
           onEnviar={() => {
@@ -2260,11 +2300,7 @@ export default function PresupuestosS() {
         }}
       >
         <button
-          onClick={() =>
-            desdeParam === "home-solucionador"
-              ? navigate("/home-solucionador")
-              : navigate(-1)
-          }
+          onClick={() => navigate(-1)}
           style={{
             border: "none",
             background: "none",
@@ -2368,7 +2404,7 @@ export default function PresupuestosS() {
               style={{
                 background: "var(--tp-crema-clara)",
                 borderRadius: "var(--r-lg)",
-                padding: 14,
+                padding: "14px 16px",
                 border: "1px solid rgba(61,31,31,0.08)",
               }}
             >
