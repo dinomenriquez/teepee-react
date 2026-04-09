@@ -14,35 +14,39 @@
   top: 0;
   z-index: 100;
   background: var(--tp-crema);
-  border-bottom: 1px solid rgba(61,31,31,0.08);
-  padding: 14px 16px;
+  border-bottom: 1px solid rgba(61,31,31,0.12);
+  padding: 12px var(--sp-lg);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--sp-md);
 }
 
 .btnVolver {
-  padding: 4px;
+  padding: var(--sp-sm);
   border: none;
   background: none;
   cursor: pointer;
   display: flex;
   align-items: center;
-  color: var(--tp-marron);
+  color: var(--tp-marron-suave);
+  border-radius: var(--r-full);
+  transition: color var(--trans);
 }
+.btnVolver:hover { color: var(--tp-rojo); }
 
 .headerTitulo {
   font-size: 16px;
   font-weight: 800;
   color: var(--tp-marron);
   margin: 0;
+  flex: 1;
 }
 
 .lista {
-  padding: 12px 16px;
+  padding: 12px var(--sp-lg);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: var(--sp-sm);
   flex: 1;
 }
 
@@ -52,18 +56,15 @@
   align-items: center;
   gap: 12px;
   padding: 14px 12px;
-  border-radius: var(--r-md);
-  border: none;
+  border-radius: var(--r-lg);
+  border: 1px solid rgba(61,31,31,0.08);
   cursor: pointer;
   font-family: var(--fuente);
-  border-bottom: 1px solid rgba(61,31,31,0.06);
-  background: none;
-  transition: background 0.15s ease;
-}
-
-.convBtnNoLeido {
   background: var(--tp-crema-clara);
+  transition: all var(--trans);
 }
+.convBtn:hover { box-shadow: var(--sombra-sm); }
+.convBtnNoLeido { background: var(--tp-crema-clara); }
 
 .convAvatar {
   width: 44px;
@@ -83,31 +84,26 @@
   text-align: left;
   min-width: 0;
 }
-
 .convFila {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
-
 .convNombre {
   font-size: 14px;
   font-weight: 700;
   color: var(--tp-marron);
 }
-
 .convHora {
   font-size: 11px;
   color: var(--tp-marron-suave);
 }
-
 .convMensajeFila {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 2px;
 }
-
 .convUltimo {
   font-size: 12px;
   color: var(--tp-marron-suave);
@@ -116,12 +112,10 @@
   white-space: nowrap;
   max-width: 70%;
 }
-
 .convUltimoNoLeido {
   color: var(--tp-marron);
   font-weight: 600;
 }
-
 .convBadge {
   width: 20px;
   height: 20px;
@@ -133,8 +127,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
-
 .convTrabajo {
   font-size: 11px;
   color: var(--tp-marron-suave);
@@ -144,21 +138,37 @@
 .hiloPantalla {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  height: 100dvh;
+  padding-bottom: 68px;
   background: var(--tp-crema);
   font-family: var(--fuente);
+  overflow: hidden;
 }
 
 .hiloHeader {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
+  gap: var(--sp-md);
+  padding: 14px var(--sp-lg);
   background: var(--tp-crema);
-  border-bottom: 1px solid rgba(61,31,31,0.08);
+  border-bottom: 1px solid rgba(61,31,31,0.12);
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+/* Wrapper flex del contacto — antes era style inline */
+.hiloContacto {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+/* Wrapper del avatar con badge de perfil */
+.hiloAvatarWrapper {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .hiloAvatar {
@@ -175,7 +185,6 @@
   position: relative;
   flex-shrink: 0;
 }
-
 .hiloOnline {
   position: absolute;
   bottom: 1px;
@@ -186,22 +195,56 @@
   background: var(--verde);
   border: 2px solid var(--tp-crema);
 }
+/* Icono de perfil sobre el avatar */
+.btnVerPerfilAvatar {
+  position: absolute;
+  bottom: -4px;
+  right: -6px;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--r-full);
+  background: var(--tp-crema);
+  border: 1px solid rgba(61,31,31,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--tp-marron-suave);
+  transition: all var(--trans);
+}
+.btnVerPerfilAvatar:hover { background: var(--tp-crema-oscura); color: var(--tp-marron); }
 
 .hiloInfo {
   flex: 1;
 }
-
 .hiloNombre {
   font-size: 14px;
   font-weight: 700;
   color: var(--tp-marron);
   display: block;
 }
-
 .hiloEstado {
   font-size: 11px;
   color: var(--verde);
 }
+
+/* Botón + para enviar presupuesto */
+.btnNuevoPresupuesto {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-full);
+  background: var(--tp-rojo);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tp-crema);
+  flex-shrink: 0;
+  transition: background var(--trans);
+  box-shadow: var(--sombra-rojo);
+}
+.btnNuevoPresupuesto:hover { background: var(--tp-rojo-oscuro); }
 
 .btnPerfil {
   padding: 6px;
@@ -213,24 +256,24 @@
   align-items: center;
 }
 
+/* ── MENSAJES ── */
 .mensajes {
   flex: 1;
   overflow-y: auto;
-  padding: 16px;
+  padding: 16px 16px 8px;
   display: flex;
   flex-direction: column;
   gap: 8px;
+  background: var(--tp-crema-oscura);
+  min-height: 0;
 }
-
 .mensajeFila {
   display: flex;
   justify-content: flex-start;
 }
-
 .mensajeFilaPropio {
   justify-content: flex-end;
 }
-
 .burbuja {
   max-width: 75%;
   padding: 10px 14px;
@@ -239,86 +282,298 @@
   background: var(--tp-crema-clara);
   border: 1px solid rgba(61,31,31,0.08);
 }
-
 .burbujaPropia {
   background: var(--tp-marron);
   border-color: transparent;
   border-radius: 16px;
   border-bottom-right-radius: 4px;
 }
-
 .burbujaTexto {
   font-size: 14px;
   color: var(--tp-marron);
   margin: 0 0 4px;
   line-height: 1.5;
 }
-
-.burbujaPropia .burbujaTexto {
-  color: var(--tp-crema);
-}
-
+.burbujaPropia .burbujaTexto { color: var(--tp-crema); }
 .burbujaHora {
   font-size: 10px;
   color: var(--tp-marron-suave);
   display: block;
   text-align: right;
+  margin-top: 4px;
 }
+.burbujaPropia .burbujaHora { color: rgba(240,234,214,0.55); }
 
-.burbujaPropia .burbujaHora {
-  color: rgba(240,234,214,0.55);
+/* ── SOLICITUD (en burbuja oscura) ── */
+.solicitudCard {
+  min-width: 210px;
 }
-
-.inputArea {
+.solicitudHeader {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: var(--tp-crema);
-  border-top: 1px solid rgba(61,31,31,0.08);
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(240,234,214,0.18);
 }
-
-.btnAdjunto {
-  padding: 6px;
-  border: none;
-  background: none;
-  cursor: pointer;
-  color: var(--tp-marron-suave);
-  display: flex;
-  align-items: center;
+.solicitudHeaderIcono {
+  color: rgba(240,234,214,0.70);
+  flex-shrink: 0;
 }
-
-.input {
-  flex: 1;
-  padding: 10px 14px;
-  border-radius: var(--r-full);
-  border: 1px solid rgba(61,31,31,0.15);
-  background: var(--tp-crema-clara);
-  font-family: var(--fuente);
+.solicitudHeaderLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(240,234,214,0.90);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.solicitudCategoria {
   font-size: 14px;
-  color: var(--tp-marron);
-  outline: none;
+  font-weight: 800;
+  color: var(--tp-crema);
+  margin: 0 0 6px;
 }
-
-.input:focus {
-  border-color: rgba(61,31,31,0.30);
+.solicitudDesc {
+  font-size: 12px;
+  color: rgba(240,234,214,0.70);
+  margin: 0 0 10px;
+  line-height: 1.5;
+  font-style: italic;
 }
-
-.btnEnviar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: var(--tp-rojo);
-  color: white;
+.solicitudMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.solicitudMetaFila {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.solicitudMetaIcono {
+  color: rgba(240,234,214,0.55);
+  flex-shrink: 0;
+}
+.solicitudMetaTexto {
+  font-size: 12px;
+  color: rgba(240,234,214,0.80);
+}
+.btnArmarPpto {
+  margin-top: 12px;
+  width: 100%;
+  padding: 8px 0;
+  border-radius: 8px;
+  background: rgba(240,234,214,0.15);
   border: none;
   cursor: pointer;
+  font-family: var(--fuente);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tp-crema);
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
+  transition: background var(--trans);
+}
+.btnArmarPpto:hover { background: rgba(240,234,214,0.22); }
+
+/* ── PRESUPUESTO (en burbuja oscura) ── */
+.pptoCard {
+  min-width: 220px;
+  max-width: 280px;
+}
+.pptoHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(240,234,214,0.18);
+}
+.pptoHeaderIcono {
+  color: rgba(240,234,214,0.70);
   flex-shrink: 0;
 }
+.pptoHeaderLabel {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(240,234,214,0.90);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: block;
+}
+.pptoTipo {
+  font-size: 10px;
+  color: rgba(240,234,214,0.55);
+  display: block;
+}
+.pptoMonto {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--tp-crema);
+  margin: 0 0 10px;
+  letter-spacing: -0.5px;
+}
+.pptoDesc {
+  font-size: 11px;
+  color: rgba(240,234,214,0.70);
+  margin: 0 0 8px;
+  line-height: 1.5;
+  font-style: italic;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(240,234,214,0.12);
+}
+.pptoDetalles {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.pptoDetalleFila {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.pptoDetalleIcono {
+  color: rgba(240,234,214,0.55);
+  flex-shrink: 0;
+}
+.pptoDetalleTexto {
+  font-size: 12px;
+  color: rgba(240,234,214,0.80);
+}
+.pptoBotones {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.btnAceptarPpto {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 8px;
+  background: rgba(42,125,90,0.40);
+  border: none;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  font-family: var(--fuente);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: background var(--trans);
+}
+.btnAceptarPpto:hover { background: rgba(42,125,90,0.55); }
+.btnNegociarPpto {
+  flex: 1;
+  padding: 7px 0;
+  border-radius: 8px;
+  background: rgba(240,234,214,0.12);
+  border: none;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(240,234,214,0.70);
+  cursor: pointer;
+  font-family: var(--fuente);
+  transition: background var(--trans);
+}
+.btnNegociarPpto:hover { background: rgba(240,234,214,0.20); }
 
+/* ── INPUT AREA (igual a Chat) ── */
+.inputArea {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 6px 10px;
+  padding-bottom: calc(6px + env(safe-area-inset-bottom));
+  background: var(--tp-crema);
+  border-top: 1px solid rgba(61,31,31,0.10);
+  flex-shrink: 0;
+}
+.btnAdjunto {
+  padding: 6px;
+  cursor: pointer;
+  border-radius: var(--r-full);
+  transition: background var(--trans);
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  color: var(--tp-marron-suave);
+}
+.btnAdjunto:hover { background: var(--tp-crema-oscura); }
+.inputBloque {
+  flex: 1;
+  background: var(--tp-crema-clara);
+  border: 1.5px solid rgba(61,31,31,0.15);
+  border-radius: 18px;
+  padding: 6px 12px;
+  transition: border-color var(--trans);
+}
+.inputBloque:focus-within {
+  border-color: var(--tp-rojo);
+  box-shadow: 0 0 0 3px rgba(184,64,48,0.08);
+}
+.inputTexto {
+  width: 100%;
+  background: none;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  font-family: var(--fuente);
+  color: var(--tp-marron);
+  resize: none;
+  line-height: 1.4;
+  height: 20px;
+  min-height: 20px;
+  max-height: 120px;
+  overflow-y: auto;
+  display: block;
+}
+.inputTexto::placeholder { color: var(--tp-marron-suave); opacity: 0.6; }
+.btnEnviar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-full);
+  background: var(--tp-crema-oscura);
+  border: none;
+  cursor: pointer;
+  transition: all var(--trans);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--tp-marron-suave);
+}
+.btnEnviarActivo {
+  background: var(--tp-rojo);
+  color: var(--tp-crema);
+  box-shadow: var(--sombra-rojo);
+}
+.btnEnviarActivo:hover { background: var(--tp-rojo-oscuro); transform: scale(1.05); }
+.btnAudio {
+  width: 36px; height: 36px;
+  border-radius: var(--r-full);
+  background: var(--tp-rojo); border: none;
+  cursor: pointer; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--tp-crema); box-shadow: var(--sombra-rojo);
+  transition: all var(--trans);
+  touch-action: none; user-select: none;
+}
+.btnAudioGrabando { background: #b71c1c; transform: scale(1.12); box-shadow: 0 0 0 6px rgba(184,64,48,0.20); }
+.grabandoLabel {
+  font-size: 11px; font-weight: 600; color: var(--tp-rojo);
+  white-space: nowrap; flex: 1; text-align: center;
+  animation: parpadeo 1s infinite;
+}
+@keyframes parpadeo { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+/* ── TOAST ── */
 .toast {
   position: fixed;
   bottom: 80px;
@@ -332,4 +587,5 @@
   font-weight: 600;
   z-index: 200;
   white-space: nowrap;
+  font-family: var(--fuente);
 }

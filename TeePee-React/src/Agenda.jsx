@@ -40,7 +40,8 @@ const MESES = [
 
 const TRABAJOS = [
   {
-    id: 1, usuarioId: 1,
+    id: 1,
+    usuarioId: 1,
     titulo: "Tablero eléctrico",
     cliente: "María González",
     direccion: "Av. Mitre 1234",
@@ -51,7 +52,8 @@ const TRABAJOS = [
     diaOffset: 0,
   },
   {
-    id: 2, usuarioId: 2,
+    id: 2,
+    usuarioId: 2,
     titulo: "Instalación de luces",
     cliente: "Roberto Sosa",
     direccion: "Belgrano 456",
@@ -62,7 +64,8 @@ const TRABAJOS = [
     diaOffset: 0,
   },
   {
-    id: 3, usuarioId: 3,
+    id: 3,
+    usuarioId: 3,
     titulo: "Corte de luz revisión",
     cliente: "Ana Ramírez",
     direccion: "San Lorenzo 789",
@@ -73,7 +76,8 @@ const TRABAJOS = [
     diaOffset: 1,
   },
   {
-    id: 4, usuarioId: 4,
+    id: 4,
+    usuarioId: 4,
     titulo: "Tomacorrientes nuevos",
     cliente: "Luis Pereyra",
     direccion: "Corrientes 321",
@@ -84,7 +88,8 @@ const TRABAJOS = [
     diaOffset: 2,
   },
   {
-    id: 5, usuarioId: 5,
+    id: 5,
+    usuarioId: 5,
     titulo: "Revisión general",
     cliente: "Silvia Torres",
     direccion: "España 654",
@@ -97,10 +102,10 @@ const TRABAJOS = [
 ];
 
 const HORARIOS_DISPONIBILIDAD = [
-  { id: "manana",  label: "Mañana", rango: "7:00 – 12:00" },
-  { id: "siesta",  label: "Siesta", rango: "12:00 – 15:00" },
-  { id: "tarde",   label: "Tarde",  rango: "15:00 – 19:00" },
-  { id: "noche",   label: "Noche",  rango: "19:00 – 21:00" },
+  { id: "manana", label: "Mañana", rango: "7:00 – 12:00" },
+  { id: "siesta", label: "Siesta", rango: "12:00 – 15:00" },
+  { id: "tarde", label: "Tarde", rango: "15:00 – 19:00" },
+  { id: "noche", label: "Noche", rango: "19:00 – 21:00" },
 ];
 
 const ESTADO_CONFIG = {
@@ -204,7 +209,6 @@ export default function Agenda() {
     mostrarToast("✅ Solicitud de reprogramación enviada");
   }
 
-  // Generar los 7 días de la semana actual
   const diasSemana = Array.from({ length: 7 }, (_, i) => {
     const fecha = getFechaSemana(semanaOffset * 7 + i);
     return {
@@ -216,14 +220,12 @@ export default function Agenda() {
     };
   });
 
-  // Trabajos del día seleccionado
   const trabajosDelDia = TRABAJOS.filter(
     (t) => t.diaOffset === diaSeleccionado,
   ).sort((a, b) => a.horaInicio.localeCompare(b.horaInicio));
 
   const diaActual = diasSemana.find((d) => d.offset === diaSeleccionado);
 
-  // Totales del día
   const totalDia = trabajosDelDia
     .filter((t) => t.estado === "confirmado")
     .reduce((acc, t) => acc + parseInt(t.monto.replace(/\D/g, "")), 0);
@@ -231,7 +233,7 @@ export default function Agenda() {
   return (
     <div className={styles.pantalla}>
       {/* ── HEADER ── */}
-      <header className={styles.header} style={{ position: "sticky", top: 0, zIndex: 100 }}>
+      <header className={styles.header}>
         <button className={styles.btnVolver} onClick={() => navigate(-1)}>
           <IconoVolver size={20} />
         </button>
@@ -304,8 +306,13 @@ export default function Agenda() {
               <span className={styles.disponibilidadTitulo}>
                 Disponibilidad del día
               </span>
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "2px 0 0", fontFamily: "var(--fuente)" }}>
-                {diaActual?.esHoy ? "Hoy" : diaActual ? `${diaActual.diaNombre} ${diaActual.diaNum}` : "—"} · Solo aplica a este día
+              <p className={styles.disponibilidadDia}>
+                {diaActual?.esHoy
+                  ? "Hoy"
+                  : diaActual
+                    ? `${diaActual.diaNombre} ${diaActual.diaNum}`
+                    : "—"}{" "}
+                · Solo aplica a este día
               </p>
             </div>
             <button
@@ -316,7 +323,7 @@ export default function Agenda() {
               Guardar
             </button>
           </div>
-          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 8px", fontFamily: "var(--fuente)", lineHeight: 1.5 }}>
+          <p className={styles.disponibilidadNota}>
             No modifica tu disponibilidad general de perfil
           </p>
           <div className={styles.disponibilidadOpciones}>
@@ -405,7 +412,11 @@ export default function Agenda() {
                           <button
                             type="button"
                             className={styles.btnChat}
-                            onClick={() => navigate(`/chat-s?usuarioId=${trabajo.usuarioId}&nombre=${encodeURIComponent(trabajo.cliente)}&inicial=${trabajo.cliente?.charAt(0)}&desde=agenda`)}
+                            onClick={() =>
+                              navigate(
+                                `/chat-s?usuarioId=${trabajo.usuarioId}&nombre=${encodeURIComponent(trabajo.cliente)}&inicial=${trabajo.cliente?.charAt(0)}&desde=agenda`,
+                              )
+                            }
                           >
                             <MessageCircle size={14} /> Chat
                           </button>

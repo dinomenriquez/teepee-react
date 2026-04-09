@@ -1,0 +1,163 @@
+/* PerfilUsuarioPublico.module.css */
+
+.pantalla {
+  background: var(--tp-crema);
+  min-height: 100vh;
+  font-family: var(--fuente);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--tp-crema);
+  border-bottom: 1px solid rgba(61,31,31,0.08);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.btnVolver {
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--tp-marron-suave);
+  padding: var(--sp-sm);
+  border-radius: var(--r-full);
+  transition: color var(--trans);
+}
+.btnVolver:hover { color: var(--tp-rojo); }
+.headerTitulo {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--tp-marron);
+  margin: 0;
+}
+
+/* ── HERO ────────────────────────────────────── */
+.hero {
+  background: var(--tp-crema-oscura);
+  padding: 24px 16px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.heroAvatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+}
+.heroNombreBloque { text-align: center; }
+.heroNombre { font-size: 20px; font-weight: 800; color: var(--tp-marron); margin: 0; }
+.heroMiembro { font-size: 12px; color: var(--tp-marron-suave); margin-top: 2px; margin-bottom: 0; }
+
+.heroStats {
+  display: flex;
+  gap: 24px;
+  margin-top: 4px;
+  align-items: center;
+}
+.heroStat { text-align: center; }
+.heroStatVal { font-size: 18px; font-weight: 800; color: var(--tp-marron); margin: 0; }
+.heroStatLabel { font-size: 11px; color: var(--tp-marron-suave); margin: 0; }
+.heroStatDivider { width: 1px; height: 32px; background: rgba(61,31,31,0.10); }
+
+.btnChat {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--r-full);
+  background: var(--tp-marron);
+  color: var(--tp-crema);
+  border: none;
+  cursor: pointer;
+  font-family: var(--fuente);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background var(--trans);
+}
+.btnChat:hover { background: var(--tp-marron-medio); }
+
+/* ── INFO ────────────────────────────────────── */
+.info {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.infoCard {
+  background: var(--tp-crema-clara);
+  border-radius: var(--r-md);
+  padding: 14px;
+  border: 1px solid rgba(61,31,31,0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.infoCardRow {
+  background: var(--tp-crema-clara);
+  border-radius: var(--r-md);
+  padding: 14px;
+  border: 1px solid rgba(61,31,31,0.08);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.infoCardLabel {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--tp-marron-suave);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.infoCardTexto {
+  font-size: 13px;
+  color: var(--tp-marron);
+  margin: 0;
+  line-height: 1.6;
+}
+.infoCardIconoRojo {
+  color: var(--tp-rojo);
+  flex-shrink: 0;
+}
+
+/* ── HISTORIAL ───────────────────────────────── */
+.historialFila {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+.historialIcono        { color: var(--tp-marron-suave); flex-shrink: 0; }
+.historialIconoAmarillo{ color: var(--amarillo); flex-shrink: 0; }
+.historialTexto        { font-size: 13px; color: var(--tp-marron); }
+
+/* ── BADGE VERIFICADO ────────────────────────── */
+.badgeVerificado {
+  background: var(--verde-suave);
+  border-radius: var(--r-md);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid rgba(42,125,90,0.15);
+}
+.badgeIcono { font-size: 20px; flex-shrink: 0; }
+.badgeTexto { font-size: 12px; color: var(--tp-marron); margin: 0; }

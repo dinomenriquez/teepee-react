@@ -1,4 +1,6 @@
-/* ── NAV INFERIOR USUARIO ──────────────────── */
+/* NavInferior.module.css */
+
+/* ── NAV ─────────────────────────────────────── */
 .nav {
   position: fixed;
   bottom: 0;
@@ -13,7 +15,6 @@
   padding-bottom: env(safe-area-inset-bottom);
   z-index: 100;
 }
-
 .item {
   display: flex;
   flex-direction: column;
@@ -27,28 +28,77 @@
   border-top: 2px solid transparent;
   transition: border-color 0.15s ease;
 }
-
-.itemActivo {
-  border-top-color: var(--tp-rojo);
-}
-
+.itemActivo { border-top-color: var(--tp-rojo); }
 .icono {
   color: var(--tp-marron-suave);
   display: flex;
   align-items: center;
 }
-
-.iconoActivo {
-  color: var(--tp-rojo);
-}
-
+.iconoActivo { color: var(--tp-rojo); }
 .label {
   font-size: 10px;
   font-weight: 500;
   color: var(--tp-marron-suave);
 }
-
 .labelActivo {
   font-weight: 700;
   color: var(--tp-rojo);
+}
+
+/* ── MENÚ POPUP ──────────────────────────────── */
+.menuOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 299;
+}
+.menuPopup {
+  position: fixed;
+  bottom: 60px;
+  right: max(8px, calc(50% - 200px));
+  z-index: 300;
+  background: var(--tp-crema);
+  border: 1px solid rgba(61,31,31,0.12);
+  border-radius: 12px;
+  box-shadow: 0 -2px 16px rgba(61,31,31,0.12);
+  width: 190px;
+  overflow: hidden;
+}
+.menuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--fuente);
+  text-align: left;
+  transition: background var(--trans);
+}
+.menuItem:hover { background: rgba(61,31,31,0.04); }
+.menuItemBorder { border-bottom: 1px solid rgba(61,31,31,0.06); }
+.menuItemIcono {
+  color: var(--tp-marron-suave);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.menuItemIconoRojo {
+  color: var(--tp-rojo);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+.menuItemLabel {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tp-marron);
+  font-family: var(--fuente);
+}
+.menuItemLabelRojo {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tp-rojo);
+  font-family: var(--fuente);
 }

@@ -1,6 +1,7 @@
 /* Notificaciones.module.css */
 
 .pantalla {
+  padding-top: 49px;
   min-height: 100vh;
   background: var(--tp-crema);
   display: flex;
@@ -9,32 +10,32 @@
 
 /* ── HEADER ─────────────────────────────────── */
 .header {
-  position: sticky;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
   top: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   gap: var(--sp-md);
-  padding: 14px var(--sp-lg);
+  padding: 12px var(--sp-lg);
   background: var(--tp-crema);
   border-bottom: 1px solid rgba(61,31,31,0.12);
 }
-
 .btnVolver {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--tp-marron-suave);
   background: none;
   border: none;
   cursor: pointer;
   padding: var(--sp-sm);
   border-radius: var(--r-full);
-  transition: all var(--trans);
-  font-family: var(--fuente);
+  display: flex;
+  align-items: center;
+  color: var(--tp-marron-suave);
+  transition: color var(--trans);
 }
-
 .btnVolver:hover { color: var(--tp-rojo); }
-
 .headerTitulo {
   flex: 1;
   font-size: 15px;
@@ -44,7 +45,6 @@
   align-items: center;
   gap: var(--sp-sm);
 }
-
 .headerBadge {
   display: inline-flex;
   align-items: center;
@@ -57,7 +57,6 @@
   font-size: 11px;
   font-weight: 800;
 }
-
 .btnMarcarTodas {
   font-size: 12px;
   font-weight: 700;
@@ -69,7 +68,6 @@
   white-space: nowrap;
   transition: opacity var(--trans);
 }
-
 .btnMarcarTodas:hover { opacity: 0.7; }
 
 /* ── TOGGLE ROL ──────────────────────────────── */
@@ -80,7 +78,6 @@
   background: var(--tp-crema-clara);
   border-bottom: 1px solid rgba(61,31,31,0.08);
 }
-
 .rolBtn {
   flex: 1;
   padding: 8px;
@@ -94,7 +91,6 @@
   font-family: var(--fuente);
   transition: all var(--trans);
 }
-
 .rolBtnActivo {
   background: var(--tp-marron);
   border-color: var(--tp-marron);
@@ -112,12 +108,7 @@
 }
 
 /* ── GRUPOS ──────────────────────────────────── */
-.grupo {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-sm);
-}
-
+.grupo { display: flex; flex-direction: column; gap: var(--sp-sm); }
 .grupoTitulo {
   font-size: 11px;
   font-weight: 700;
@@ -128,51 +119,40 @@
 }
 
 /* ── CARD ────────────────────────────────────── */
+/* Los colores dinámicos vienen como variables CSS inline:
+   --notif-bg y --notif-border se pasan desde el componente */
 .card {
   width: 100%;
   display: flex;
   gap: var(--sp-md);
   align-items: flex-start;
-  border: 1.5px solid;
+  border: 1.5px solid var(--notif-border, rgba(61,31,31,0.08));
   border-radius: var(--r-lg);
   padding: var(--sp-md);
   cursor: pointer;
   font-family: var(--fuente);
   text-align: left;
   transition: all var(--trans);
+  background: var(--notif-bg, var(--tp-crema-clara));
 }
-
 .card:hover { transform: translateY(-1px); box-shadow: var(--sombra-sm); }
-
 .cardNoLeida { }
+.cardLeida   { }
 
-.cardIcono {
-  font-size: 24px;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.cardBody {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
+.cardIcono { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+.cardBody  { flex: 1; display: flex; flex-direction: column; gap: 4px; }
 .cardTituloRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-sm);
 }
-
 .cardTitulo {
   font-size: 13px;
   font-weight: 800;
   color: var(--tp-marron);
   line-height: 1.4;
 }
-
 .cardPunto {
   width: 8px;
   height: 8px;
@@ -180,13 +160,12 @@
   background: var(--tp-rojo);
   flex-shrink: 0;
 }
-
 .cardDesc {
   font-size: 12px;
   color: var(--tp-marron-suave);
   line-height: 1.5;
+  margin: 0;
 }
-
 .cardTiempo {
   font-size: 11px;
   color: var(--tp-marron-suave);
@@ -203,10 +182,5 @@
   padding: var(--sp-xl);
   margin-top: var(--sp-xl);
 }
-
 .vacioIcono { font-size: 40px; }
-
-.vacioTexto {
-  font-size: 14px;
-  color: var(--tp-marron-suave);
-}
+.vacioTexto { font-size: 14px; color: var(--tp-marron-suave); }

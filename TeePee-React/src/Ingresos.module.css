@@ -1,39 +1,41 @@
 /* Ingresos.module.css */
 
 .pantalla {
+  padding-top: 49px;
   min-height: 100vh;
   background: var(--tp-crema);
   display: flex;
   flex-direction: column;
 }
 
+/* ── HEADER ─────────────────────────────────── */
 .header {
-  position: sticky;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
   top: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   gap: var(--sp-md);
-  padding: 14px var(--sp-lg);
+  padding: 12px var(--sp-lg);
   background: var(--tp-crema);
   border-bottom: 1px solid rgba(61,31,31,0.12);
 }
-
 .btnVolver {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--tp-marron-suave);
   background: none;
   border: none;
   cursor: pointer;
   padding: var(--sp-sm);
   border-radius: var(--r-full);
-  transition: all var(--trans);
-  font-family: var(--fuente);
+  display: flex;
+  align-items: center;
+  color: var(--tp-marron-suave);
+  transition: color var(--trans);
 }
-
 .btnVolver:hover { color: var(--tp-rojo); }
-
 .headerTitulo {
   flex: 1;
   font-size: 15px;
@@ -47,7 +49,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--sp-lg);
-  padding-bottom: 40px;
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 /* ── HERO ────────────────────────────────────── */
@@ -58,7 +60,6 @@
   flex-direction: column;
   gap: var(--sp-sm);
 }
-
 .heroLabel {
   font-size: 12px;
   color: rgba(240,234,214,0.50);
@@ -66,19 +67,16 @@
   text-transform: uppercase;
   letter-spacing: 0.8px;
 }
-
 .heroMonto {
   font-size: 36px;
   font-weight: 800;
   color: var(--tp-crema);
   line-height: 1.1;
 }
-
 .heroBruto {
   font-size: 12px;
   color: rgba(240,234,214,0.50);
 }
-
 .nivelRow {
   display: flex;
   align-items: center;
@@ -88,42 +86,35 @@
   padding: var(--sp-sm) var(--sp-md);
   margin-top: var(--sp-sm);
 }
-
 .nivelBadge {
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-crema);
 }
-
 .nivelComision {
   font-size: 12px;
   font-weight: 700;
   color: rgba(240,234,214,0.70);
 }
-
 .progresoBloque {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin-top: var(--sp-sm);
 }
-
 .progresoLabels {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
 }
-
 .progresoTexto { color: rgba(240,234,214,0.60); }
 .progresoPct   { font-weight: 700; color: var(--tp-crema); }
-
 .progresoBarra {
   height: 6px;
   background: rgba(240,234,214,0.15);
   border-radius: var(--r-full);
   overflow: hidden;
 }
-
 .progresoRelleno {
   height: 100%;
   background: var(--tp-rojo);
@@ -138,13 +129,12 @@
   flex-direction: column;
   gap: var(--sp-md);
 }
-
 .seccionTitulo {
   font-size: 15px;
   font-weight: 800;
   color: var(--tp-marron);
+  margin: 0;
 }
-
 .seccionDesc {
   font-size: 12px;
   color: var(--tp-marron-suave);
@@ -157,7 +147,6 @@
   flex-direction: column;
   gap: 6px;
 }
-
 .escalaItem {
   display: flex;
   align-items: center;
@@ -168,36 +157,28 @@
   border: 1px solid rgba(61,31,31,0.08);
   transition: all var(--trans);
 }
-
 .escalaItemActivo {
   background: var(--tp-marron);
   border-color: var(--tp-marron);
 }
-
 .escalaIcono { font-size: 18px; }
-
 .escalaLabel {
   flex: 1;
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-marron);
 }
-
 .escalaItemActivo .escalaLabel { color: var(--tp-crema); }
-
 .escalaRango {
   font-size: 11px;
   color: var(--tp-marron-suave);
 }
-
 .escalaItemActivo .escalaRango { color: rgba(240,234,214,0.60); }
-
 .escalaComision {
   font-size: 14px;
   font-weight: 800;
   color: var(--tp-marron-suave);
 }
-
 .escalaComisionActiva { color: var(--tp-crema); }
 
 /* ── SEMANAS ─────────────────────────────────── */
@@ -207,7 +188,6 @@
   border-radius: var(--r-lg);
   overflow: hidden;
 }
-
 .semanaHeader {
   width: 100%;
   display: flex;
@@ -220,45 +200,37 @@
   font-family: var(--fuente);
   transition: background var(--trans);
 }
-
 .semanaHeader:hover { background: rgba(61,31,31,0.03); }
-
 .semanaHeaderLeft {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   gap: 3px;
 }
-
 .semanaLabel {
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-marron);
 }
-
 .semanaTotal {
   font-size: 15px;
   font-weight: 800;
   color: var(--tp-marron);
 }
-
 .semanaHeaderRight {
   display: flex;
   align-items: center;
   gap: var(--sp-sm);
 }
-
 .semanaLiquidado {
   font-size: 11px;
   font-weight: 700;
   color: var(--verde);
 }
-
 .semanaFlecha {
   font-size: 12px;
   color: var(--tp-marron-suave);
 }
-
 .semanaDetalle {
   border-top: 1px solid rgba(61,31,31,0.08);
   padding: var(--sp-md);
@@ -267,12 +239,10 @@
   gap: var(--sp-sm);
   animation: fadeIn 0.2s ease;
 }
-
 @keyframes fadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
 .trabajoFila {
   display: flex;
   justify-content: space-between;
@@ -281,50 +251,44 @@
   padding: var(--sp-sm) 0;
   border-bottom: 1px solid rgba(61,31,31,0.06);
 }
-
 .trabajoFila:last-of-type { border-bottom: none; }
-
 .trabajoInfo {
   display: flex;
   flex-direction: column;
   gap: 2px;
   flex: 1;
 }
-
 .trabajoTitulo {
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-marron);
 }
-
 .trabajoCliente {
   font-size: 11px;
   color: var(--tp-marron-suave);
+  display: flex;
+  align-items: center;
+  gap: 3px;
 }
-
 .trabajoMontos {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 2px;
 }
-
 .trabajoBruto {
   font-size: 12px;
   color: var(--tp-marron-suave);
 }
-
 .trabajoComision {
   font-size: 11px;
   color: var(--tp-rojo);
 }
-
 .trabajoNeto {
   font-size: 13px;
   font-weight: 800;
   color: var(--verde);
 }
-
 .semanaTotal2 {
   display: flex;
   justify-content: space-between;
@@ -335,9 +299,22 @@
   color: var(--tp-marron-suave);
   font-weight: 600;
 }
-
 .semanaTotalVal {
   font-size: 15px;
   font-weight: 800;
   color: var(--tp-marron);
+}
+
+.toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--tp-marron); color: var(--tp-crema);
+  padding: 10px 20px; border-radius: var(--r-full);
+  font-size: 13px; font-weight: 600; z-index: 300;
+  white-space: nowrap; font-family: var(--fuente); pointer-events: none;
+  box-shadow: 0 4px 20px rgba(61,31,31,0.25);
+  animation: toastIn 0.25s ease;
+}
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }

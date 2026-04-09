@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferiorS from "./NavInferiorS";
+import styles from "./SeguimientoS.module.css";
 import { IconoVolver } from "./Iconos";
 import { MessageCircle, Send, FileText, Plus } from "lucide-react";
 import { getTrabajoActivo, getUsuario } from "./MockData";
@@ -11,7 +12,6 @@ function fmt(n) {
   const dec = num % 1 === 0 ? 0 : 2;
   return num.toLocaleString("es-AR", { minimumFractionDigits: dec, maximumFractionDigits: 2 });
 }
-// Para comisiones: siempre 2 decimales
 function fmtCom(n) {
   const num = Number(n);
   if (isNaN(num)) return "0,00";
@@ -24,14 +24,10 @@ export default function SeguimientoS() {
 
   const trabajoData = getTrabajoActivo(searchParams.get("trabajoId") || 1);
   const usuData     = getUsuario(trabajoData.usuarioId);
-
-  const t = {
-    ...trabajoData,
-    cliente: { nombre: usuData.nombre, inicial: usuData.inicial, color: usuData.color },
-  };
+  const t = { ...trabajoData, cliente: { nombre: usuData.nombre, inicial: usuData.inicial, color: usuData.color } };
 
   const [avanceActual,  setAvanceActual]  = useState(t.avanceReportado);
-  const [avanceAprobado] = useState(t.avanceAprobado);
+  const [avanceAprobado]                  = useState(t.avanceAprobado);
   const [enviando, setEnviando]           = useState(false);
   const [modalAjuste, setModalAjuste]     = useState(false);
   const [ajusteMonto, setAjusteMonto]     = useState("");
@@ -40,240 +36,243 @@ export default function SeguimientoS() {
   const [toast, setToast]                 = useState(null);
 
   const COM = 0.06;
-  const montoCobrado = t.etapasPago.filter(e => e.estado === "cobrado" || e.estado === "pagado").reduce((s, e) => s + e.monto, 0);
-  const montoBase = t.monto + ajustes.filter(a => a.estado === "aprobado").reduce((s, a) => s + a.monto, 0);
-  const montoAvancePend = Math.round(((avanceActual - avanceAprobado) / 100) * montoBase);
+  const montoCobrado     = t.etapasPago.filter(e => e.estado === "cobrado" || e.estado === "pagado").reduce((s, e) => s + e.monto, 0);
+  const montoBase        = t.monto + ajustes.filter(a => a.estado === "aprobado").reduce((s, a) => s + a.monto, 0);
+  const montoAvancePend  = Math.round(((avanceActual - avanceAprobado) / 100) * montoBase);
+  const montoPagadoPct   = Math.round((t.etapasPago.filter(e => e.estado === "pagado").reduce((s, e) => s + e.monto, 0) / montoBase) * 100);
 
   function mostrarToast(msg) { setToast(msg); setTimeout(() => setToast(null), 2500); }
-
   function enviarAvance() {
     setEnviando(true);
     setTimeout(() => { setEnviando(false); mostrarToast(`📤 Avance ${avanceActual}% enviado`); }, 800);
   }
 
-  const sCard = { background: "var(--tp-crema-clara)", borderRadius: "var(--r-lg)", padding: 16, marginBottom: 12, border: "1px solid rgba(61,31,31,0.08)" };
-  const sSecLabel = { fontSize: 10, fontWeight: 800, color: "var(--tp-marron-suave)", textTransform: "uppercase", letterSpacing: "0.6px", margin: "0 0 12px", fontFamily: "var(--fuente)" };
+  const btnEnviarBg = avanceActual === avanceAprobado ? "rgba(61,31,31,0.10)"
+    : avanceActual === 100 ? "var(--verde)" : "var(--tp-rojo)";
 
   return (
-    <div style={{ minHeight: "100vh", background: "var(--tp-crema)", fontFamily: "var(--fuente)", paddingBottom: 80 }}>
-
+    <div className={styles.pantalla}>
       {/* Header */}
-      <header style={{ position: "sticky", top: 0, zIndex: 100, background: "var(--tp-crema)", borderBottom: "1px solid rgba(61,31,31,0.08)", padding: "12px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-        <button onClick={() => navigate(-1)} style={{ border: "none", background: "none", cursor: "pointer", padding: 4 }}>
+      <header className={styles.header}>
+        <button className={styles.btnVolver} onClick={() => navigate(-1)}>
           <IconoVolver size={20} />
         </button>
-        <div style={{ flex: 1 }}>
-          <p style={{ fontSize: 14, fontWeight: 800, color: "var(--tp-marron)", margin: 0 }}>{t.titulo}</p>
-          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>Cliente: {t.cliente.nombre}</p>
+        <div className={styles.headerInfo}>
+          <span className={styles.headerTitulo}>{t.titulo}</span>
+          <p className={styles.headerSub}>Cliente: {t.cliente.nombre}</p>
         </div>
-        <button onClick={() => navigate(`/chat-s?usuarioId=${t.usuarioId}&nombre=${encodeURIComponent(t.cliente.nombre)}&inicial=${t.cliente.inicial}&desde=seguimiento-s&trabajoId=${t.id}`)}
-          style={{ border: "none", background: "rgba(61,31,31,0.06)", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <button className={styles.btnChat}
+          onClick={() => navigate(`/chat-s?usuarioId=${t.usuarioId}&nombre=${encodeURIComponent(t.cliente.nombre)}&inicial=${t.cliente.inicial}&desde=seguimiento-s&trabajoId=${t.id}`)}>
           <MessageCircle size={18} color="var(--tp-marron)" />
-        </button>
-        <button onClick={() => navigate(`/acuerdo-digital?trabajoId=${t.id}&modo=firmado`)}
-          style={{ border: "none", background: "rgba(61,31,31,0.06)", borderRadius: "50%", width: 36, height: 36, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-          <FileText size={18} color="var(--tp-marron)" />
         </button>
       </header>
 
-      <div style={{ padding: "16px 16px 0" }}>
+      <div className={styles.contenido}>
+        <div className={styles.separadorHeader} />
 
-        {/* ── AVANCE DE OBRA ─────────────────────── */}
-        <p style={sSecLabel}>📊 Avance de obra</p>
-        <div style={sCard}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)" }}>Progreso reportado</span>
-            <div style={{ textAlign: "right" }}>
-              <span style={{ fontSize: 18, fontWeight: 900, color: "var(--tp-rojo)" }}>{avanceActual}%</span>
+        {/* AVANCE */}
+        <div className={styles.seccionHeader}>
+          <p className={styles.secLabel}>📊 Avance de obra</p>
+          <button className={styles.btnOrden}
+            onClick={() => navigate(`/acuerdo-digital?trabajoId=${t.id}&modo=firmado&rol=solucionador`)}>
+            <FileText size={13} /> Orden de trabajo
+          </button>
+        </div>
+
+        <div className={styles.card}>
+          <div className={styles.avanceHeaderRow}>
+            <span className={styles.avanceTitulo}>Progreso reportado</span>
+            <div className={styles.avancePctBloque}>
+              <span className={styles.avancePct}>{avanceActual}%</span>
               {avanceActual > avanceAprobado && (
-                <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>Certifica ${fmt(montoAvancePend)}</p>
+                <p className={styles.avanceCertifica}>Certifica ${fmt(montoAvancePend)}</p>
               )}
             </div>
           </div>
-          {/* Barra */}
-          <div style={{ height: 14, borderRadius: 7, background: "rgba(61,31,31,0.08)", overflow: "hidden", position: "relative", marginBottom: 8 }}>
-            <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, borderRadius: 7, background: "var(--verde)", width: `${avanceAprobado}%`, transition: "width 0.5s" }} />
+
+          {/* Barra doble */}
+          <div className={styles.barraPrincipal}>
+            <div className={styles.barraAprobado} style={{ width: `${avanceAprobado}%` }} />
             {avanceActual > avanceAprobado && (
-              <div style={{ position: "absolute", left: `${avanceAprobado}%`, top: 0, bottom: 0, width: `${avanceActual - avanceAprobado}%`, background: "repeating-linear-gradient(45deg, rgba(245,200,66,0.6), rgba(245,200,66,0.6) 4px, rgba(245,200,66,0.25) 4px, rgba(245,200,66,0.25) 8px)" }} />
+              <div className={styles.barraPendiente}
+                style={{ left: `${avanceAprobado}%`, width: `${avanceActual - avanceAprobado}%` }} />
             )}
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-            <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>✓ Aprobado: {avanceAprobado}%</span>
-            <span style={{ fontSize: 11, color: "#8C6820" }}>100%</span>
+
+          <div className={styles.avanceLabels}>
+            <span className={styles.avanceLabelAprobado}>✓ Aprobado: {avanceAprobado}%</span>
+            <span className={styles.avanceLabelMax}>100%</span>
           </div>
 
           {/* Slider */}
-          <div style={{ marginBottom: 12 }}>
-            <p style={{ fontSize: 11, fontWeight: 600, color: "var(--tp-marron-suave)", margin: "0 0 6px" }}>Actualizar avance</p>
+          <div className={styles.sliderBloque}>
+            <p className={styles.sliderLabel}>Actualizar avance</p>
             <input type="range" min={avanceAprobado} max={100} value={avanceActual}
               onChange={e => setAvanceActual(Number(e.target.value))}
-              style={{ width: "100%", accentColor: "var(--tp-rojo)", cursor: "pointer" }} />
+              className={styles.slider} />
           </div>
 
           {/* Resumen certificado */}
           {avanceActual > avanceAprobado && (
-            <div style={{ padding: "10px 12px", borderRadius: "var(--r-md)", background: "rgba(184,64,48,0.06)", border: "1px solid rgba(184,64,48,0.15)", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <div className={styles.certificadoBloque}>
               <div>
-                <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", margin: "0 0 1px" }}>Certificado de avance</p>
-                <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>{avanceAprobado}% → {avanceActual}% · +{avanceActual - avanceAprobado}%</p>
+                <p className={styles.certificadoLabel}>Certificado de avance</p>
+                <p className={styles.certificadoRango}>{avanceAprobado}% → {avanceActual}% · +{avanceActual - avanceAprobado}%</p>
               </div>
-              <p style={{ fontSize: 20, fontWeight: 900, color: "var(--tp-rojo)", margin: 0 }}>${fmt(montoAvancePend)}</p>
+              <p className={styles.certificadoMonto}>${fmt(montoAvancePend)}</p>
             </div>
           )}
 
-          <button type="button" disabled={enviando || avanceActual === avanceAprobado}
+          <button type="button"
+            disabled={enviando || avanceActual === avanceAprobado}
             onClick={avanceActual === 100 ? () => mostrarToast("¡Trabajo marcado como terminado!") : enviarAvance}
-            style={{ width: "100%", padding: 13, borderRadius: "var(--r-md)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 14, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-              background: avanceActual === avanceAprobado ? "rgba(61,31,31,0.10)" : avanceActual === 100 ? "var(--verde)" : "var(--tp-rojo)",
-              color: avanceActual === avanceAprobado ? "var(--tp-marron-suave)" : "white" }}>
+            className={styles.btnEnviarAvance}
+            style={{ background: btnEnviarBg, color: avanceActual === avanceAprobado ? "var(--tp-marron-suave)" : "white" }}>
             <Send size={14} />
-            {avanceActual === 100 ? "Marcar como terminado" : avanceActual === avanceAprobado ? "Sin cambios" : `Enviar avance ${avanceActual}% al cliente`}
+            {avanceActual === 100 ? "Marcar como terminado"
+              : avanceActual === avanceAprobado ? "Sin cambios"
+              : `Enviar avance ${avanceActual}% al cliente`}
           </button>
         </div>
 
-        {/* ── AJUSTES DE MONTO ───────────────────── */}
-        <p style={sSecLabel}>📝 Ajustes de monto</p>
+        {/* AJUSTES */}
+        <p className={styles.secLabel}>📝 Ajustes de monto</p>
 
-        {ajustes.length > 0 && ajustes.map((aj, idx) => (
-          <div key={aj.id} style={{ ...sCard, border: `1px solid ${aj.estado === "aprobado" ? "rgba(42,125,90,0.25)" : "rgba(245,200,66,0.35)"}` }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+        {ajustes.map((aj, idx) => (
+          <div key={aj.id} className={`${styles.card} ${styles.ajusteCard}`}
+            style={{ borderColor: aj.estado === "aprobado" ? "rgba(42,125,90,0.25)" : "rgba(245,200,66,0.35)" }}>
+            <div className={styles.ajusteHeader}>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron-suave)", margin: "0 0 1px" }}>Ajuste #{idx + 1}</p>
-                <p style={{ fontSize: 16, fontWeight: 900, color: "var(--tp-marron)", margin: 0 }}>+${fmt(aj.monto)}</p>
-                <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}>Neto: ${fmtCom(aj.monto * 0.94)} · Comisión: ${fmtCom(aj.monto * 0.06)}</p>
+                <p className={styles.ajusteNum}>Ajuste #{idx + 1}</p>
+                <p className={styles.ajusteMonto}>+${fmt(aj.monto)}</p>
+                <p className={styles.ajusteNeto}>Neto: ${fmtCom(aj.monto * 0.94)} · Comisión: ${fmtCom(aj.monto * 0.06)}</p>
               </div>
-              <span style={{ fontSize: 11, fontWeight: 700, padding: "3px 10px", borderRadius: 20,
-                background: aj.estado === "aprobado" ? "rgba(42,125,90,0.12)" : "rgba(245,200,66,0.25)",
-                color: aj.estado === "aprobado" ? "var(--verde)" : "#8C6820" }}>
+              <span className={`${styles.ajusteBadge} ${aj.estado === "aprobado" ? styles.ajusteBadgeAprobado : styles.ajusteBadgePendiente}`}>
                 {aj.estado === "aprobado" ? "✓ Aprobado" : "⏳ Esperando"}
               </span>
             </div>
-            <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: "0 0 8px", lineHeight: 1.5 }}>{aj.descripcion}</p>
-
-            {/* Barra de avance del ajuste */}
-            <div style={{ marginBottom: aj.estado === "aprobado" ? 10 : 0 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
-                <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>Avance de este ajuste</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-rojo)" }}>{aj.avance}%</span>
+            <p className={styles.ajusteDesc}>{aj.descripcion}</p>
+            <div className={styles.ajusteAvanceBloque}>
+              <div className={styles.ajusteAvanceHeader}>
+                <span className={styles.ajusteAvanceLabel}>Avance de este ajuste</span>
+                <span className={styles.ajusteAvancePct}>{aj.avance}%</span>
               </div>
-              <div style={{ height: 8, borderRadius: 4, background: "rgba(61,31,31,0.08)", overflow: "hidden" }}>
-                <div style={{ height: "100%", borderRadius: 4, background: aj.estado === "aprobado" ? "var(--verde)" : "rgba(245,200,66,0.6)", width: `${aj.avance}%` }} />
+              <div className={styles.barraAjuste}>
+                <div className={styles.barraAjusteRelleno}
+                  style={{ width: `${aj.avance}%`, background: aj.estado === "aprobado" ? "var(--verde)" : "rgba(245,200,66,0.6)" }} />
               </div>
             </div>
           </div>
         ))}
 
-        <button type="button" onClick={() => setModalAjuste(true)}
-          style={{ width: "100%", padding: 13, borderRadius: "var(--r-md)", background: "none", color: "var(--tp-marron)", border: "1.5px dashed rgba(61,31,31,0.20)", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, fontWeight: 600, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 12 }}>
-          <Plus size={14} /> Proponer ajuste de monto
+        <button type="button" className={styles.btnProponerAjuste}
+          onClick={() => setModalAjuste(v => !v)}>
+          <Plus size={14} /> {modalAjuste ? "Cancelar" : "Proponer ajuste de monto"}
         </button>
 
-        {/* ── PAGOS ──────────────────────────────── */}
-        <p style={sSecLabel}>💳 Pagos</p>
-        <div style={sCard}>
-          <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 12 }}>
-            <div>
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 2px" }}>Monto total</p>
-              <p style={{ fontSize: 22, fontWeight: 900, color: "var(--tp-marron)", margin: 0 }}>${fmt(montoBase)}</p>
-            </div>
-            <div style={{ textAlign: "right" }}>
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: "0 0 2px" }}>Tu cobro neto (94%)</p>
-              <p style={{ fontSize: 16, fontWeight: 800, color: "var(--verde)", margin: 0 }}>${fmtCom(montoBase * 0.94)}</p>
-            </div>
-          </div>
-          <div style={{ height: 8, borderRadius: 4, background: "rgba(61,31,31,0.08)", overflow: "hidden", marginBottom: 14 }}>
-            <div style={{ height: "100%", borderRadius: 4, background: "var(--verde)", width: `${Math.round((t.etapasPago.filter(e => e.estado === "pagado").reduce((s,e) => s+e.monto, 0) / montoBase) * 100)}%` }} />
-          </div>
-          {t.etapasPago.map(e => (
-            <div key={e.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", borderRadius: "var(--r-md)", background: "var(--tp-crema)", border: "1px solid rgba(61,31,31,0.08)", marginBottom: 8 }}>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)", margin: "0 0 1px" }}>{e.label}</p>
-                <p style={{ fontSize: 12, color: "var(--tp-marron-suave)", margin: 0 }}>${fmt(e.monto)} · Neto: ${fmtCom(e.monto * 0.94)}</p>
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 600, padding: "4px 10px", borderRadius: 20,
-                background: e.estado === "pagado" ? "rgba(42,125,90,0.12)" : "rgba(61,31,31,0.05)",
-                color: e.estado === "pagado" ? "var(--verde)" : "var(--tp-marron-suave)" }}>
-                {e.estado === "pagado" ? "Cobrado ✓" : e.estado === "habilitado" ? "⏳ Por cobrar" : "🔒 Bloqueado"}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Modal proponer ajuste */}
-      {modalAjuste && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(61,31,31,0.55)", zIndex: 200, overflowY: "auto" }}>
-          <div style={{ background: "var(--tp-crema)", borderRadius: "var(--r-lg)", padding: 24, margin: "60px 16px 16px", boxSizing: "border-box", maxHeight: "85vh", overflowY: "auto" }}>
-            <p style={{ fontSize: 16, fontWeight: 800, color: "var(--tp-marron)", margin: "0 0 4px", fontFamily: "var(--fuente)" }}>Proponer ajuste</p>
-            <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 14, border: "1px solid rgba(61,31,31,0.08)", marginBottom: 10 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", margin: "0 0 6px" }}>Incremento</p>
-              <div style={{ display: "flex", alignItems: "baseline", gap: 6 }}>
-                <span style={{ fontSize: 20, color: "var(--tp-marron-suave)" }}>$</span>
+        {/* Panel inline de ajuste — se despliega debajo del botón */}
+        {modalAjuste && (
+          <div className={styles.ajustePanel}>
+            <div className={styles.modalCard}>
+              <p className={styles.modalCardLabel}>Incremento</p>
+              <div className={styles.modalMontoRow}>
+                <span className={styles.modalMontoPeso}>$</span>
                 <input type="text" inputMode="decimal" placeholder="0" value={ajusteMonto}
                   onChange={e => setAjusteMonto(e.target.value.replace(/[^0-9.]/g, ""))}
-                  style={{ flex: 1, fontSize: 28, fontWeight: 900, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)", MozAppearance: "textfield" }} />
+                  className={styles.modalMontoInput} />
               </div>
               {ajusteMonto > 0 && (
-                <div style={{ marginTop: 8, paddingTop: 8, borderTop: "1px dashed rgba(61,31,31,0.12)" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}>Tu cobro neto (94%)</span>
-                    <span style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-marron)" }}>${fmtCom(Number(ajusteMonto) * 0.94)}</span>
+                <div className={styles.modalDesglose}>
+                  <div className={styles.modalDesgloseRow}>
+                    <span className={styles.modalDesgloseLabel}>Tu cobro neto (94%)</span>
+                    <span className={styles.modalDesgloseVal}>${fmtCom(Number(ajusteMonto) * 0.94)}</span>
                   </div>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}>Comisión TeePee (6%)</span>
-                    <span style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}>${fmtCom(Number(ajusteMonto) * 0.06)}</span>
+                  <div className={styles.modalDesgloseRow}>
+                    <span className={styles.modalDesgloseLabel}>Comisión TeePee (6%)</span>
+                    <span className={styles.modalDesgloseLabel}>${fmtCom(Number(ajusteMonto) * 0.06)}</span>
                   </div>
                 </div>
               )}
             </div>
-            <div style={{ background: "var(--tp-crema-clara)", borderRadius: "var(--r-md)", padding: 14, border: "1px solid rgba(61,31,31,0.08)", marginBottom: 14 }}>
-              <p style={{ fontSize: 10, fontWeight: 700, color: "var(--tp-marron-suave)", textTransform: "uppercase", margin: "0 0 6px" }}>Descripción detallada</p>
-              <textarea placeholder="Describí los trabajos o materiales adicionales..."
-                value={ajusteDesc} onChange={e => setAjusteDesc(e.target.value)} rows={3}
-                style={{ width: "100%", fontSize: 13, color: "var(--tp-marron)", border: "none", background: "none", outline: "none", fontFamily: "var(--fuente)", resize: "none", lineHeight: 1.6 }} />
+
+            <div className={styles.modalCard}>
+              <p className={styles.modalCardLabel}>Descripción detallada</p>
+              <textarea className={styles.modalTextarea}
+                placeholder="Describí los trabajos o materiales adicionales..."
+                value={ajusteDesc} onChange={e => setAjusteDesc(e.target.value)} rows={3} />
             </div>
-            <button type="button"
+
+            <button type="button" className={styles.modalBtnEnviar}
               onClick={() => {
                 if (!ajusteMonto || !ajusteDesc.trim()) { mostrarToast("⚠️ Completá monto y descripción"); return; }
                 setAjustes(prev => [...prev, { id: Date.now(), monto: Number(ajusteMonto), descripcion: ajusteDesc, estado: "pendiente", avance: avanceActual }]);
                 setAjusteMonto(""); setAjusteDesc(""); setModalAjuste(false);
                 mostrarToast("✅ Propuesta enviada al cliente");
-              }}
-              style={{ width: "100%", padding: 14, borderRadius: "var(--r-md)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 14, fontWeight: 700, marginBottom: 10 }}>
+              }}>
               Enviar propuesta al cliente
             </button>
-            <button type="button" onClick={() => setModalAjuste(false)}
-              style={{ width: "100%", padding: 12, background: "none", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, color: "var(--tp-marron-suave)" }}>
-              Cancelar
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Calificar al cliente: avance 100% aprobado + cobrado 100% */}
+        {/* PAGOS */}
+        <p className={styles.secLabel}>💳 Pagos</p>
+        <div className={styles.card}>
+          <div className={styles.pagosResumen}>
+            <div>
+              <p className={styles.pagosResumenLabel}>Monto total</p>
+              <p className={styles.pagosResumenTotal}>${fmt(montoBase)}</p>
+            </div>
+            <div className={styles.pagosResumenDer}>
+              <p className={styles.pagosResumenLabel}>Tu cobro neto (94%)</p>
+              <p className={styles.pagosResumenNeto}>${fmtCom(montoBase * 0.94)}</p>
+            </div>
+          </div>
+          <div className={styles.barraPagos}>
+            <div className={styles.barraPagosRelleno} style={{ width: `${montoPagadoPct}%` }} />
+          </div>
+          {t.etapasPago.map(e => (
+            <div key={e.id} className={styles.etapaRow}>
+              <div className={styles.etapaInfo}>
+                <p className={styles.etapaLabel}>{e.label}</p>
+                <p className={styles.etapaMonto}>${fmt(e.monto)} · Neto: ${fmtCom(e.monto * 0.94)}</p>
+              </div>
+              <span className={`${styles.etapaBadge} ${e.estado === "pagado" ? styles.etapaBadgePagado : styles.etapaBadgeBloqueado}`}>
+                {e.estado === "pagado" ? "Cobrado ✓" : e.estado === "habilitado" ? "⏳ Por cobrar" : "🔒 Bloqueado"}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Cancelar / disputar — solo si el trabajo no terminó */}
+        {avanceAprobado < 100 && (
+          <button type="button" className={styles.btnCancelar}
+            onClick={() => navigate(`/cancelacion?trabajoId=${t.id}&desde=seguimiento-s`)}>
+            Cancelar o disputar este trabajo
+          </button>
+        )}
+      </div>
+
+      {/* Calificar */}
       {avanceAprobado === 100 && montoCobrado >= montoBase && (
-        <div style={{ padding: "0 16px 12px" }}>
-          <button type="button"
-            onClick={() => navigate(`/calificacion-s?usuNombre=${encodeURIComponent(t.cliente.nombre)}&usuInicial=${t.cliente.inicial}&usuColor=${encodeURIComponent(t.cliente.color)}&trabajoId=${t.id}`)}
-            style={{ width: "100%", padding: 16, borderRadius: "var(--r-md)", background: "var(--tp-marron)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700 }}>
+        <div className={styles.calificarBloque}>
+          <button type="button" className={styles.btnCalificar}
+            onClick={() => navigate(`/calificacion-s?usuNombre=${encodeURIComponent(t.cliente.nombre)}&usuInicial=${t.cliente.inicial}&usuColor=${encodeURIComponent(t.cliente.color)}&trabajoId=${t.id}`)}>
             ⭐ Calificar a {t.cliente.nombre}
           </button>
-          <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", textAlign: "center", margin: "6px 0 0", fontFamily: "var(--fuente)" }}>
-            Trabajo completado y cobrado al 100% · La calificación se publicará cuando ambos se califiquen.
-          </p>
+          <p className={styles.calificarDesc}>Trabajo completado y cobrado al 100% · La calificación se publicará cuando ambos se califiquen.</p>
         </div>
       )}
-      {/* Terminó pero falta cobrar */}
+
       {avanceAprobado === 100 && montoCobrado < montoBase && (
-        <div style={{ padding: "0 16px 12px" }}>
-          <div style={{ padding: "12px 14px", borderRadius: "var(--r-md)", background: "rgba(245,200,66,0.12)", border: "1px solid rgba(245,200,66,0.35)" }}>
-            <p style={{ fontSize: 12, fontWeight: 700, color: "#8C6820", margin: "0 0 3px", fontFamily: "var(--fuente)" }}>⏳ Trabajo terminado — cobro pendiente</p>
-            <p style={{ fontSize: 11, color: "#8C6820", margin: 0, fontFamily: "var(--fuente)" }}>Una vez que el cliente complete el pago podrás calificarlo.</p>
+        <div className={styles.calificarBloque}>
+          <div className={styles.avisoCobro}>
+            <p className={styles.avisoCobroTitulo}>⏳ Trabajo terminado — cobro pendiente</p>
+            <p className={styles.avisoCobroDesc}>Una vez que el cliente complete el pago podrás calificarlo.</p>
           </div>
         </div>
       )}
 
-      {toast && <div style={{ position: "fixed", bottom: 80, left: "50%", transform: "translateX(-50%)", background: "var(--tp-marron)", color: "var(--tp-crema)", padding: "10px 20px", borderRadius: "var(--r-full)", fontSize: 13, fontWeight: 600, zIndex: 300, whiteSpace: "nowrap", fontFamily: "var(--fuente)" }}>{toast}</div>}
+      {toast && <div className={styles.toast}>{toast}</div>}
       <NavInferiorS />
     </div>
   );

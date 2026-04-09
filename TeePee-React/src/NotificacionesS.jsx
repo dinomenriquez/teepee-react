@@ -185,11 +185,12 @@ const COLORES_TIPO = {
     border: "rgba(245,166,35,0.30)",
   },
   recordatorio: { bg: "rgba(61,31,31,0.04)", border: "rgba(61,31,31,0.10)" },
+  avance: { bg: "rgba(42,125,90,0.08)", border: "rgba(42,125,90,0.20)" },
+  ajuste: { bg: "rgba(140,104,32,0.08)", border: "rgba(140,104,32,0.20)" },
 };
 
 export default function NotificacionesS() {
   const navigate = useNavigate();
-
   const rol = "solucionador";
   const [notifs, setNotifs] = useState(NOTIFICACIONES);
 
@@ -204,14 +205,12 @@ export default function NotificacionesS() {
       [rol]: prev[rol].map((n) => (n.id === id ? { ...n, leida: true } : n)),
     }));
   }
-
   function marcarTodasLeidas() {
     setNotifs((prev) => ({
       ...prev,
       [rol]: prev[rol].map((n) => ({ ...n, leida: true })),
     }));
   }
-
   function handleNotif(notif) {
     marcarLeida(notif.id);
     navigate(notif.accion);
@@ -219,7 +218,6 @@ export default function NotificacionesS() {
 
   return (
     <div className={styles.pantalla}>
-      {/* ── HEADER ── */}
       <header className={styles.header}>
         <button className={styles.btnVolver} onClick={() => navigate(-1)}>
           <IconoVolver size={20} />
@@ -236,7 +234,6 @@ export default function NotificacionesS() {
       </header>
 
       <main className={styles.contenido}>
-        {/* Sin leer */}
         {noLeidas.length > 0 && (
           <div className={styles.grupo}>
             <p className={styles.grupoTitulo}>Sin leer — {noLeidas.length}</p>
@@ -245,8 +242,6 @@ export default function NotificacionesS() {
             ))}
           </div>
         )}
-
-        {/* Leídas */}
         {leidas.length > 0 && (
           <div className={styles.grupo}>
             <p className={styles.grupoTitulo}>Anteriores</p>
@@ -255,7 +250,6 @@ export default function NotificacionesS() {
             ))}
           </div>
         )}
-
         {lista.length === 0 && (
           <div className={styles.vacio}>
             <span className={styles.vacioIcono}>🔔</span>
@@ -263,6 +257,7 @@ export default function NotificacionesS() {
           </div>
         )}
       </main>
+
       <NavInferiorS />
     </div>
   );
@@ -274,10 +269,10 @@ function NotifCard({ notif, onClick }) {
   return (
     <button
       type="button"
-      className={`${styles.card} ${!notif.leida ? styles.cardNoLeida : ""}`}
+      className={`${styles.card} ${!notif.leida ? styles.cardNoLeida : styles.cardLeida}`}
       style={{
-        background: !notif.leida ? color.bg : "var(--tp-crema-clara)",
-        borderColor: !notif.leida ? color.border : "rgba(61,31,31,0.08)",
+        "--notif-bg": !notif.leida ? color.bg : "var(--tp-crema-clara)",
+        "--notif-border": !notif.leida ? color.border : "rgba(61,31,31,0.08)",
       }}
       onClick={onClick}
     >

@@ -19,7 +19,6 @@
   inset: 0;
   pointer-events: none;
 }
-
 .fondoCirculo1 {
   position: absolute;
   top: -80px;
@@ -30,7 +29,6 @@
   border-radius: var(--r-full);
   filter: blur(40px);
 }
-
 .fondoCirculo2 {
   position: absolute;
   bottom: 100px;
@@ -54,18 +52,10 @@
   z-index: 1;
   animation: entradaLogo 0.6s ease;
 }
-
 @keyframes entradaLogo {
-  from {
-    opacity: 0;
-    transform: translateY(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 .logoIcono {
   width: 90px;
   height: 90px;
@@ -78,9 +68,7 @@
   box-shadow: var(--sombra-md);
   border: 1px solid rgba(61,31,31,0.10);
 }
-
 .logoSvg { width: 56px; height: 56px; }
-
 .logoTexto {
   font-size: 38px;
   font-weight: 800;
@@ -88,9 +76,7 @@
   letter-spacing: -1px;
   margin-bottom: var(--sp-sm);
 }
-
 .logoAcento { color: var(--tp-rojo); }
-
 .logoTagline {
   font-size: 14px;
   color: var(--tp-marron-suave);
@@ -108,18 +94,10 @@
   z-index: 1;
   animation: entradaBotones 0.6s ease 0.2s both;
 }
-
 @keyframes entradaBotones {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
-
 .rolesTitulo {
   font-size: 13px;
   font-weight: 700;
@@ -129,7 +107,6 @@
   letter-spacing: 0.8px;
   margin-bottom: var(--sp-xs);
 }
-
 .rolCard {
   width: 100%;
   background: var(--tp-crema-clara);
@@ -143,26 +120,20 @@
   transition: all var(--trans);
   box-shadow: var(--sombra-sm);
 }
-
 .rolCard:hover {
   border-color: rgba(184,64,48,0.30);
   transform: translateY(-2px);
   box-shadow: var(--sombra-md);
 }
-
 .rolCard:active { transform: translateY(0); }
-
 .rolCardSolucionador {
   background: var(--tp-marron);
   border-color: var(--tp-marron-medio);
 }
-
 .rolCardSolucionador .rolTitulo { color: var(--tp-crema); }
 .rolCardSolucionador .rolSub    { color: rgba(240,234,214,0.55); }
 .rolCardSolucionador .rolFlecha { color: rgba(240,234,214,0.40); }
-
 .rolIcono {
-  font-size: 26px;
   flex-shrink: 0;
   width: 44px;
   height: 44px;
@@ -171,12 +142,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  color: var(--tp-rojo);
 }
-
 .rolCardSolucionador .rolIcono {
   background: rgba(240,234,214,0.10);
+  color: var(--tp-crema);
 }
-
 .rolTexto {
   flex: 1;
   text-align: left;
@@ -184,18 +155,15 @@
   flex-direction: column;
   gap: 2px;
 }
-
 .rolTitulo {
   font-size: 15px;
   font-weight: 800;
   color: var(--tp-marron);
 }
-
 .rolSub {
   font-size: 12px;
   color: var(--tp-marron-suave);
 }
-
 .rolFlecha {
   font-size: 22px;
   color: var(--tp-marron-suave);
@@ -212,20 +180,20 @@
   position: relative;
   z-index: 1;
 }
-
 .loginLinkTexto {
   font-size: 13px;
   color: var(--tp-marron-suave);
 }
-
 .loginLinkBtn {
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-rojo);
   cursor: pointer;
   transition: opacity var(--trans);
+  background: none;
+  border: none;
+  font-family: var(--fuente);
 }
-
 .loginLinkBtn:hover { opacity: 0.7; }
 
 /* ── FORM HEADER ────────────────────────────── */
@@ -237,21 +205,24 @@
   border-bottom: 1px solid rgba(61,31,31,0.08);
 }
 
+/* Botón volver — estándar ícono (igual a MisTrabajosS) */
 .btnVolver {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--tp-marron-suave);
+  background: none;
+  border: none;
   cursor: pointer;
-  transition: color var(--trans);
   padding: var(--sp-sm);
+  border-radius: var(--r-full);
+  display: flex;
+  align-items: center;
+  color: var(--tp-marron-suave);
+  transition: color var(--trans);
 }
-
 .btnVolver:hover { color: var(--tp-rojo); }
 
 .formHeaderLogo {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--tp-marron);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ── FORM BLOQUE ────────────────────────────── */
@@ -264,18 +235,15 @@
   gap: var(--sp-lg);
   animation: entradaForm 0.35s ease;
 }
-
 @keyframes entradaForm {
   from { opacity: 0; transform: translateX(16px); }
   to   { opacity: 1; transform: translateX(0); }
 }
-
 .formTituloBloque {
   display: flex;
   flex-direction: column;
   gap: var(--sp-xs);
 }
-
 .rolBadge {
   display: inline-flex;
   align-items: center;
@@ -289,19 +257,16 @@
   width: fit-content;
   margin-bottom: var(--sp-xs);
 }
-
 .rolBadgeSolucionador {
   background: rgba(61,31,31,0.08);
   color: var(--tp-marron);
 }
-
 .formTitulo {
   font-size: 24px;
   font-weight: 800;
   color: var(--tp-marron);
   letter-spacing: -0.3px;
 }
-
 .formSub {
   font-size: 13px;
   color: var(--tp-marron-suave);
@@ -313,25 +278,21 @@
   flex-direction: column;
   gap: var(--sp-md);
 }
-
 .campoFila {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: var(--sp-sm);
 }
-
 .campo {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-
 .campoLabel {
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-marron-medio);
 }
-
 .campoInput {
   width: 100%;
   background: var(--tp-crema-clara);
@@ -343,16 +304,14 @@
   color: var(--tp-marron);
   transition: border-color var(--trans);
   outline: none;
+  box-sizing: border-box;
 }
-
 .campoInput::placeholder { color: var(--tp-marron-suave); opacity: 0.6; }
-
 .campoInput:focus {
   border-color: var(--tp-rojo);
   background: var(--tp-crema);
   box-shadow: 0 0 0 3px rgba(184,64,48,0.10);
 }
-
 .campoSelect {
   width: 100%;
   background: var(--tp-crema-clara);
@@ -369,13 +328,12 @@
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238C5A5A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 14px center;
+  box-sizing: border-box;
 }
-
 .campoSelect:focus {
   border-color: var(--tp-rojo);
   box-shadow: 0 0 0 3px rgba(184,64,48,0.10);
 }
-
 .campoOlvide {
   font-size: 12px;
   font-weight: 600;
@@ -383,8 +341,10 @@
   text-align: right;
   cursor: pointer;
   transition: opacity var(--trans);
+  background: none;
+  border: none;
+  font-family: var(--fuente);
 }
-
 .campoOlvide:hover { opacity: 0.7; }
 
 /* ── TÉRMINOS ───────────────────────────────── */
@@ -393,7 +353,6 @@
   align-items: flex-start;
   gap: var(--sp-sm);
 }
-
 .terminosCheck {
   width: 18px;
   height: 18px;
@@ -402,17 +361,20 @@
   margin-top: 1px;
   cursor: pointer;
 }
-
 .terminosTexto {
   font-size: 13px;
   color: var(--tp-marron-suave);
   line-height: 1.5;
-  cursor: pointer;
 }
-
 .terminosLink {
   color: var(--tp-rojo);
   font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
 }
 
 /* ── INFO BLOQUE ────────────────────────────── */
@@ -424,9 +386,12 @@
   padding: var(--sp-md);
   border: 1px solid rgba(184,64,48,0.15);
 }
-
-.infoIcono { font-size: 16px; flex-shrink: 0; }
-
+.infoIcono {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  color: var(--tp-rojo);
+}
 .infoTexto {
   font-size: 12px;
   color: var(--tp-marron-medio);
@@ -446,24 +411,18 @@
   cursor: pointer;
   transition: all var(--trans);
   box-shadow: var(--sombra-rojo);
+  border: none;
 }
-
 .btnPrimario:hover {
   background: var(--tp-rojo-oscuro);
   transform: translateY(-1px);
 }
-
 .btnPrimario:active { transform: translateY(0); }
-
 .btnPrimarioSolucionador {
   background: var(--tp-marron);
   box-shadow: var(--sombra-md);
 }
-
-.btnPrimarioSolucionador:hover {
-  background: var(--tp-marron-medio);
-}
-
+.btnPrimarioSolucionador:hover { background: var(--tp-marron-medio); }
 .btnGoogle {
   width: 100%;
   background: var(--tp-crema-clara);
@@ -481,7 +440,6 @@
   gap: var(--sp-sm);
   transition: all var(--trans);
 }
-
 .btnGoogle:hover {
   background: var(--tp-crema-oscura);
   border-color: rgba(61,31,31,0.25);
@@ -493,13 +451,11 @@
   align-items: center;
   gap: var(--sp-md);
 }
-
 .separadorLinea {
   flex: 1;
   height: 1px;
   background: rgba(61,31,31,0.12);
 }
-
 .separadorTexto {
   font-size: 12px;
   color: var(--tp-marron-suave);
@@ -514,22 +470,23 @@
   gap: var(--sp-xs);
   padding-bottom: var(--sp-lg);
 }
-
 .formFooterTexto {
   font-size: 13px;
   color: var(--tp-marron-suave);
 }
-
 .formFooterBtn {
   font-size: 13px;
   font-weight: 700;
   color: var(--tp-rojo);
   cursor: pointer;
   transition: opacity var(--trans);
+  background: none;
+  border: none;
+  font-family: var(--fuente);
 }
-
 .formFooterBtn:hover { opacity: 0.7; }
 
+/* ── CAMPO CON OJO ──────────────────────────── */
 .campoConOjo {
   position: relative;
   display: flex;
@@ -550,3 +507,92 @@
   align-items: center;
   padding: 0;
 }
+
+/* ── MODAL TÉRMINOS Y CONDICIONES ───────────── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(61,31,31,0.55);
+  z-index: 300;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.modalBox {
+  width: 100%;
+  max-width: 430px;
+  background: var(--tp-crema);
+  border-radius: 20px 20px 0 0;
+  padding: 24px 24px 40px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+.modalHandle {
+  width: 40px;
+  height: 4px;
+  background: var(--tp-marron-suave);
+  border-radius: 9999px;
+  margin: 0 auto 20px;
+  opacity: 0.3;
+}
+.modalTitulo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--tp-marron);
+  margin-bottom: 16px;
+  font-family: var(--fuente);
+}
+.modalContenido {
+  font-size: 13px;
+  color: var(--tp-marron-suave);
+  line-height: 1.7;
+  font-family: var(--fuente);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.modalStrong {
+  color: var(--tp-marron);
+}
+.modalBtn {
+  margin-top: 24px;
+  width: 100%;
+  background: var(--tp-rojo);
+  color: var(--tp-crema);
+  border: none;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: var(--fuente);
+  cursor: pointer;
+}
+.modalBtn:hover { background: var(--tp-rojo-oscuro); }
+
+/* ── BOTÓN Y MODAL PRIMEROS PASOS ────────────── */
+.btnPasos {
+  display: flex; align-items: center; gap: 6px;
+  margin: 4px auto 16px;
+  background: var(--tp-rojo-suave);
+  border: 1.5px solid rgba(184,64,48,0.25);
+  border-radius: var(--r-full);
+  padding: 9px 18px;
+  cursor: pointer;
+  font-family: var(--fuente); font-size: 13px; font-weight: 700;
+  color: var(--tp-rojo);
+  transition: all var(--trans);
+}
+.btnPasos:hover { background: rgba(184,64,48,0.15); border-color: var(--tp-rojo); }
+.pasosHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.pasosTitulo { font-size: 16px; font-weight: 800; color: var(--tp-marron); margin: 0; }
+.pasosCerrar { background: none; border: none; cursor: pointer; color: var(--tp-marron-suave); display: flex; align-items: center; }
+.pasosList { display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px; }
+.paso { display: flex; gap: 14px; align-items: flex-start; }
+.pasoIcono {
+  width: 40px; height: 40px; border-radius: var(--r-full);
+  background: var(--tp-rojo-suave); color: var(--tp-rojo);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.pasoTexto { display: flex; flex-direction: column; gap: 2px; }
+.pasoTitulo { font-size: 13px; font-weight: 800; color: var(--tp-marron); margin: 0; }
+.pasoDes { font-size: 12px; color: var(--tp-marron-suave); margin: 0; line-height: 1.5; }

@@ -75,70 +75,38 @@ export default function NavInferiorS() {
 
   return (
     <>
+      {/* Overlay para cerrar el menú */}
       {menuAbierto && (
         <div
-          style={{ position: "fixed", inset: 0, zIndex: 299 }}
+          className={styles.menuOverlay}
           onClick={() => setMenuAbierto(false)}
         />
       )}
 
+      {/* Menú desplegable */}
       {menuAbierto && (
-        <div
-          style={{
-            position: "fixed",
-            bottom: 60,
-            right: "max(8px, calc(50% - 200px))",
-            zIndex: 300,
-            background: "var(--tp-crema)",
-            border: "1px solid rgba(61,31,31,0.12)",
-            borderRadius: 12,
-            boxShadow: "0 -2px 16px rgba(61,31,31,0.12)",
-            width: 190,
-            overflow: "hidden",
-          }}
-        >
+        <div className={styles.menuPopup}>
           {MENU_ITEMS.map((item, i) => (
             <button
               key={item.label}
               type="button"
+              className={`${styles.menuItem} ${i < MENU_ITEMS.length - 1 ? styles.menuItemBorder : ""}`}
               onClick={() => {
                 setMenuAbierto(false);
                 navigate(item.ruta);
               }}
-              style={{
-                width: "100%",
-                display: "flex",
-                alignItems: "center",
-                gap: 10,
-                padding: "10px 14px",
-                background: "none",
-                border: "none",
-                borderBottom:
-                  i < MENU_ITEMS.length - 1
-                    ? "1px solid rgba(61,31,31,0.06)"
-                    : "none",
-                cursor: "pointer",
-                fontFamily: "var(--fuente)",
-                textAlign: "left",
-              }}
             >
               <span
-                style={{
-                  color: item.rojo
-                    ? "var(--tp-rojo)"
-                    : "var(--tp-marron-suave)",
-                  flexShrink: 0,
-                }}
+                className={
+                  item.rojo ? styles.menuItemIconoRojo : styles.menuItemIcono
+                }
               >
                 {item.icono}
               </span>
               <span
-                style={{
-                  fontSize: 13,
-                  fontWeight: 500,
-                  fontFamily: "var(--fuente)",
-                  color: item.rojo ? "var(--tp-rojo)" : "var(--tp-marron)",
-                }}
+                className={
+                  item.rojo ? styles.menuItemLabelRojo : styles.menuItemLabel
+                }
               >
                 {item.label}
               </span>
@@ -147,6 +115,7 @@ export default function NavInferiorS() {
         </div>
       )}
 
+      {/* Nav */}
       <nav className={styles.nav} aria-label="Navegación principal">
         {NAV_ITEMS.map((item) => {
           const activo = pathname === item.ruta;

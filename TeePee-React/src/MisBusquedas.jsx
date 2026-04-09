@@ -1,10 +1,26 @@
 import { useState } from "react";
 import NavInferior from "./NavInferior";
 import { useNavigate } from "react-router-dom";
+import styles from "./MisBusquedas.module.css";
 import { IconoVolver } from "./Iconos";
+import {
+  Wrench,
+  Zap,
+  Paintbrush2,
+  Home,
+  MapPin,
+  CalendarDays,
+  FileText,
+} from "lucide-react";
 
 function fmt(n) {
-  return Number(n).toLocaleString("es-AR");
+  const num = Number(n);
+  if (isNaN(num)) return "0";
+  const dec = num % 1 === 0 ? 0 : 2;
+  return num.toLocaleString("es-AR", {
+    minimumFractionDigits: dec,
+    maximumFractionDigits: 2,
+  });
 }
 
 const BUSQUEDAS_MOCK = [
@@ -104,353 +120,131 @@ const ESTADO_CONFIG = {
   cancelada: { label: "Cancelada", color: "#aaa", bg: "rgba(0,0,0,0.06)" },
 };
 
+function IconoCategoria({ categoria }) {
+  const props = { size: 20, strokeWidth: 1.8 };
+  if (categoria === "Plomería") return <Wrench {...props} />;
+  if (categoria === "Electricidad") return <Zap {...props} />;
+  if (categoria === "Pintura") return <Paintbrush2 {...props} />;
+  return <Home {...props} />;
+}
+
 export default function MisBusquedas() {
   const navigate = useNavigate();
   const [abierta, setAbierta] = useState(1);
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--tp-crema)",
-        fontFamily: "var(--fuente)",
-        paddingBottom: 80,
-      }}
-    >
+    <div className={styles.pantalla}>
       {/* Header */}
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          background: "var(--tp-crema)",
-          borderBottom: "1px solid rgba(61,31,31,0.08)",
-          padding: "14px 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <button
-          onClick={() => navigate("/home")}
-          style={{
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            padding: 4,
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
+      <header className={styles.header}>
+        <button className={styles.btnVolver} onClick={() => navigate("/home")}>
           <IconoVolver size={20} />
         </button>
-        <div>
-          <p
-            style={{
-              fontSize: 16,
-              fontWeight: 900,
-              color: "var(--tp-marron)",
-              margin: 0,
-            }}
-          >
-            Mis búsquedas
-          </p>
-          <p
-            style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0 }}
-          >
-            {BUSQUEDAS_MOCK.length} búsquedas realizadas
-          </p>
-        </div>
+        <span className={styles.headerTitulo}>Mis búsquedas</span>
         <button
+          className={styles.btnNueva}
           onClick={() => navigate("/busqueda")}
-          style={{
-            marginLeft: "auto",
-            padding: "8px 14px",
-            borderRadius: "var(--r-full)",
-            background: "var(--tp-rojo)",
-            color: "var(--tp-crema)",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "var(--fuente)",
-            fontSize: 12,
-            fontWeight: 700,
-          }}
         >
           + Nueva búsqueda
         </button>
       </header>
 
-      <main style={{ padding: "16px 16px 0" }}>
+      <main className={styles.contenido}>
         {BUSQUEDAS_MOCK.map((b) => {
           const est = ESTADO_CONFIG[b.estado] || ESTADO_CONFIG.sin_respuesta;
           const open = abierta === b.id;
           return (
-            <div
-              key={b.id}
-              style={{
-                background: "var(--tp-crema-clara)",
-                borderRadius: "var(--r-lg)",
-                marginBottom: 12,
-                border: "1px solid rgba(61,31,31,0.08)",
-                overflow: "hidden",
-              }}
-            >
+            <div key={b.id} className={styles.busquedaCard}>
               {/* Header de la búsqueda */}
               <button
                 type="button"
+                className={styles.busquedaHeader}
                 onClick={() => setAbierta(open ? null : b.id)}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 12,
-                  padding: "14px 14px 12px",
-                  background: "none",
-                  border: "none",
-                  cursor: "pointer",
-                  textAlign: "left",
-                }}
               >
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    background: "var(--tp-marron)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: 20,
-                    flexShrink: 0,
-                  }}
-                >
-                  {b.categoria === "Plomería"
-                    ? "🔧"
-                    : b.categoria === "Electricidad"
-                      ? "⚡"
-                      : b.categoria === "Pintura"
-                        ? "🖌️"
-                        : "🏠"}
+                <div className={styles.busquedaCategoriaIcono}>
+                  <IconoCategoria categoria={b.categoria} />
                 </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "flex-start",
-                      marginBottom: 4,
-                    }}
-                  >
-                    <p
-                      style={{
-                        fontSize: 14,
-                        fontWeight: 800,
-                        color: "var(--tp-marron)",
-                        margin: 0,
-                      }}
-                    >
-                      {b.categoria}
-                    </p>
+                <div className={styles.busquedaInfo}>
+                  <div className={styles.busquedaInfoTop}>
+                    <p className={styles.busquedaCategoria}>{b.categoria}</p>
                     <span
-                      style={{
-                        fontSize: 10,
-                        fontWeight: 700,
-                        color: est.color,
-                        background: est.bg,
-                        padding: "2px 8px",
-                        borderRadius: 20,
-                        flexShrink: 0,
-                        marginLeft: 8,
-                      }}
+                      className={styles.busquedaEstadoBadge}
+                      style={{ color: est.color, background: est.bg }}
                     >
                       {est.label}
                     </span>
                   </div>
-                  <p
-                    style={{
-                      fontSize: 12,
-                      color: "var(--tp-marron-suave)",
-                      margin: "0 0 4px",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    {b.descripcion}
-                  </p>
-                  <div style={{ display: "flex", gap: 12 }}>
-                    <span
-                      style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}
-                    >
-                      📅 {b.fecha}
+                  <p className={styles.busquedaDesc}>{b.descripcion}</p>
+                  <div className={styles.busquedaMeta}>
+                    <span className={styles.busquedaMetaItem}>
+                      <CalendarDays size={11} /> {b.fecha}
                     </span>
                     {b.urgencia === "Urgente" && (
-                      <span
-                        style={{
-                          fontSize: 11,
-                          fontWeight: 700,
-                          color: "var(--tp-rojo)",
-                        }}
-                      >
-                        ⚡ Urgente
+                      <span className={styles.busquedaUrgente}>
+                        <Zap size={11} /> Urgente
                       </span>
                     )}
                   </div>
                 </div>
-                <span
-                  style={{
-                    fontSize: 16,
-                    color: "var(--tp-marron-suave)",
-                    flexShrink: 0,
-                    marginTop: 2,
-                  }}
-                >
+                <span className={styles.busquedaFlecha}>
                   {open ? "▲" : "▼"}
                 </span>
               </button>
 
               {/* Detalle expandido */}
               {open && (
-                <div
-                  style={{
-                    padding: "0 14px 14px",
-                    borderTop: "1px solid rgba(61,31,31,0.07)",
-                  }}
-                >
-                  {/* Descripción + dirección */}
-                  <div
-                    style={{
-                      marginTop: 12,
-                      marginBottom: 12,
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 6,
-                    }}
-                  >
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <span style={{ fontSize: 14, flexShrink: 0 }}>📝</span>
-                      <p
-                        style={{
-                          fontSize: 12,
-                          color: "var(--tp-marron-suave)",
-                          margin: 0,
-                          lineHeight: 1.5,
-                        }}
-                      >
+                <div className={styles.busquedaDetalle}>
+                  <div className={styles.busquedaDetalleInfo}>
+                    <div className={styles.busquedaDetalleItem}>
+                      <FileText
+                        size={14}
+                        className={styles.busquedaDetalleIcono}
+                      />
+                      <p className={styles.busquedaDetalleTexto}>
                         {b.descripcion}
                       </p>
                     </div>
-                    <div style={{ display: "flex", gap: 8 }}>
-                      <span style={{ fontSize: 14, flexShrink: 0 }}>📍</span>
-                      <p
-                        style={{
-                          fontSize: 12,
-                          color: "var(--tp-marron-suave)",
-                          margin: 0,
-                        }}
-                      >
+                    <div className={styles.busquedaDetalleItem}>
+                      <MapPin
+                        size={14}
+                        className={styles.busquedaDetalleIcono}
+                      />
+                      <p className={styles.busquedaDetalleTexto}>
                         {b.direccion}
                       </p>
                     </div>
                   </div>
 
-                  {/* Solucionadores contactados */}
-                  <p
-                    style={{
-                      fontSize: 10,
-                      fontWeight: 700,
-                      color: "var(--tp-marron-suave)",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      margin: "0 0 8px",
-                    }}
-                  >
+                  <p className={styles.solLabel}>
                     Solucionadores contactados (
                     {b.solucionadoresContactados.length})
                   </p>
-                  <div
-                    style={{ display: "flex", flexDirection: "column", gap: 8 }}
-                  >
+
+                  <div className={styles.solLista}>
                     {b.solucionadoresContactados.map((sol) => (
-                      <div
-                        key={sol.id}
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: 10,
-                          padding: "10px 12px",
-                          borderRadius: "var(--r-md)",
-                          background: "var(--tp-crema)",
-                          border: "1px solid rgba(61,31,31,0.08)",
-                        }}
-                      >
+                      <div key={sol.id} className={styles.solCard}>
                         <div
-                          style={{
-                            width: 36,
-                            height: 36,
-                            borderRadius: "50%",
-                            background: sol.color,
-                            color: "white",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            fontSize: 14,
-                            fontWeight: 800,
-                            flexShrink: 0,
-                          }}
+                          className={styles.solAvatar}
+                          style={{ background: sol.color }}
                         >
                           {sol.inicial}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <p
-                            style={{
-                              fontSize: 13,
-                              fontWeight: 700,
-                              color: "var(--tp-marron)",
-                              margin: "0 0 1px",
-                            }}
-                          >
+                        <div className={styles.solInfo}>
+                          <p className={styles.solNombre}>
                             {sol.nombre} {sol.nivel}
                           </p>
-                          <p
-                            style={{
-                              fontSize: 11,
-                              color: "var(--tp-marron-suave)",
-                              margin: 0,
-                            }}
-                          >
+                          <p className={styles.solOficio}>
                             {sol.oficio} · ⭐ {sol.rating}
                           </p>
                         </div>
                         {sol.monto ? (
-                          <div style={{ textAlign: "right" }}>
-                            <p
-                              style={{
-                                fontSize: 15,
-                                fontWeight: 900,
-                                color: "var(--tp-marron)",
-                                margin: 0,
-                              }}
-                            >
+                          <div className={styles.solMonto}>
+                            <p className={styles.solMontoVal}>
                               ${fmt(sol.monto)}
                             </p>
-                            <p
-                              style={{
-                                fontSize: 10,
-                                color: "var(--tp-marron-suave)",
-                                margin: 0,
-                              }}
-                            >
-                              presupuesto
-                            </p>
+                            <p className={styles.solMontoLabel}>presupuesto</p>
                           </div>
                         ) : (
-                          <span
-                            style={{
-                              fontSize: 11,
-                              color: "var(--tp-marron-suave)",
-                            }}
-                          >
+                          <span className={styles.solSinResp}>
                             Sin respuesta
                           </span>
                         )}
@@ -458,45 +252,22 @@ export default function MisBusquedas() {
                     ))}
                   </div>
 
-                  {/* Acciones */}
-                  <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+                  <div className={styles.busquedaBotones}>
                     <button
                       type="button"
+                      className={styles.btnVerPpto}
                       onClick={() =>
                         navigate(
                           `/presupuestos?trabajoId=${b.id}&desde=mis-busquedas`,
                         )
                       }
-                      style={{
-                        flex: 1,
-                        padding: "10px 0",
-                        borderRadius: "var(--r-md)",
-                        background: "var(--tp-marron)",
-                        color: "var(--tp-crema)",
-                        border: "none",
-                        cursor: "pointer",
-                        fontFamily: "var(--fuente)",
-                        fontSize: 13,
-                        fontWeight: 700,
-                      }}
                     >
                       Ver presupuestos
                     </button>
                     <button
                       type="button"
+                      className={styles.btnRepetir}
                       onClick={() => navigate("/busqueda")}
-                      style={{
-                        flex: 1,
-                        padding: "10px 0",
-                        borderRadius: "var(--r-md)",
-                        background: "none",
-                        color: "var(--tp-marron)",
-                        border: "1px solid rgba(61,31,31,0.15)",
-                        cursor: "pointer",
-                        fontFamily: "var(--fuente)",
-                        fontSize: 13,
-                        fontWeight: 600,
-                      }}
                     >
                       Repetir búsqueda
                     </button>
@@ -507,6 +278,7 @@ export default function MisBusquedas() {
           );
         })}
       </main>
+
       <NavInferior />
     </div>
   );

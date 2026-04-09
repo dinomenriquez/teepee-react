@@ -1,14 +1,24 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import styles from "./CalificacionS.module.css";
 import { IconoVolver } from "./Iconos";
-import { Star } from "lucide-react";
+import {
+  Clock,
+  Star,
+  MessageCircle,
+  CreditCard,
+  Handshake,
+  AlertTriangle,
+  Lock,
+  BarChart2,
+} from "lucide-react";
 import NavInferiorS from "./NavInferiorS";
 
 const ASPECTOS = [
-  { id: "puntualidad", label: "Puntualidad", icono: "⏰" },
-  { id: "comunicacion", label: "Comunicación", icono: "💬" },
-  { id: "pago", label: "Pago en tiempo", icono: "💳" },
-  { id: "trato", label: "Trato", icono: "🤝" },
+  { id: "puntualidad", label: "Puntualidad", Icono: Clock },
+  { id: "comunicacion", label: "Comunicación", Icono: MessageCircle },
+  { id: "pago", label: "Pago en tiempo", Icono: CreditCard },
+  { id: "trato", label: "Trato", Icono: Handshake },
 ];
 
 const TAGS_POSITIVOS = [
@@ -26,25 +36,37 @@ const TAGS_NEGATIVOS = [
   "Difícil de contactar",
 ];
 
-function Estrellas({ valor, onChange }) {
+function calcularRating(general, aspectos) {
+  if (!general) return 0;
+  const pun = aspectos.puntualidad || general;
+  const com = aspectos.comunicacion || general;
+  const pag = aspectos.pago || general;
+  const tra = aspectos.trato || general;
+  return (
+    Math.round(
+      (0.8 * general + 0.05 * pun + 0.05 * com + 0.05 * pag + 0.05 * tra) * 10,
+    ) / 10
+  );
+}
+
+function Estrellas({ valor, onChange, size = "normal" }) {
   const [hover, setHover] = useState(0);
   return (
-    <div style={{ display: "flex", gap: 6 }}>
+    <div className={styles.estrellasRow}>
       {[1, 2, 3, 4, 5].map((n) => (
         <button
           key={n}
           type="button"
+          className={`${styles.estrella} ${
+            size === "grande"
+              ? styles.estrellaGrande
+              : size === "pequena"
+                ? styles.estrellaPequena
+                : ""
+          } ${n <= (hover || valor) ? styles.estrellaActiva : ""}`}
+          onClick={() => onChange(n)}
           onMouseEnter={() => setHover(n)}
           onMouseLeave={() => setHover(0)}
-          onClick={() => onChange(n)}
-          style={{
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            fontSize: 28,
-            padding: 0,
-            color: n <= (hover || valor) ? "#F5C842" : "rgba(61,31,31,0.15)",
-          }}
         >
           ★
         </button>
@@ -67,492 +89,294 @@ export default function CalificacionS() {
   const trabajoId = searchParams.get("trabajoId") || "1";
 
   const [estrellasPrincipal, setEstrellasPrincipal] = useState(0);
-  const [estrellasAspectos, setEstrellasAspectos] = useState({});
-  const [tagsSelect, setTagsSelect] = useState([]);
+  const [estrellasAspectos, setEstrellasAspectos] = useState({
+    puntualidad: 0,
+    comunicacion: 0,
+    pago: 0,
+    trato: 0,
+  });
+  const [tagsSeleccionados, setTagsSeleccionados] = useState([]);
   const [comentario, setComentario] = useState("");
-  const [enviado, setEnviado] = useState(false);
-
-  // Fórmula: 80% general + 5% cada aspecto
-  function calcularRating(general, aspectos) {
-    if (!general) return 0;
-    const pun = aspectos.puntualidad || general;
-    const com = aspectos.comunicacion || general;
-    const pag = aspectos.pago || general;
-    const tra = aspectos.trato || general;
-    return (
-      Math.round(
-        (0.8 * general + 0.05 * pun + 0.05 * com + 0.05 * pag + 0.05 * tra) *
-          10,
-      ) / 10
-    );
-  }
+  const [estado, setEstado] = useState("formulario");
 
   const rating = calcularRating(estrellasPrincipal, estrellasAspectos);
-  const textos = ["", "Muy mal", "Regular", "Bien", "Muy bien", "Excelente"];
+  const textoEstrellas = [
+    "",
+    "Malo",
+    "Regular",
+    "Bueno",
+    "Muy bueno",
+    "Excelente",
+  ];
 
   function toggleTag(t) {
-    setTagsSelect((prev) =>
+    setTagsSeleccionados((prev) =>
       prev.includes(t) ? prev.filter((x) => x !== t) : [...prev, t],
     );
   }
+  function enviarCalificacion() {
+    if (!estrellasPrincipal) return;
+    setEstado("enviando");
+    setTimeout(() => setEstado("completado"), 2000);
+  }
 
-  if (enviado) {
+  // ── ENVIANDO ──
+  if (estado === "enviando") {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "var(--verde)",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: 32,
-          fontFamily: "var(--fuente)",
-        }}
-      >
-        <div style={{ fontSize: 64, marginBottom: 16 }}>⭐</div>
-        <p
-          style={{
-            fontSize: 22,
-            fontWeight: 900,
-            color: "white",
-            margin: "0 0 8px",
-            textAlign: "center",
-          }}
-        >
-          ¡Calificación enviada!
-        </p>
-        <p
-          style={{
-            fontSize: 14,
-            color: "rgba(255,255,255,0.80)",
-            margin: "0 0 6px",
-            textAlign: "center",
-          }}
-        >
-          Calificaste a {usuNombre}
-        </p>
-        <p
-          style={{
-            fontSize: 32,
-            fontWeight: 900,
-            color: "white",
-            margin: "0 0 8px",
-          }}
-        >
-          ⭐ {rating}
-        </p>
-        <p
-          style={{
-            fontSize: 12,
-            color: "rgba(255,255,255,0.65)",
-            margin: "0 0 32px",
-            textAlign: "center",
-          }}
-        >
-          La calificación será pública una vez que ambos se califiquen
-          mutuamente.
-        </p>
-        <button
-          type="button"
-          onClick={() => navigate("/trabajos-s")}
-          style={{
-            padding: "14px 32px",
-            borderRadius: "var(--r-full)",
-            background: "white",
-            color: "var(--verde)",
-            border: "none",
-            cursor: "pointer",
-            fontFamily: "var(--fuente)",
-            fontSize: 15,
-            fontWeight: 800,
-          }}
-        >
-          Volver a mis trabajos →
-        </button>
+      <div className={styles.pantalla}>
+        <div className={styles.enviandoBloque}>
+          <div className={styles.enviandoSpinner} />
+          <p className={styles.enviandoTexto}>Enviando calificación...</p>
+        </div>
       </div>
     );
   }
 
-  return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "var(--tp-crema)",
-        fontFamily: "var(--fuente)",
-        paddingBottom: 80,
-      }}
-    >
-      <header
-        style={{
-          position: "sticky",
-          top: 0,
-          zIndex: 100,
-          background: "var(--tp-crema)",
-          borderBottom: "1px solid rgba(61,31,31,0.08)",
-          padding: "12px 16px",
-          display: "flex",
-          alignItems: "center",
-          gap: 12,
-        }}
-      >
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            border: "none",
-            background: "none",
-            cursor: "pointer",
-            padding: 4,
-          }}
-        >
-          <IconoVolver size={20} />
-        </button>
-        <p
-          style={{
-            fontSize: 16,
-            fontWeight: 900,
-            color: "var(--tp-marron)",
-            margin: 0,
-          }}
-        >
-          Calificar al cliente
-        </p>
-      </header>
-
-      <div
-        style={{
-          padding: "20px 16px",
-          display: "flex",
-          flexDirection: "column",
-          gap: 16,
-        }}
-      >
-        {/* Cliente */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 12,
-            padding: "14px 16px",
-            borderRadius: "var(--r-lg)",
-            background: "var(--tp-crema-clara)",
-            border: "1px solid rgba(61,31,31,0.08)",
-          }}
-        >
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "50%",
-              background: usuColor,
-              color: "white",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 20,
-              fontWeight: 800,
-            }}
-          >
-            {usuInicial}
+  // ── COMPLETADO ──
+  if (estado === "completado") {
+    return (
+      <div className={styles.pantalla}>
+        <div className={styles.completadoBloque}>
+          <div className={styles.completadoCirculo}>
+            <Star size={32} />
           </div>
-          <div>
-            <p
-              style={{
-                fontSize: 15,
-                fontWeight: 800,
-                color: "var(--tp-marron)",
-                margin: 0,
-              }}
-            >
-              {usuNombre}
-            </p>
-            <p
-              style={{
-                fontSize: 12,
-                color: "var(--tp-marron-suave)",
-                margin: 0,
-              }}
-            >
-              Cliente
-            </p>
-          </div>
-        </div>
-
-        {/* Calificación general */}
-        <div
-          style={{
-            background: "var(--tp-crema-clara)",
-            borderRadius: "var(--r-lg)",
-            padding: 20,
-            border: "1px solid rgba(61,31,31,0.08)",
-          }}
-        >
-          <p
-            style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: "var(--tp-marron)",
-              margin: "0 0 12px",
-            }}
-          >
-            ¿Cómo fue trabajar con {usuNombre.split(" ")[0]}?
+          <h2 className={styles.completadoTitulo}>¡Gracias por calificar!</h2>
+          <p className={styles.completadoDesc}>
+            Tu opinión contribuye a la comunidad de TeePee.
           </p>
-          <Estrellas
-            valor={estrellasPrincipal}
-            onChange={setEstrellasPrincipal}
-          />
-          {estrellasPrincipal > 0 && (
-            <p
-              style={{
-                fontSize: 14,
-                fontWeight: 700,
-                color: "var(--tp-rojo)",
-                margin: "8px 0 0",
-              }}
-            >
-              {textos[estrellasPrincipal]}
-            </p>
-          )}
-        </div>
-
-        {/* Aspectos */}
-        {estrellasPrincipal > 0 && (
-          <div
-            style={{
-              background: "var(--tp-crema-clara)",
-              borderRadius: "var(--r-lg)",
-              padding: 16,
-              border: "1px solid rgba(61,31,31,0.08)",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--tp-marron-suave)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                margin: "0 0 12px",
-              }}
-            >
-              Aspectos específicos
-            </p>
-            {ASPECTOS.map((asp) => (
+          <div className={styles.completadoResumen}>
+            <div className={styles.completadoCliente}>
               <div
-                key={asp.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: 12,
-                }}
+                className={styles.completadoAvatar}
+                style={{ background: usuColor }}
               >
-                <span style={{ fontSize: 13, color: "var(--tp-marron)" }}>
-                  {asp.icono} {asp.label}
-                </span>
-                <div style={{ display: "flex", gap: 4 }}>
-                  {[1, 2, 3, 4, 5].map((n) => (
-                    <button
-                      key={n}
-                      type="button"
-                      onClick={() =>
-                        setEstrellasAspectos((prev) => ({
-                          ...prev,
-                          [asp.id]: n,
-                        }))
-                      }
-                      style={{
-                        border: "none",
-                        background: "none",
-                        cursor: "pointer",
-                        fontSize: 20,
-                        padding: 0,
-                        color:
-                          n <= (estrellasAspectos[asp.id] || 0)
-                            ? "#F5C842"
-                            : "rgba(61,31,31,0.15)",
-                      }}
-                    >
-                      ★
-                    </button>
-                  ))}
+                {usuInicial}
+              </div>
+              <div>
+                <p className={styles.completadoNombre}>{usuNombre}</p>
+                <div className={styles.completadoEstrellas}>
+                  {"⭐".repeat(estrellasPrincipal)}
+                  {"☆".repeat(5 - estrellasPrincipal)}
                 </div>
               </div>
-            ))}
-
-            {/* Rating calculado */}
-            {rating > 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  gap: 8,
-                  marginTop: 8,
-                  padding: "8px 16px",
-                  borderRadius: "var(--r-md)",
-                  background: "rgba(61,31,31,0.06)",
-                }}
-              >
-                <span style={{ fontSize: 12, color: "var(--tp-marron-suave)" }}>
-                  Puntaje calculado:
-                </span>
-                <span
-                  style={{
-                    fontSize: 20,
-                    fontWeight: 900,
-                    color: "var(--tp-marron)",
-                  }}
-                >
-                  ⭐ {rating}
-                </span>
-                <span style={{ fontSize: 11, color: "var(--tp-marron-suave)" }}>
-                  /5
-                </span>
+            </div>
+            {comentario.trim() && (
+              <div className={styles.completadoComentario}>"{comentario}"</div>
+            )}
+            {tagsSeleccionados.length > 0 && (
+              <div className={styles.completadoTags}>
+                {tagsSeleccionados.map((t) => (
+                  <span key={t} className={styles.completadoTag}>
+                    {t}
+                  </span>
+                ))}
               </div>
             )}
           </div>
+          <div className={styles.impactoCard}>
+            <span className={styles.impactoIcono}>
+              <BarChart2 size={20} />
+            </span>
+            <div>
+              <p className={styles.impactoTitulo}>
+                Puntaje calculado para {usuNombre.split(" ")[0]}
+              </p>
+              <p className={styles.impactoDesc}>
+                ⭐ {rating} · Se publicará cuando ambos se califiquen
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            className={styles.btnInicio}
+            onClick={() => navigate("/trabajos-s")}
+          >
+            Volver a mis trabajos →
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── FORMULARIO ──
+  return (
+    <div className={styles.pantalla}>
+      <header className={styles.header}>
+        <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+          <IconoVolver size={20} />
+        </button>
+        <span className={styles.headerTitulo}>Calificar al cliente</span>
+        <button className={styles.btnSaltear} onClick={() => navigate(-1)}>
+          Omitir
+        </button>
+      </header>
+
+      <main className={styles.contenido}>
+        {/* Resumen del cliente */}
+        <section className={styles.trabajoCard}>
+          <div
+            className={styles.trabajoAvatar}
+            style={{ background: usuColor }}
+          >
+            {usuInicial}
+          </div>
+          <div className={styles.trabajoInfo}>
+            <p className={styles.trabajoNombre}>{usuNombre}</p>
+            <p className={styles.trabajoOficio}>
+              Cliente · Trabajo #{trabajoId}
+            </p>
+          </div>
+        </section>
+
+        {/* Calificación principal */}
+        <section className={styles.seccion}>
+          <h2 className={styles.seccionTitulo}>
+            ¿Cómo fue trabajar con {usuNombre.split(" ")[0]}?
+          </h2>
+          <div className={styles.principalBloque}>
+            <Estrellas
+              valor={estrellasPrincipal}
+              onChange={setEstrellasPrincipal}
+              size="grande"
+            />
+            {estrellasPrincipal > 0 && (
+              <p className={styles.textoEstrellas}>
+                {textoEstrellas[estrellasPrincipal]}
+              </p>
+            )}
+          </div>
+        </section>
+
+        {/* Aspectos */}
+        {estrellasPrincipal > 0 && (
+          <section className={styles.seccion}>
+            <h2 className={styles.seccionTitulo}>Calificá cada aspecto</h2>
+            <div className={styles.aspectosLista}>
+              {ASPECTOS.map((asp) => (
+                <div key={asp.id} className={styles.aspectoFila}>
+                  <div className={styles.aspectoLabel}>
+                    <asp.Icono size={15} className={styles.aspectoIcono} />
+                    <span className={styles.aspectoNombre}>{asp.label}</span>
+                  </div>
+                  <div className={styles.aspectoEstrellaWrapper}>
+                    <Estrellas
+                      valor={estrellasAspectos[asp.id]}
+                      size="pequena"
+                      onChange={(val) =>
+                        setEstrellasAspectos((prev) => ({
+                          ...prev,
+                          [asp.id]: val,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {rating > 0 && (
+              <div className={styles.ratingCalculado}>
+                <span className={styles.ratingCalculadoLabel}>
+                  Puntaje calculado:
+                </span>
+                <span className={styles.ratingCalculadoValor}>⭐ {rating}</span>
+                <span className={styles.ratingCalculadoMax}>/5</span>
+              </div>
+            )}
+          </section>
         )}
 
         {/* Tags */}
         {estrellasPrincipal > 0 && (
-          <div
-            style={{
-              background: "var(--tp-crema-clara)",
-              borderRadius: "var(--r-lg)",
-              padding: 16,
-              border: "1px solid rgba(61,31,31,0.08)",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--tp-marron-suave)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                margin: "0 0 10px",
-              }}
-            >
-              {estrellasPrincipal >= 4 ? "¿Qué destacás?" : "¿Qué mejorarías?"}
-            </p>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-              {(estrellasPrincipal >= 4 ? TAGS_POSITIVOS : TAGS_NEGATIVOS).map(
-                (t) => (
+          <section className={styles.seccion}>
+            <h2 className={styles.seccionTitulo}>¿Qué destacás?</h2>
+            <div className={styles.tagsBloque}>
+              <p className={styles.tagsSubtitulo}>Positivo</p>
+              <div className={styles.tagsGrid}>
+                {TAGS_POSITIVOS.map((t) => (
                   <button
                     key={t}
                     type="button"
+                    className={`${styles.tag} ${tagsSeleccionados.includes(t) ? styles.tagPositivoActivo : ""}`}
                     onClick={() => toggleTag(t)}
-                    style={{
-                      padding: "6px 12px",
-                      borderRadius: "var(--r-full)",
-                      border: tagsSelect.includes(t)
-                        ? "none"
-                        : "1px solid rgba(61,31,31,0.15)",
-                      background: tagsSelect.includes(t)
-                        ? "var(--tp-marron)"
-                        : "none",
-                      color: tagsSelect.includes(t)
-                        ? "var(--tp-crema)"
-                        : "var(--tp-marron)",
-                      fontFamily: "var(--fuente)",
-                      fontSize: 12,
-                      cursor: "pointer",
-                      fontWeight: tagsSelect.includes(t) ? 700 : 400,
-                    }}
                   >
                     {t}
                   </button>
-                ),
+                ))}
+              </div>
+              {estrellasPrincipal <= 3 && (
+                <>
+                  <p className={styles.tagsSubtitulo}>A mejorar</p>
+                  <div className={styles.tagsGrid}>
+                    {TAGS_NEGATIVOS.map((t) => (
+                      <button
+                        key={t}
+                        type="button"
+                        className={`${styles.tag} ${tagsSeleccionados.includes(t) ? styles.tagNegativoActivo : ""}`}
+                        onClick={() => toggleTag(t)}
+                      >
+                        {t}
+                      </button>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
-          </div>
+          </section>
         )}
 
         {/* Comentario */}
         {estrellasPrincipal > 0 && (
-          <div
-            style={{
-              background: "var(--tp-crema-clara)",
-              borderRadius: "var(--r-lg)",
-              padding: 16,
-              border: "1px solid rgba(61,31,31,0.08)",
-            }}
-          >
-            <p
-              style={{
-                fontSize: 12,
-                fontWeight: 700,
-                color: "var(--tp-marron-suave)",
-                textTransform: "uppercase",
-                letterSpacing: "0.5px",
-                margin: "0 0 8px",
-              }}
-            >
-              Comentario (opcional)
-            </p>
+          <section className={styles.seccion}>
+            <h2 className={styles.seccionTitulo}>
+              Comentario <span className={styles.opcional}>(opcional)</span>
+            </h2>
             <textarea
-              placeholder="Contá cómo fue la experiencia..."
+              className={styles.textarea}
+              placeholder="Contá cómo fue trabajar con este cliente..."
               value={comentario}
               onChange={(e) => setComentario(e.target.value)}
               rows={3}
-              style={{
-                width: "100%",
-                fontSize: 13,
-                color: "var(--tp-marron)",
-                border: "none",
-                background: "none",
-                outline: "none",
-                fontFamily: "var(--fuente)",
-                resize: "none",
-                lineHeight: 1.6,
-                boxSizing: "border-box",
-              }}
+              maxLength={300}
             />
+            <span className={styles.contador}>{comentario.length}/300</span>
+          </section>
+        )}
+
+        {/* Aviso */}
+        {estrellasPrincipal > 0 && (
+          <div className={styles.avisoPublicacion}>
+            <AlertTriangle size={14} className={styles.avisoIcono} />
+            <p className={styles.avisoTexto}>
+              Tu calificación afectará la visibilidad del cliente en TeePee.
+            </p>
           </div>
         )}
 
-        {/* Nota: publicación mutua */}
-        {estrellasPrincipal > 0 && (
-          <p
-            style={{
-              fontSize: 11,
-              color: "var(--tp-marron-suave)",
-              textAlign: "center",
-              lineHeight: 1.5,
-              margin: 0,
-            }}
+        {/* Botón enviar */}
+        <div className={styles.enviarBloque}>
+          {estrellasPrincipal > 0 && (
+            <p className={styles.notaMutua}>
+              <Lock size={11} className={styles.notaIcono} />
+              La calificación se publicará una vez que ambos se califiquen
+              mutuamente.
+            </p>
+          )}
+          <button
+            type="button"
+            className={`${styles.btnEnviar} ${!estrellasPrincipal ? styles.btnEnviarDesactivado : ""}`}
+            onClick={enviarCalificacion}
+            disabled={!estrellasPrincipal}
           >
-            🔒 La calificación se publicará una vez que ambos se califiquen
-            mutuamente.
-          </p>
-        )}
-
-        {/* Enviar */}
-        <button
-          type="button"
-          disabled={!estrellasPrincipal}
-          onClick={() => setEnviado(true)}
-          style={{
-            width: "100%",
-            padding: "14px 0",
-            borderRadius: "var(--r-md)",
-            border: "none",
-            cursor: estrellasPrincipal ? "pointer" : "not-allowed",
-            fontFamily: "var(--fuente)",
-            fontSize: 15,
-            fontWeight: 800,
-            background: estrellasPrincipal
-              ? "var(--tp-rojo)"
-              : "rgba(61,31,31,0.12)",
-            color: estrellasPrincipal
-              ? "var(--tp-crema)"
-              : "var(--tp-marron-suave)",
-          }}
-        >
-          Enviar calificación
-        </button>
-      </div>
+            {!estrellasPrincipal ? (
+              "Elegí una calificación"
+            ) : (
+              <>
+                <Star size={15} /> Enviar calificación{" "}
+              </>
+            )}
+          </button>
+        </div>
+      </main>
 
       <NavInferiorS />
     </div>

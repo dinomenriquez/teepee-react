@@ -1,0 +1,285 @@
+/* MisBusquedas.module.css */
+
+.pantalla {
+  min-height: 100vh;
+  background: var(--tp-crema);
+  font-family: var(--fuente);
+  padding-bottom: 80px;
+}
+
+/* ── HEADER ─────────────────────────────────── */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-md);
+  padding: 12px var(--sp-lg);
+  background: var(--tp-crema);
+  border-bottom: 1px solid rgba(61,31,31,0.12);
+}
+.btnVolver {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--sp-sm);
+  border-radius: var(--r-full);
+  display: flex;
+  align-items: center;
+  color: var(--tp-marron-suave);
+  transition: color var(--trans);
+  flex-shrink: 0;
+}
+.btnVolver:hover { color: var(--tp-rojo); }
+.headerTitulo {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--tp-marron);
+  font-family: var(--fuente);
+}
+.btnNueva {
+  margin-left: auto;
+  padding: 8px 14px;
+  border-radius: var(--r-full);
+  background: var(--tp-rojo);
+  color: var(--tp-crema);
+  border: none;
+  cursor: pointer;
+  font-family: var(--fuente);
+  font-size: 12px;
+  font-weight: 700;
+  transition: background var(--trans);
+  white-space: nowrap;
+}
+.btnNueva:hover { background: var(--tp-rojo-oscuro); }
+
+/* ── CONTENIDO ───────────────────────────────── */
+.contenido {
+  padding: 16px 16px 0;
+}
+
+/* ── BÚSQUEDA CARD ───────────────────────────── */
+.busquedaCard {
+  background: var(--tp-crema-clara);
+  border-radius: var(--r-lg);
+  margin-bottom: 12px;
+  border: 1px solid rgba(61,31,31,0.08);
+  overflow: hidden;
+}
+
+.busquedaHeader {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 14px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--fuente);
+  transition: background var(--trans);
+}
+.busquedaHeader:hover { background: rgba(61,31,31,0.02); }
+
+.busquedaCategoriaIcono {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--tp-marron);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--tp-crema);
+}
+
+.busquedaInfo {
+  flex: 1;
+  min-width: 0;
+}
+.busquedaInfoTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+.busquedaCategoria {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--tp-marron);
+  margin: 0;
+}
+.busquedaEstadoBadge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+.busquedaDesc {
+  font-size: 12px;
+  color: var(--tp-marron-suave);
+  margin: 0 0 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.busquedaMeta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.busquedaMetaItem {
+  font-size: 11px;
+  color: var(--tp-marron-suave);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.busquedaUrgente {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tp-rojo);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+.busquedaFlecha {
+  font-size: 16px;
+  color: var(--tp-marron-suave);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ── DETALLE EXPANDIDO ───────────────────────── */
+.busquedaDetalle {
+  padding: 0 14px 14px;
+  border-top: 1px solid rgba(61,31,31,0.07);
+}
+.busquedaDetalleInfo {
+  margin-top: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.busquedaDetalleItem {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+.busquedaDetalleIcono {
+  color: var(--tp-marron-suave);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.busquedaDetalleTexto {
+  font-size: 12px;
+  color: var(--tp-marron-suave);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── SOLUCIONADORES ──────────────────────────── */
+.solLabel {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--tp-marron-suave);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px;
+}
+.solLista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.solCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--tp-crema);
+  border: 1px solid rgba(61,31,31,0.08);
+}
+.solAvatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.solInfo { flex: 1; }
+.solNombre {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tp-marron);
+  margin: 0 0 1px;
+}
+.solOficio {
+  font-size: 11px;
+  color: var(--tp-marron-suave);
+  margin: 0;
+}
+.solMonto { text-align: right; }
+.solMontoVal {
+  font-size: 15px;
+  font-weight: 900;
+  color: var(--tp-marron);
+  margin: 0;
+}
+.solMontoLabel {
+  font-size: 10px;
+  color: var(--tp-marron-suave);
+  margin: 0;
+}
+.solSinResp {
+  font-size: 11px;
+  color: var(--tp-marron-suave);
+}
+
+/* ── BOTONES DETALLE ─────────────────────────── */
+.busquedaBotones {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+.btnVerPpto {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: var(--r-md);
+  background: var(--tp-marron);
+  color: var(--tp-crema);
+  border: none;
+  cursor: pointer;
+  font-family: var(--fuente);
+  font-size: 13px;
+  font-weight: 700;
+  transition: background var(--trans);
+}
+.btnVerPpto:hover { background: var(--tp-marron-medio); }
+.btnRepetir {
+  flex: 1;
+  padding: 10px 0;
+  border-radius: var(--r-md);
+  background: none;
+  color: var(--tp-marron);
+  border: 1px solid rgba(61,31,31,0.15);
+  cursor: pointer;
+  font-family: var(--fuente);
+  font-size: 13px;
+  font-weight: 600;
+  transition: all var(--trans);
+}
+.btnRepetir:hover { border-color: rgba(61,31,31,0.30); }

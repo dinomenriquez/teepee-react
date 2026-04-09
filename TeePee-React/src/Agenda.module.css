@@ -1,6 +1,7 @@
 /* Agenda.module.css */
 
 .pantalla {
+  padding-top: 49px;
   min-height: 100vh;
   background: var(--tp-crema);
   display: flex;
@@ -9,13 +10,17 @@
 
 /* ── HEADER ─────────────────────────────────── */
 .header {
-  position: sticky;
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 430px;
   top: 0;
   z-index: 100;
   display: flex;
   align-items: center;
   gap: var(--sp-md);
-  padding: 14px var(--sp-lg);
+  padding: 12px var(--sp-lg);
   background: var(--tp-crema);
   border-bottom: 1px solid rgba(61,31,31,0.12);
 }
@@ -29,6 +34,10 @@
   border-radius: var(--r-full);
   transition: all var(--trans);
   font-family: var(--fuente);
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
 }
 
 .btnVolver:hover { color: var(--tp-rojo); }
@@ -190,6 +199,23 @@
   color: var(--tp-marron);
 }
 
+/* Subtítulo del día (nuevo — venía inline) */
+.disponibilidadDia {
+  font-size: 11px;
+  color: var(--tp-marron-suave);
+  margin: 2px 0 0;
+  font-family: var(--fuente);
+}
+
+/* Nota "no modifica perfil" (nuevo — venía inline) */
+.disponibilidadNota {
+  font-size: 11px;
+  color: var(--tp-marron-suave);
+  margin: 0 0 8px;
+  font-family: var(--fuente);
+  line-height: 1.5;
+}
+
 .disponibilidadGuardar {
   font-size: 12px;
   font-weight: 700;
@@ -277,7 +303,7 @@
   border-radius: var(--r-lg);
 }
 
-.sinTrabajosIcono { font-size: 32px; }
+.sinTrabajosIcono { font-size: 32px; color: var(--tp-marron-suave); }
 
 .sinTrabajosTexto {
   font-size: 14px;
@@ -361,6 +387,9 @@
   padding: 3px 8px;
   border-radius: var(--r-full);
   white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .estadoVerde {
@@ -381,11 +410,17 @@
 .trabajoCliente {
   font-size: 12px;
   color: var(--tp-marron-suave);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .trabajoDireccion {
   font-size: 12px;
   color: var(--tp-marron-suave);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .trabajoFooter {
@@ -417,6 +452,9 @@
   cursor: pointer;
   font-family: var(--fuente);
   transition: all var(--trans);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .btnChat:hover { border-color: var(--tp-rojo); color: var(--tp-rojo); }
@@ -432,6 +470,9 @@
   cursor: pointer;
   font-family: var(--fuente);
   transition: all var(--trans);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .btnReprogramar:hover { border-color: #F5A623; color: #d4891a; }
@@ -538,6 +579,7 @@
   color: var(--tp-marron);
   outline: none;
   transition: border-color var(--trans);
+  box-sizing: border-box;
 }
 
 .campoInput:focus {

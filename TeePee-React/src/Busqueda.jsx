@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import NavInferior from "./NavInferior";
+import { IconoVolver } from "./Iconos";
 import styles from "./Busqueda.module.css";
 import {
   IconoPlomeria,
@@ -54,64 +55,15 @@ const URGENCIA_OPCIONES = [
 ];
 
 const SOLUCIONADORES_MOCK = [
-  {
-    id: 1,
-    nombre: "Juan Ledesma",
-    inicial: "J",
-    oficio: "Plomero",
-    nivel: "Oro",
-    nivelIcono: "🥇",
-    reputacion: 4.9,
-    trabajos: 124,
-    distancia: "1.2 km",
-    tiempoRespuesta: "~15 min",
-    precio: "$18.000 - $35.000",
-    disponible: true,
-    garantia: "30 días",
-    tags: ["Rápido", "Prolijo", "Puntual"],
-  },
-  {
-    id: 2,
-    nombre: "Roberto Silva",
-    inicial: "R",
-    oficio: "Plomero",
-    nivel: "Plata",
-    nivelIcono: "🥈",
-    reputacion: 4.7,
-    trabajos: 67,
-    distancia: "2.8 km",
-    tiempoRespuesta: "~25 min",
-    precio: "$15.000 - $28.000",
-    disponible: true,
-    garantia: "15 días",
-    tags: ["Económico", "Confiable"],
-  },
-  {
-    id: 3, nombre: "Miguel Torres", inicial: "M", oficio: "Plomero",
-    nivel: "Bronce", nivelIcono: "🥉", reputacion: 4.5, trabajos: 23,
-    distancia: "3.5 km", tiempoRespuesta: "~40 min",
-    precio: "$12.000 - $22.000", disponible: true, garantia: "Sin garantía",
-    tags: ["Nuevo", "Económico"],
-  },
-  {
-    id: 4, nombre: "Rosa Leiva", inicial: "R", oficio: "Plomera",
-    nivel: "Plata", nivelIcono: "🥈", reputacion: 4.8, trabajos: 55,
-    distancia: "2.1 km", tiempoRespuesta: "~20 min",
-    precio: "$16.000 - $30.000", disponible: true, garantia: "30 días",
-    tags: ["Prolija", "Puntual"],
-  },
-  {
-    id: 5, nombre: "Carlos Acuña", inicial: "C", oficio: "Plomero",
-    nivel: "Oro", nivelIcono: "🥇", reputacion: 4.6, trabajos: 89,
-    distancia: "5.2 km", tiempoRespuesta: "~35 min",
-    precio: "$18.000 - $32.000", disponible: true, garantia: "15 días",
-    tags: ["Confiable", "Rápido"],
-  },
+  { id: 1, nombre: "Juan Ledesma",  inicial: "J", oficio: "Plomero",  nivel: "Oro",    nivelIcono: "🥇", reputacion: 4.9, trabajos: 124, distancia: "1.2 km", tiempoRespuesta: "~15 min", precio: "$18.000 - $35.000", disponible: true, garantia: "30 días", tags: ["Rápido", "Prolijo", "Puntual"] },
+  { id: 2, nombre: "Roberto Silva", inicial: "R", oficio: "Plomero",  nivel: "Plata",  nivelIcono: "🥈", reputacion: 4.7, trabajos: 67,  distancia: "2.8 km", tiempoRespuesta: "~25 min", precio: "$15.000 - $28.000", disponible: true, garantia: "15 días", tags: ["Económico", "Confiable"] },
+  { id: 3, nombre: "Miguel Torres", inicial: "M", oficio: "Plomero",  nivel: "Bronce", nivelIcono: "🥉", reputacion: 4.5, trabajos: 23,  distancia: "3.5 km", tiempoRespuesta: "~40 min", precio: "$12.000 - $22.000", disponible: true, garantia: "Sin garantía", tags: ["Nuevo", "Económico"] },
+  { id: 4, nombre: "Rosa Leiva",    inicial: "R", oficio: "Plomera",  nivel: "Plata",  nivelIcono: "🥈", reputacion: 4.8, trabajos: 55,  distancia: "2.1 km", tiempoRespuesta: "~20 min", precio: "$16.000 - $30.000", disponible: true, garantia: "30 días", tags: ["Prolija", "Puntual"] },
+  { id: 5, nombre: "Carlos Acuña",  inicial: "C", oficio: "Plomero",  nivel: "Oro",    nivelIcono: "🥇", reputacion: 4.6, trabajos: 89,  distancia: "5.2 km", tiempoRespuesta: "~35 min", precio: "$18.000 - $32.000", disponible: true, garantia: "15 días", tags: ["Confiable", "Rápido"] },
 ];
 
-// Mock de domicilios precargados del perfil del usuario
 const DOMICILIOS_USUARIO = [
-  { id: 1, label: "Casa", direccion: "Av. Mitre 1240, Posadas", principal: true },
+  { id: 1, label: "Casa",    direccion: "Av. Mitre 1240, Posadas",  principal: true },
   { id: 2, label: "Trabajo", direccion: "San Lorenzo 456, Posadas", principal: false },
 ];
 
@@ -134,81 +86,49 @@ export default function Busqueda() {
   const [direccionManual, setDireccionManual] = useState("");
   const [toast, setToast] = useState(null);
 
-  function mostrarToast(mensaje) {
-    setToast(mensaje);
-    setTimeout(() => setToast(null), 2500);
-  }
-
+  function mostrarToast(mensaje) { setToast(mensaje); setTimeout(() => setToast(null), 2500); }
   function scrollTop() { window.scrollTo({ top: 0, behavior: "instant" }); }
 
   function irAPaso2() {
-    if (categoriasSeleccionadas.length === 0 && !otraCategoria.trim()) {
-      mostrarToast("⚠️ Elegí al menos una categoría");
-      return;
-    }
-    if (!descripcion.trim()) {
-      mostrarToast("⚠️ Describí lo que necesitás");
-      return;
-    }
-    setPaso(2);
-    scrollTop();
+    if (categoriasSeleccionadas.length === 0 && !otraCategoria.trim()) { mostrarToast("⚠️ Elegí al menos una categoría"); return; }
+    if (!descripcion.trim()) { mostrarToast("⚠️ Describí lo que necesitás"); return; }
+    setPaso(2); scrollTop();
   }
 
   function toggleCategoria(id) {
-    setCategoriasSeleccionadas(prev =>
-      prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]
-    );
+    setCategoriasSeleccionadas(prev => prev.includes(id) ? prev.filter(c => c !== id) : [...prev, id]);
   }
 
   function iniciarVoz() {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-      mostrarToast("Tu navegador no soporta dictado por voz");
-      return;
-    }
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) { mostrarToast("Tu navegador no soporta dictado por voz"); return; }
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     const rec = new SR();
-    rec.lang = "es-AR";
-    rec.continuous = false;
-    rec.interimResults = false;
+    rec.lang = "es-AR"; rec.continuous = false; rec.interimResults = false;
     setEscuchando(true);
-    rec.onresult = (e) => {
-      const texto = e.results[0][0].transcript;
-      setDescripcion(prev => prev ? prev + " " + texto : texto);
-      setEscuchando(false);
-    };
+    rec.onresult = (e) => { setDescripcion(prev => prev ? prev + " " + e.results[0][0].transcript : e.results[0][0].transcript); setEscuchando(false); };
     rec.onerror = () => { setEscuchando(false); mostrarToast("No se pudo reconocer el audio"); };
     rec.onend = () => setEscuchando(false);
     rec.start();
   }
 
   function irAPaso3() {
-    // Simulamos búsqueda con loading
+    if (!direccion) { mostrarToast("⚠️ Seleccioná una dirección de servicio"); return; }
+    if (horariosSeleccionados.length === 0) { mostrarToast("⚠️ Seleccioná al menos un día y turno"); return; }
     setBuscando(true);
-    setTimeout(() => {
-      setBuscando(false);
-      setPaso(3);
-      scrollTop();
-    }, 1800);
-    /*
-      En el Paso 5 (FastAPI) acá va a ir
-      una llamada real a la API:
-      fetch('/api/búsqueda?categoria=plomeria&lat=...&lng=...')
-      Por ahora simulamos el delay con setTimeout.
-    */
+    setTimeout(() => { setBuscando(false); setPaso(3); scrollTop(); }, 1800);
   }
 
   const categoriasActuales = CATEGORIAS.filter(c => categoriasSeleccionadas.includes(c.id));
-  const categoriaActual = categoriasActuales[0]; // para compatibilidad
+  const categoriaActual = categoriasActuales[0];
+  const urgenciaActual = URGENCIA_OPCIONES.find(u => u.id === urgencia);
 
-  const urgenciaActual = URGENCIA_OPCIONES.find((u) => u.id === urgencia);
-
-  // ── PASO 1: ¿Qué necesitás? ──
+  // ── PASO 1 ──────────────────────────────────────────────
   if (paso === 1) {
     return (
       <div className={styles.pantalla}>
         <header className={styles.header}>
           <button className={styles.btnVolver} onClick={() => navigate(-1)}>
-            ← Volver
+            <IconoVolver size={20} />
           </button>
           <span className={styles.headerTitulo}>Solicitar servicio</span>
           <div className={styles.pasoIndicador}>
@@ -217,7 +137,6 @@ export default function Busqueda() {
           </div>
         </header>
 
-        {/* Barra de progreso del wizard */}
         <div className={styles.wizardBarra}>
           <div className={styles.wizardBarraRelleno} style={{ width: "33%" }} />
         </div>
@@ -225,17 +144,15 @@ export default function Busqueda() {
         <main className={styles.contenido}>
           <div className={styles.pasoTitulo}>
             <h1 className={styles.pasoTituloTexto}>¿Qué servicio necesitás?</h1>
-            <p className={styles.pasoTituloSub}>
-              Elegí la categoría y describí el problema
-            </p>
+            <p className={styles.pasoTituloSub}>Elegí la categoría y describí el problema</p>
           </div>
 
-          {/* Categorías — múltiple selección */}
+          {/* Categorías */}
           <section>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-              <p className={styles.campoLabel} style={{ margin: 0 }}>Categoría</p>
+            <div className={styles.categoriaHeaderRow}>
+              <p className={styles.campoLabel}>Categoría</p>
               {categoriasSeleccionadas.length > 0 && (
-                <span style={{ fontSize: 11, color: "var(--tp-rojo)", fontWeight: 700, fontFamily: "var(--fuente)" }}>
+                <span className={styles.categoriasContador}>
                   {categoriasSeleccionadas.length} seleccionada{categoriasSeleccionadas.length > 1 ? "s" : ""}
                 </span>
               )}
@@ -249,52 +166,50 @@ export default function Busqueda() {
                   <span className={styles.categoriaBtnIcono}>{cat.icono}</span>
                   <span className={styles.categoriaBtnNombre}>{cat.nombre}</span>
                   {categoriasSeleccionadas.includes(cat.id) && (
-                    <span style={{ position: "absolute", top: 4, right: 4, fontSize: 10, color: "var(--tp-crema)", background: "var(--tp-rojo)", borderRadius: "50%", width: 14, height: 14, display: "flex", alignItems: "center", justifyContent: "center" }}>✓</span>
+                    <span className={styles.categoriaCheck}>✓</span>
                   )}
                 </button>
               ))}
             </div>
 
-            {/* Otras categorías desplegable */}
-            <button type="button"
-              onClick={() => setMostrarCategoriasExtras(!mostrarCategoriasExtras)}
-              style={{ width: "100%", marginTop: 10, padding: "10px 14px", borderRadius: "var(--r-md)", border: "1px dashed rgba(61,31,31,0.20)", background: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 13, color: "var(--tp-marron-suave)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            {/* Otras categorías */}
+            <button type="button" className={styles.btnOtrasCategorias}
+              onClick={() => setMostrarCategoriasExtras(!mostrarCategoriasExtras)}>
               <span>+ Otras categorías</span>
               <span>{mostrarCategoriasExtras ? "▲" : "▼"}</span>
             </button>
+
             {mostrarCategoriasExtras && (
-              <div style={{ marginTop: 8, padding: 12, background: "rgba(61,31,31,0.03)", borderRadius: "var(--r-md)", border: "1px solid rgba(61,31,31,0.08)", display: "flex", flexWrap: "wrap", gap: 8 }}>
+              <div className={styles.extrasPanel}>
                 {CATEGORIAS_EXTRAS.map((nombre, i) => {
                   const id = `extra_${i}`;
                   const sel = categoriasSeleccionadas.includes(id);
                   return (
                     <button key={id} type="button"
-                      onClick={() => toggleCategoria(id)}
-                      style={{ padding: "6px 12px", borderRadius: "var(--r-full)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 12, fontWeight: sel ? 700 : 400,
-                        background: sel ? "var(--tp-rojo)" : "var(--tp-crema)",
-                        color: sel ? "white" : "var(--tp-marron)" }}>
+                      className={sel ? styles.extraBtnActivo : styles.extraBtn}
+                      onClick={() => toggleCategoria(id)}>
                       {sel ? "✓ " : ""}{nombre}
                     </button>
                   );
                 })}
-                {/* Otra: texto libre */}
-                <div style={{ width: "100%", marginTop: 4, display: "flex", gap: 8, alignItems: "center" }}>
-                  <span style={{ fontSize: 12, color: "var(--tp-marron-suave)", fontFamily: "var(--fuente)", whiteSpace: "nowrap" }}>Otra:</span>
+                <div className={styles.otraCategoriaRow}>
+                  <span className={styles.otraCategoriaLabel}>Otra:</span>
                   <input type="text" placeholder="Escribí tu categoría..."
                     value={otraCategoria}
                     onChange={e => setOtraCategoria(e.target.value)}
-                    style={{ flex: 1, padding: "6px 10px", borderRadius: 8, border: "1px solid rgba(61,31,31,0.15)", background: "var(--tp-crema)", fontFamily: "var(--fuente)", fontSize: 13, color: "var(--tp-marron)", outline: "none" }} />
+                    className={styles.otraCategoriaInput}
+                  />
                 </div>
               </div>
             )}
           </section>
 
-          {/* Descripción con dictado por voz */}
+          {/* Descripción */}
           <section className={styles.campoBloque}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <p className={styles.campoLabel} style={{ margin: 0 }}>Describí el problema</p>
+            <div className={styles.descripcionHeader}>
+              <p className={styles.campoLabel}>Describí el problema</p>
               <button type="button" onClick={iniciarVoz}
-                style={{ display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: "var(--r-full)", border: "1px solid rgba(61,31,31,0.15)", background: escuchando ? "var(--tp-rojo)" : "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 11, color: escuchando ? "white" : "var(--tp-marron-suave)", fontWeight: 600 }}>
+                className={escuchando ? styles.btnDictarActivo : styles.btnDictar}>
                 🎤 {escuchando ? "Escuchando..." : "Dictar"}
               </button>
             </div>
@@ -307,37 +222,35 @@ export default function Busqueda() {
             <span className={styles.textareaContador}>{descripcion.length}/300</span>
           </section>
 
-          {/* Fotos + Archivos */}
+          {/* Adjuntos */}
           <section className={styles.campoBloque}>
             <p className={styles.campoLabel}>
               Adjuntos <span className={styles.opcional}>(opcional)</span>
-              <span style={{ fontSize: 11, color: "var(--tp-marron-suave)", fontWeight: 400, marginLeft: 6 }}>· Ayuda a cotizar mejor</span>
+              <span className={styles.adjuntoHint}>· Ayuda a cotizar mejor</span>
             </p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+            <div className={styles.adjuntosGrid}>
               <button type="button" className={styles.btnFotos}
-                onClick={() => mostrarToast("Función disponible en la app móvil")}
-                style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
-                <span className={styles.btnFotosIcono}><IconoCamara size={20} /></span>
-                <span className={styles.btnFotosTexto}>Agregar</span>
-                <span className={styles.btnFotosSub}>fotos</span>
+                onClick={() => mostrarToast("Función disponible en la app móvil")}>
+                <span className={styles.btnFotosIcono}><IconoCamara size={22} /></span>
+                <div className={styles.btnFotosTextos}>
+                  <span className={styles.btnFotosTexto}>Agregar fotos</span>
+                  <span className={styles.btnFotosSub}>JPG, PNG, HEIC</span>
+                </div>
               </button>
               <button type="button" className={styles.btnFotos}
-                onClick={() => mostrarToast("Función disponible en la app móvil")}
-                style={{ width: "100%", minWidth: 0, boxSizing: "border-box" }}>
+                onClick={() => mostrarToast("Función disponible en la app móvil")}>
                 <span className={styles.btnFotosIcono}>📁</span>
-                <span className={styles.btnFotosTexto}>Agregar</span>
-                <span className={styles.btnFotosSub}>archivos / planos</span>
+                <div className={styles.btnFotosTextos}>
+                  <span className={styles.btnFotosTexto}>Archivos / planos</span>
+                  <span className={styles.btnFotosSub}>PDF, DWG, ZIP</span>
+                </div>
               </button>
             </div>
           </section>
         </main>
 
         <div className={styles.footer}>
-          <button
-            type="button"
-            className={styles.btnPrimario}
-            onClick={irAPaso2}
-          >
+          <button type="button" className={styles.btnPrimario} onClick={irAPaso2}>
             Continuar →
           </button>
         </div>
@@ -348,13 +261,13 @@ export default function Busqueda() {
     );
   }
 
-  // ── PASO 2: ¿Cuándo y dónde? ──
+  // ── PASO 2 ──────────────────────────────────────────────
   if (paso === 2) {
     return (
       <div className={styles.pantalla}>
         <header className={styles.header}>
           <button className={styles.btnVolver} onClick={() => setPaso(1)}>
-            ← Volver
+            <IconoVolver size={20} />
           </button>
           <span className={styles.headerTitulo}>Solicitar servicio</span>
           <div className={styles.pasoIndicador}>
@@ -370,16 +283,12 @@ export default function Busqueda() {
         <main className={styles.contenido}>
           <div className={styles.pasoTitulo}>
             <h1 className={styles.pasoTituloTexto}>¿Cuándo y dónde?</h1>
-            <p className={styles.pasoTituloSub}>
-              Indicá la urgencia y la dirección
-            </p>
+            <p className={styles.pasoTituloSub}>Indicá la urgencia y la dirección</p>
           </div>
 
-          {/* Resumen paso 1 — categorías + voz + archivos */}
+          {/* Resumen paso 1 */}
           <div className={styles.resumenPaso1}>
-            <span className={styles.resumenIcono}>
-              {categoriaActual?.icono}
-            </span>
+            <span className={styles.resumenIcono}>{categoriaActual?.icono}</span>
             <div className={styles.resumenTexto}>
               <span className={styles.resumenCategoria}>
                 {categoriasActuales.length > 1
@@ -387,9 +296,7 @@ export default function Busqueda() {
                   : categoriaActual?.nombre}
               </span>
               <span className={styles.resumenDesc}>
-                {descripcion.length > 60
-                  ? descripcion.slice(0, 60) + "..."
-                  : descripcion}
+                {descripcion.length > 60 ? descripcion.slice(0, 60) + "..." : descripcion}
               </span>
             </div>
             <button className={styles.resumenEditar} onClick={() => setPaso(1)}>
@@ -400,168 +307,140 @@ export default function Busqueda() {
           {/* Urgencia */}
           <section className={styles.campoBloque}>
             <p className={styles.campoLabel}>Urgencia</p>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                {URGENCIA_OPCIONES.map((op) => (
-                  <div key={op.id} style={{ position: "relative" }}>
-                    <button type="button"
-                      className={`${styles.urgenciaBtn} ${urgencia === op.id ? styles.urgenciaBtnActiva : ""}`}
-                      onClick={() => setUrgencia(op.id)}
-                      style={{ width: "100%" }}
-                    >
-                      <span className={styles.urgenciaBtnIcono}>{op.icono}</span>
-                      <span className={styles.urgenciaBtnTitulo}>{op.titulo}</span>
-                      <span className={styles.urgenciaBtnDesc}>{op.desc}</span>
-                      {op.extra && (
-                        <span className={styles.urgenciaBtnExtra}
-                          onMouseEnter={() => op.alerta && setMostrarAlertaUrgente(true)}
-                          onMouseLeave={() => setMostrarAlertaUrgente(false)}
-                          onClick={e => { e.stopPropagation(); setMostrarAlertaUrgente(!mostrarAlertaUrgente); }}
-                        >{op.extra}</span>
-                      )}
-                    </button>
-                    {op.alerta && urgencia === op.id && mostrarAlertaUrgente && (
-                      <div style={{ position: "absolute", bottom: "calc(100% + 6px)", left: 0, right: 0, background: "var(--tp-marron)", color: "var(--tp-crema)", padding: "8px 10px", borderRadius: "var(--r-md)", fontSize: 11, lineHeight: 1.5, zIndex: 10, fontFamily: "var(--fuente)" }}>
-                        ⚠️ {op.alerta}
-                      </div>
+            <div className={styles.urgenciaGrid}>
+              {URGENCIA_OPCIONES.map((op) => (
+                <div key={op.id} className={styles.urgenciaItemWrapper}>
+                  <button type="button"
+                    className={`${styles.urgenciaBtn} ${urgencia === op.id ? styles.urgenciaBtnActiva : ""}`}
+                    onClick={() => setUrgencia(op.id)}
+                  >
+                    <span className={styles.urgenciaBtnIcono}>{op.icono}</span>
+                    <span className={styles.urgenciaBtnTitulo}>{op.titulo}</span>
+                    <span className={styles.urgenciaBtnDesc}>{op.desc}</span>
+                    {op.extra && (
+                      <span className={styles.urgenciaBtnExtra}
+                        onMouseEnter={() => op.alerta && setMostrarAlertaUrgente(true)}
+                        onMouseLeave={() => setMostrarAlertaUrgente(false)}
+                        onClick={e => { e.stopPropagation(); setMostrarAlertaUrgente(!mostrarAlertaUrgente); }}
+                      >{op.extra}</span>
                     )}
-                  </div>
-                ))}
+                  </button>
+                  {op.alerta && urgencia === op.id && mostrarAlertaUrgente && (
+                    <div className={styles.urgenciaTooltip}>
+                      ⚠️ {op.alerta}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
 
           {/* Dirección */}
           <section className={styles.campoBloque}>
             <p className={styles.campoLabel}>Dirección del servicio</p>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              {/* Domicilios guardados — siempre visibles, toggle al tocar */}
+            <div className={styles.direccionesCol}>
               {DOMICILIOS_USUARIO.map(d => (
                 <button key={d.id} type="button"
+                  className={direccion === d.direccion ? styles.domicilioActivo : styles.domicilioBtn}
                   onClick={() => setDireccion(prev => prev === d.direccion ? "" : d.direccion)}
-                  style={{
-                    display: "flex", alignItems: "center", gap: 10, padding: "10px 12px",
-                    borderRadius: "var(--r-md)", border: "none", cursor: "pointer",
-                    fontFamily: "var(--fuente)", textAlign: "left",
-                    background: direccion === d.direccion ? "var(--tp-marron)" : "rgba(61,31,31,0.06)",
-                  }}>
-                  <span style={{ fontSize: 16 }}>📍</span>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontSize: 12, fontWeight: 700, margin: 0,
-                      color: direccion === d.direccion ? "var(--tp-crema)" : "var(--tp-marron)" }}>
+                >
+                  <span className={styles.domicilioIcono}>📍</span>
+                  <div className={styles.domicilioTexto}>
+                    <p className={direccion === d.direccion ? styles.domicilioLabelActivo : styles.domicilioLabel}>
                       {d.label}
                     </p>
-                    <p style={{ fontSize: 11, margin: 0,
-                      color: direccion === d.direccion ? "rgba(240,234,214,0.70)" : "var(--tp-marron-suave)" }}>
+                    <p className={direccion === d.direccion ? styles.domicilioDireccionActiva : styles.domicilioDireccion}>
                       {d.direccion}
                     </p>
                   </div>
-                  {direccion === d.direccion && (
-                    <span style={{ fontSize: 14, color: "var(--tp-crema)" }}>✓</span>
-                  )}
+                  {direccion === d.direccion && <span className={styles.domicilioCheck}>✓</span>}
                 </button>
               ))}
 
-              {/* Otra dirección — siempre visible, se suma a las guardadas */}
-              <div style={{ borderRadius: "var(--r-md)", border: direccionManual ? "2px solid var(--tp-rojo)" : "1px dashed rgba(61,31,31,0.20)", background: "var(--tp-crema)", overflow: "hidden" }}>
-                <div className={styles.direccionInput} style={{ border: "none", background: "none" }}>
+              {/* Otra dirección */}
+              <div className={direccionManual ? styles.otraDireccionActiva : styles.otraDireccion}>
+                <div className={styles.direccionInput}>
                   <span className={styles.direccionIcono}>✏️</span>
                   <input type="text" className={styles.direccionCampo}
                     placeholder="Ingresar otra dirección..."
                     value={direccionManual}
-                    onChange={e => {
-                      setDireccionManual(e.target.value);
-                      if (e.target.value) setDireccion(e.target.value);
-                    }}
+                    onChange={e => { setDireccionManual(e.target.value); if (e.target.value) setDireccion(e.target.value); }}
                   />
                   {direccionManual && (<>
-                    <button type="button" onClick={() => { setDireccion(direccionManual); }}
-                      style={{ border: "none", background: "none", cursor: "pointer", color: "var(--verde)", fontSize: 18, padding: "0 2px", fontWeight: 900 }}>✓</button>
-                    <button type="button" onClick={() => { setDireccionManual(""); setDireccion(""); }}
-                      style={{ border: "none", background: "none", cursor: "pointer", color: "var(--tp-marron-suave)", fontSize: 16, padding: "0 4px" }}>✕</button>
+                    <button type="button" className={styles.btnConfirmarDireccion}
+                      onClick={() => setDireccion(direccionManual)}>✓</button>
+                    <button type="button" className={styles.btnLimpiarDireccion}
+                      onClick={() => { setDireccionManual(""); setDireccion(""); }}>✕</button>
                   </>)}
                 </div>
               </div>
 
               <button type="button" className={styles.btnUbicacion}
-                onClick={() => { setDireccion("Ubicación actual"); setDireccionManual(""); mostrarToast("Usando tu ubicación actual"); }}>
+                onClick={() => {
+                  if (!navigator.geolocation) { mostrarToast("Tu dispositivo no soporta GPS"); return; }
+                  mostrarToast("📡 Obteniendo ubicación...");
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      const { latitude, longitude } = pos.coords;
+                      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`)
+                        .then(r => r.json())
+                        .then(data => {
+                          const addr = data.display_name || `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+                          setDireccion(addr);
+                          setDireccionManual("");
+                          mostrarToast("✅ Ubicación obtenida");
+                        })
+                        .catch(() => {
+                          setDireccion(`${latitude.toFixed(5)}, ${longitude.toFixed(5)}`);
+                          setDireccionManual("");
+                          mostrarToast("✅ Ubicación obtenida");
+                        });
+                    },
+                    () => mostrarToast("⚠️ No se pudo acceder al GPS")
+                  );
+                }}>
                 🎯 Usar mi ubicación actual
               </button>
             </div>
           </section>
 
-          {/* Domicilio seleccionado — confirmación visible */}
+          {/* Dirección seleccionada — confirmación */}
           {direccion && (
-            <div style={{
-              display: "flex", alignItems: "center", gap: 10,
-              padding: "10px 14px", borderRadius: "var(--r-md)",
-              background: "var(--tp-marron)", marginBottom: 4,
-            }}>
-              <span style={{ fontSize: 18, flexShrink: 0 }}>📍</span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p style={{ fontSize: 10, fontWeight: 700, color: "rgba(240,234,214,0.65)", margin: "0 0 2px", textTransform: "uppercase", letterSpacing: "0.5px", fontFamily: "var(--fuente)" }}>
-                  Dirección del servicio
-                </p>
-                <p style={{ fontSize: 13, fontWeight: 700, color: "var(--tp-crema)", margin: 0, fontFamily: "var(--fuente)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {direccion}
-                </p>
+            <div className={styles.direccionConfirmada}>
+              <span className={styles.direccionConfirmadaIcono}>📍</span>
+              <div className={styles.direccionConfirmadaTexto}>
+                <p className={styles.direccionConfirmadaLabel}>Dirección del servicio</p>
+                <p className={styles.direccionConfirmadaValor}>{direccion}</p>
               </div>
-
             </div>
           )}
 
           {/* Disponibilidad horaria */}
           <section className={styles.campoBloque}>
-            <p className={styles.campoLabel}>
-              ¿Cuándo podés recibir al profesional en el domicilio?
-            </p>
-            <p className={styles.campoSublabel}>
-              Seleccioná días y turnos disponibles
-            </p>
+            <p className={styles.campoLabel}>¿Cuándo podés recibir al profesional en el domicilio?</p>
+            <p className={styles.campoSublabel}>Seleccioná días y turnos disponibles (o hora preferida)</p>
 
-            {/* Atajos rápidos */}
             <div className={styles.atajosRow}>
-              <button
-                type="button"
-                className={styles.atajoBtn}
+              <button type="button" className={styles.atajoBtn}
                 onClick={() => {
                   const diasLV = ["lun", "mar", "mie", "jue", "vie"];
-                  const keys = diasLV.flatMap((d) =>
-                    ["7-12", "12-15", "15-19", "19-21"].map((t) => `${d}-${t}`),
-                  );
-                  const todosActivos = keys.every((k) =>
-                    horariosSeleccionados.includes(k),
-                  );
-                  setHorariosSeleccionados((prev) =>
-                    todosActivos
-                      ? prev.filter((h) => !keys.includes(h))
-                      : [...new Set([...prev, ...keys])],
-                  );
-                }}
-              >
+                  const keys = diasLV.flatMap(d => ["7-12", "12-15", "15-19", "19-21"].map(t => `${d}-${t}`));
+                  const todosActivos = keys.every(k => horariosSeleccionados.includes(k));
+                  setHorariosSeleccionados(prev => todosActivos ? prev.filter(h => !keys.includes(h)) : [...new Set([...prev, ...keys])]);
+                }}>
                 <IconoCalendario size={14} /> Lunes a Viernes
               </button>
-              <button
-                type="button"
-                className={styles.atajoBtn}
+              <button type="button" className={styles.atajoBtn}
                 onClick={() => {
                   const diasFS = ["sab", "dom"];
-                  const keys = diasFS.flatMap((d) =>
-                    ["7-12", "12-15", "15-19", "19-21"].map((t) => `${d}-${t}`),
-                  );
-                  const todosActivos = keys.every((k) =>
-                    horariosSeleccionados.includes(k),
-                  );
-                  setHorariosSeleccionados((prev) =>
-                    todosActivos
-                      ? prev.filter((h) => !keys.includes(h))
-                      : [...new Set([...prev, ...keys])],
-                  );
-                }}
-              >
+                  const keys = diasFS.flatMap(d => ["7-12", "12-15", "15-19", "19-21"].map(t => `${d}-${t}`));
+                  const todosActivos = keys.every(k => horariosSeleccionados.includes(k));
+                  setHorariosSeleccionados(prev => todosActivos ? prev.filter(h => !keys.includes(h)) : [...new Set([...prev, ...keys])]);
+                }}>
                 <Umbrella size={14} /> Fin de semana
               </button>
             </div>
-            {/* Grilla por día */}
+
             {(() => {
               const hoy = new Date();
               return [
@@ -572,24 +451,19 @@ export default function Busqueda() {
                 { dia: "Viernes",   id: "vie", offset: (5 - hoy.getDay() + 7) % 7 },
                 { dia: "Sábado",    id: "sab", offset: (6 - hoy.getDay() + 7) % 7 },
                 { dia: "Domingo",   id: "dom", offset: (0 - hoy.getDay() + 7) % 7 },
-              ]
-              .map(d => {
+              ].map(d => {
                 const fecha = new Date(hoy);
                 fecha.setDate(hoy.getDate() + d.offset);
                 return { ...d, fecha: `${fecha.getDate()}/${String(fecha.getMonth()+1).padStart(2,'0')}`, esHoy: d.offset === 0 };
-              })
-              .sort((a, b) => a.offset - b.offset);
+              }).sort((a, b) => a.offset - b.offset);
             })().map((fila) => (
-              <div key={fila.id} className={styles.disponibilidadFila} style={{ flexWrap: "wrap", gap: "4px 6px", alignItems: "center" }}>
-                {/* Día con fecha */}
-                <span className={styles.disponibilidadDia} style={{ flexShrink: 0, minWidth: 52 }}>
+              <div key={fila.id} className={styles.disponibilidadFila}>
+                <span className={styles.disponibilidadDia}>
                   {fila.dia}
-                  <span style={{ fontSize: 9, display: "block", color: "var(--tp-marron-suave)", fontWeight: 400 }}>{fila.fecha}</span>
+                  <span className={styles.disponibilidadFecha}>{fila.fecha}</span>
                 </span>
-
-                {/* 4 turnos en una sola fila */}
                 {[
-                  { id: "7-12", label: "7–12" },
+                  { id: "7-12",  label: "7–12" },
                   { id: "12-15", label: "12–15" },
                   { id: "15-19", label: "15–19" },
                   { id: "19-21", label: "19–21" },
@@ -598,30 +472,15 @@ export default function Busqueda() {
                   return (
                     <button key={key} type="button"
                       className={`${styles.turnoBtn} ${horariosSeleccionados.includes(key) ? styles.turnoBtnActivo : ""}`}
-                      style={{ flexShrink: 0 }}
-                      onClick={() =>
-                        setHorariosSeleccionados((prev) =>
-                          prev.includes(key) ? prev.filter((h) => h !== key) : [...prev, key]
-                        )
-                      }
-                    >
+                      onClick={() => setHorariosSeleccionados(prev => prev.includes(key) ? prev.filter(h => h !== key) : [...prev, key])}>
                       {turno.label}
                     </button>
                   );
                 })}
-
-                {/* Hora preferida — select en misma fila */}
                 <select
                   value={horasPuntuales[fila.id] || ""}
                   onChange={(e) => setHorasPuntuales(prev => ({ ...prev, [fila.id]: e.target.value }))}
-                  style={{
-                    flexShrink: 0, fontSize: 10, padding: "4px 4px",
-                    borderRadius: 6, border: "1px solid rgba(61,31,31,0.15)",
-                    background: horasPuntuales[fila.id] ? "var(--tp-rojo-suave)" : "var(--tp-crema)",
-                    color: horasPuntuales[fila.id] ? "var(--tp-rojo)" : "var(--tp-marron-suave)",
-                    fontFamily: "var(--fuente)", cursor: "pointer",
-                    maxWidth: 72, lineHeight: 1.3,
-                  }}
+                  className={horasPuntuales[fila.id] ? styles.horaPuntualActiva : styles.horaPuntual}
                 >
                   <option value="">⏰ hora</option>
                   {Array.from({ length: (21 - 7) * 4 + 1 }, (_, i) => {
@@ -629,18 +488,14 @@ export default function Busqueda() {
                     const h = String(Math.floor(totalMin / 60)).padStart(2, "0");
                     const m = String(totalMin % 60).padStart(2, "0");
                     return `${h}:${m}`;
-                  }).map(h => (
-                    <option key={h} value={h}>{h}</option>
-                  ))}
+                  }).map(h => <option key={h} value={h}>{h}</option>)}
                 </select>
               </div>
             ))}
 
             {horariosSeleccionados.length > 0 && (
               <div className={styles.disponibilidadResumen}>
-                ✅ {horariosSeleccionados.length} turno
-                {horariosSeleccionados.length > 1 ? "s" : ""} seleccionado
-                {horariosSeleccionados.length > 1 ? "s" : ""}
+                ✅ {horariosSeleccionados.length} turno{horariosSeleccionados.length > 1 ? "s" : ""} seleccionado{horariosSeleccionados.length > 1 ? "s" : ""}
               </div>
             )}
           </section>
@@ -650,16 +505,10 @@ export default function Busqueda() {
           {buscando ? (
             <div className={styles.buscandoBloque}>
               <div className={styles.buscandoSpinner}></div>
-              <span className={styles.buscandoTexto}>
-                Buscando profesionales cerca tuyo...
-              </span>
+              <span className={styles.buscandoTexto}>Buscando profesionales cerca tuyo...</span>
             </div>
           ) : (
-            <button
-              type="button"
-              className={styles.btnPrimario}
-              onClick={irAPaso3}
-            >
+            <button type="button" className={styles.btnPrimario} onClick={irAPaso3}>
               Buscar profesionales →
             </button>
           )}
@@ -671,13 +520,13 @@ export default function Busqueda() {
     );
   }
 
-  // ── PASO 3: Resultados del búsqueda ──
+  // ── PASO 3 ──────────────────────────────────────────────
   if (paso === 3) {
     return (
       <div className={styles.pantalla}>
         <header className={styles.header}>
           <button className={styles.btnVolver} onClick={() => setPaso(2)}>
-            ← Volver
+            <IconoVolver size={20} />
           </button>
           <span className={styles.headerTitulo}>Profesionales encontrados</span>
           <div className={styles.pasoIndicador}>
@@ -687,167 +536,107 @@ export default function Busqueda() {
         </header>
 
         <div className={styles.wizardBarra}>
-          <div
-            className={styles.wizardBarraRelleno}
-            style={{ width: "100%" }}
-          />
+          <div className={styles.wizardBarraRelleno} style={{ width: "100%" }} />
         </div>
 
         <main className={styles.contenido}>
-          {/* Resumen de la búsqueda */}
-          <div className={styles.resumenBusqueda} style={{ padding: "12px 14px" }}>
-            {/* Fila 1: categoría + urgencia */}
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
-              <span className={styles.resumenBusquedaIcono} style={{ flexShrink: 0 }}>
-                {categoriaActual?.icono}
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <p className={styles.resumenBusquedaTitulo} style={{ margin: "0 0 2px" }}>
+          {/* Resumen búsqueda */}
+          <div className={styles.resumenBusqueda}>
+            <div className={styles.resumenBusquedaFila1}>
+              <span className={styles.resumenBusquedaIcono}>{categoriaActual?.icono}</span>
+              <div className={styles.resumenBusquedaInfo}>
+                <p className={styles.resumenBusquedaTitulo}>
                   {categoriasActuales.length > 1
                     ? categoriasActuales.map(c => c.nombre).join(" · ")
                     : (categoriaActual?.nombre || "Servicio")}
                 </p>
-                <span style={{
-                  display: "inline-flex", alignItems: "center", gap: 4,
-                  fontSize: 11, fontWeight: 700, padding: "2px 8px",
-                  borderRadius: 20, fontFamily: "var(--fuente)",
-                  background: urgencia === "urgente" ? "rgba(184,64,48,0.15)" : "rgba(61,31,31,0.08)",
-                  color: urgencia === "urgente" ? "var(--tp-rojo)" : "var(--tp-marron-suave)",
-                }}>
+                <span className={urgencia === "urgente" ? styles.badgeUrgente : styles.badgeNormal}>
                   {urgenciaActual?.icono} {urgenciaActual?.titulo}
                 </span>
               </div>
             </div>
 
-            {/* Fila 2: dirección */}
             {direccion && (
-              <div style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 8, background: "rgba(61,31,31,0.06)", marginBottom: 6 }}>
-                <span style={{ fontSize: 13, flexShrink: 0 }}>📍</span>
-                <p style={{ fontSize: 12, fontWeight: 700, color: "var(--tp-marron)", margin: 0, fontFamily: "var(--fuente)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {direccion}
-                </p>
+              <div className={styles.resumenDireccion}>
+                <span className={styles.resumenDireccionIcono}>📍</span>
+                <p className={styles.resumenDireccionTexto}>{direccion}</p>
               </div>
             )}
 
-            {/* Fila 3: descripción resumida */}
             {descripcion && (
-              <p style={{ fontSize: 11, color: "var(--tp-marron-suave)", margin: 0, fontFamily: "var(--fuente)", lineHeight: 1.4, fontStyle: "italic" }}>
+              <p className={styles.resumenDescripcion}>
                 "{descripcion.length > 70 ? descripcion.slice(0, 70) + "…" : descripcion}"
               </p>
             )}
           </div>
 
-          {/* Resultado del búsqueda */}
+          {/* Header resultados */}
           <div className={styles.resultadosHeader}>
             <p className={styles.resultadosTexto}>
-              <span className={styles.resultadosNumero}>
-                {SOLUCIONADORES_MOCK.length}
-              </span>{" "}
+              <span className={styles.resultadosNumero}>{SOLUCIONADORES_MOCK.length}</span>{" "}
               profesionales disponibles
             </p>
-            <button
-              className={styles.resultadosFiltro}
-              onClick={() => mostrarToast("Filtros próximamente")}
-            >
+            <button className={styles.resultadosFiltro} onClick={() => mostrarToast("Filtros próximamente")}>
               ⚙️ Filtrar
             </button>
           </div>
 
-          {/* Lista de solucionadores */}
+          {/* Lista solucionadores */}
           <div className={styles.solucionadoresLista}>
             {SOLUCIONADORES_MOCK.map((sol, index) => (
-              <div
-                key={sol.id}
-                className={`${styles.solucionadorCard} ${
-                  index === 0 ? styles.solucionadorCardTop : ""
-                }`}
-              >
+              <div key={sol.id} className={`${styles.solucionadorCard} ${index === 0 ? styles.solucionadorCardTop : ""}`}>
                 {index < 3 && (
                   <div className={styles.mejorMatchBadge}>
                     {index === 0 ? "⭐ Mejor resultado para vos" : index === 1 ? "⭐ 2° recomendado" : "⭐ 3° recomendado"}
                   </div>
                 )}
-
                 <div className={styles.solucionadorTop}>
                   <div className={styles.solucionadorAvatar}>
                     {sol.inicial}
-                    <span className={styles.solucionadorNivelIcono}>
-                      {sol.nivelIcono}
-                    </span>
+                    <span className={styles.solucionadorNivelIcono}>{sol.nivelIcono}</span>
                   </div>
-
                   <div className={styles.solucionadorInfo}>
                     <div className={styles.solucionadorNombreRow}>
-                      <span className={styles.solucionadorNombre}>
-                        {sol.nombre}
-                      </span>
-                      <span className={styles.solucionadorReputacion}>
-                        ⭐ {sol.reputacion}
-                      </span>
+                      <span className={styles.solucionadorNombre}>{sol.nombre}</span>
+                      <span className={styles.solucionadorReputacion}>⭐ {sol.reputacion}</span>
                     </div>
-                    <span className={styles.solucionadorOficio}>
-                      {sol.oficio} · {sol.trabajos} trabajos
-                    </span>
+                    <span className={styles.solucionadorOficio}>{sol.oficio} · {sol.trabajos} trabajos</span>
                     <div className={styles.solucionadorMeta}>
                       <span>📍 {sol.distancia}</span>
                       <span>⚡ {sol.tiempoRespuesta}</span>
                     </div>
                   </div>
                 </div>
-
-                {/* Tags */}
                 <div className={styles.solucionadorTags}>
-                  {sol.tags.map((tag) => (
-                    <span key={tag} className={styles.tag}>
-                      {tag}
-                    </span>
-                  ))}
+                  {sol.tags.map(tag => <span key={tag} className={styles.tag}>{tag}</span>)}
                   <span className={styles.tagGarantia}>🛡️ {sol.garantia}</span>
                 </div>
-
-                {/* Precio estimado */}
                 <div className={styles.solucionadorPrecio}>
-                  <span className={styles.solucionadorPrecioLabel}>
-                    Precio estimado:
-                  </span>
-                  <span className={styles.solucionadorPrecioMonto}>
-                    {sol.precio}
-                  </span>
+                  <span className={styles.solucionadorPrecioLabel}>Precio estimado:</span>
+                  <span className={styles.solucionadorPrecioMonto}>{sol.precio}</span>
                 </div>
-
-                {/* Acciones */}
                 <div className={styles.solucionadorAcciones}>
-                  <button
-                    type="button"
-                    className={styles.btnVerPerfil}
-                    onClick={() => navigate(`/perfil?nombre=${encodeURIComponent(sol.nombre)}&oficio=${encodeURIComponent(sol.oficio)}&reputacion=${sol.reputacion}&trabajos=${sol.trabajos}&distancia=${encodeURIComponent(sol.distancia)}&precio=${encodeURIComponent(sol.precio)}&garantia=${encodeURIComponent(sol.garantia)}&nivelIcono=${encodeURIComponent(sol.nivelIcono)}&desde=busqueda`)}
-                  >
+                  <button type="button" className={styles.btnVerPerfil}
+                    onClick={() => navigate(`/perfil?nombre=${encodeURIComponent(sol.nombre)}&oficio=${encodeURIComponent(sol.oficio)}&reputacion=${sol.reputacion}&trabajos=${sol.trabajos}&distancia=${encodeURIComponent(sol.distancia)}&precio=${encodeURIComponent(sol.precio)}&garantia=${encodeURIComponent(sol.garantia)}&nivelIcono=${encodeURIComponent(sol.nivelIcono)}&desde=busqueda`)}>
                     Ver perfil
                   </button>
-                  <button
-                    type="button"
-                    className={styles.btnContactar}
+                  <button type="button" className={styles.btnContactar}
                     onClick={() => {
                       const cats = categoriasActuales.map(c => c.nombre).join(", ") || otraCategoria || "Servicio";
-navigate(`/chat?solId=${sol.id}&nombre=${encodeURIComponent(sol.nombre)}&inicial=${sol.inicial}&oficio=${encodeURIComponent(sol.oficio)}&desde=busqueda&mensaje=solicitud&categoria=${encodeURIComponent(cats)}&descripcion=${encodeURIComponent(descripcion)}&direccion=${encodeURIComponent(direccion)}&urgencia=${encodeURIComponent(urgenciaActual?.titulo || "Normal")}`);
-                    }}
-                  >
+                      navigate(`/chat?solId=${sol.id}&nombre=${encodeURIComponent(sol.nombre)}&inicial=${sol.inicial}&oficio=${encodeURIComponent(sol.oficio)}&desde=busqueda&mensaje=solicitud&categoria=${encodeURIComponent(cats)}&descripcion=${encodeURIComponent(descripcion)}&direccion=${encodeURIComponent(direccion)}&urgencia=${encodeURIComponent(urgenciaActual?.titulo || "Normal")}`);
+                    }}>
                     Solicitar presupuesto y contactar
                   </button>
                 </div>
               </div>
             ))}
           </div>
-        </main>
 
-        {/* Botón volver al inicio */}
-        <div style={{ padding: "0 0 16px" }}>
-          <button type="button"
-            onClick={() => navigate("/home")}
-            style={{ width: "100%", padding: 16, borderRadius: "var(--r-md)", background: "var(--tp-rojo)", color: "var(--tp-crema)", border: "none", cursor: "pointer", fontFamily: "var(--fuente)", fontSize: 15, fontWeight: 700 }}>
+          {/* Botón volver inicio */}
+          <button type="button" className={styles.btnVolverInicio} onClick={() => navigate("/home")}>
             Volver a la pantalla de inicio
           </button>
-        </div>
+        </main>
 
         {toast && <div className={styles.toast}>{toast}</div>}
         <NavInferior />

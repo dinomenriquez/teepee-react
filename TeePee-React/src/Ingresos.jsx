@@ -4,14 +4,12 @@ import NavInferiorS from "./NavInferiorS";
 import styles from "./Ingresos.module.css";
 import { IconoVolver, IconoPerfil } from "./Iconos";
 
-
 function fmt(n) {
   const num = Number(n);
   if (isNaN(num)) return "0";
   const dec = num % 1 === 0 ? 0 : 2;
   return num.toLocaleString("es-AR", { minimumFractionDigits: dec, maximumFractionDigits: 2 });
 }
-
 
 const SEMANAS = [
   {
@@ -20,27 +18,9 @@ const SEMANAS = [
     total: 87200,
     liquidado: true,
     trabajos: [
-      {
-        titulo: "Tablero eléctrico",
-        cliente: "Martín García",
-        bruto: 35200,
-        comision: 2112,
-        neto: 33088,
-      },
-      {
-        titulo: "Instalación luces",
-        cliente: "Ana Gómez",
-        bruto: 28000,
-        comision: 1680,
-        neto: 26320,
-      },
-      {
-        titulo: "Reparación enchufe",
-        cliente: "Laura Pérez",
-        bruto: 24000,
-        comision: 1440,
-        neto: 22560,
-      },
+      { titulo: "Tablero eléctrico",   cliente: "Martín García", bruto: 35200, comision: 2112, neto: 33088 },
+      { titulo: "Instalación luces",   cliente: "Ana Gómez",     bruto: 28000, comision: 1680, neto: 26320 },
+      { titulo: "Reparación enchufe",  cliente: "Laura Pérez",   bruto: 24000, comision: 1440, neto: 22560 },
     ],
   },
   {
@@ -49,20 +29,8 @@ const SEMANAS = [
     total: 64500,
     liquidado: true,
     trabajos: [
-      {
-        titulo: "Cambio tablero",
-        cliente: "Roberto Silva",
-        bruto: 40000,
-        comision: 2400,
-        neto: 37600,
-      },
-      {
-        titulo: "Instalación AA",
-        cliente: "Carlos Ruiz",
-        bruto: 24500,
-        comision: 1470,
-        neto: 23030,
-      },
+      { titulo: "Cambio tablero",  cliente: "Roberto Silva", bruto: 40000, comision: 2400, neto: 37600 },
+      { titulo: "Instalación AA", cliente: "Carlos Ruiz",   bruto: 24500, comision: 1470, neto: 23030 },
     ],
   },
   {
@@ -71,13 +39,7 @@ const SEMANAS = [
     total: 45000,
     liquidado: true,
     trabajos: [
-      {
-        titulo: "Cableado exterior",
-        cliente: "Sofía Torres",
-        bruto: 45000,
-        comision: 2700,
-        neto: 42300,
-      },
+      { titulo: "Cableado exterior", cliente: "Sofía Torres", bruto: 45000, comision: 2700, neto: 42300 },
     ],
   },
 ];
@@ -94,8 +56,8 @@ export default function Ingresos() {
 
   return (
     <div className={styles.pantalla}>
-      {/* ── HEADER ── */}
-      <header className={styles.header} style={{ position: "sticky", top: 0, zIndex: 100 }}>
+      {/* Header */}
+      <header className={styles.header}>
         <button className={styles.btnVolver} onClick={() => navigate(-1)}>
           <IconoVolver size={20} />
         </button>
@@ -103,7 +65,7 @@ export default function Ingresos() {
       </header>
 
       <main className={styles.contenido}>
-        {/* ── HERO ── */}
+        {/* Hero */}
         <div className={styles.hero}>
           <p className={styles.heroLabel}>Ingresos netos este mes</p>
           <p className={styles.heroMonto}>${fmt(netoMes)}</p>
@@ -112,33 +74,21 @@ export default function Ingresos() {
           </p>
         </div>
 
-        {/* ── CUENTA CORRIENTE ── */}
+        {/* Cuenta corriente */}
         <section className={styles.seccion}>
           <h2 className={styles.seccionTitulo}>Cuenta corriente</h2>
-          <p className={styles.seccionDesc}>
-            Liquidaciones semanales — todos los viernes
-          </p>
+          <p className={styles.seccionDesc}>Liquidaciones semanales — todos los viernes</p>
+
           {SEMANAS.map((semana) => (
             <div key={semana.id} className={styles.semanaCard}>
-              <button
-                type="button"
-                className={styles.semanaHeader}
-                onClick={() =>
-                  setSemanaAbierta(
-                    semanaAbierta === semana.id ? null : semana.id,
-                  )
-                }
-              >
+              <button type="button" className={styles.semanaHeader}
+                onClick={() => setSemanaAbierta(semanaAbierta === semana.id ? null : semana.id)}>
                 <div className={styles.semanaHeaderLeft}>
                   <span className={styles.semanaLabel}>{semana.label}</span>
-                  <span className={styles.semanaTotal}>
-                    ${fmt(semana.total)}
-                  </span>
+                  <span className={styles.semanaTotal}>${fmt(semana.total)}</span>
                 </div>
                 <div className={styles.semanaHeaderRight}>
-                  {semana.liquidado && (
-                    <span className={styles.semanaLiquidado}>Liquidado</span>
-                  )}
+                  {semana.liquidado && <span className={styles.semanaLiquidado}>Liquidado</span>}
                   <span className={styles.semanaFlecha}>
                     {semanaAbierta === semana.id ? "▲" : "▼"}
                   </span>
@@ -156,25 +106,16 @@ export default function Ingresos() {
                         </span>
                       </div>
                       <div className={styles.trabajoMontos}>
-                        <span className={styles.trabajoBruto}>
-                          ${fmt(t.bruto)}
-                        </span>
-                        <span className={styles.trabajoComision}>
-                          Comisión 6%: -{t.comision.toLocaleString("es-AR")}
-                        </span>
-                        <span className={styles.trabajoNeto}>
-                          ${fmt(t.neto)}
-                        </span>
+                        <span className={styles.trabajoBruto}>${fmt(t.bruto)}</span>
+                        <span className={styles.trabajoComision}>Comisión 6%: -{t.comision.toLocaleString("es-AR")}</span>
+                        <span className={styles.trabajoNeto}>${fmt(t.neto)}</span>
                       </div>
                     </div>
                   ))}
                   <div className={styles.semanaTotal2}>
                     <span>Total neto acreditado</span>
                     <span className={styles.semanaTotalVal}>
-                      $
-                      {semana.trabajos
-                        .reduce((a, t) => a + t.neto, 0)
-                        .toLocaleString("es-AR")}
+                      ${semana.trabajos.reduce((a, t) => a + t.neto, 0).toLocaleString("es-AR")}
                     </span>
                   </div>
                 </div>
@@ -183,6 +124,7 @@ export default function Ingresos() {
           ))}
         </section>
       </main>
+
       <NavInferiorS />
     </div>
   );
