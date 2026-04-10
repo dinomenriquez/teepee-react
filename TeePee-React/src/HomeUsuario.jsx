@@ -18,9 +18,9 @@ const USUARIO = {
 };
 
 const TRABAJOS_ACTIVOS = [
-  { id: 1, solucionador: "Carlos Méndez",  oficio: "Plomero", descripcion: "Reparación de cañería bajo mesada",      horario: "Hoy 14:30 hs",    etapaActual: 2, totalEtapas: 3, progreso: 65, color: "#2A7D5A" },
-  { id: 2, solucionador: "Ana Rodríguez",  oficio: "Plomero", descripcion: "Instalación de toma corrientes cocina",  horario: "Mañana 10:00 hs", etapaActual: 1, totalEtapas: 3, progreso: 20, color: "#B84030" },
-  { id: 3, solucionador: "Carlos Mendoza", oficio: "Pintor",  descripcion: "Pintura living y comedor",               horario: "Vie 09:00 hs",    etapaActual: 3, totalEtapas: 4, progreso: 75, color: "#8C6820" },
+  { id: 1, solucionador: "Carlos Méndez",  oficio: "Plomero", descripcion: "Reparación de cañería bajo mesada",      horario: "Hoy 14:30 hs",    etapaActual: 2, totalEtapas: 3, progreso: 65, color: "#2A7D5A", monto: "$28.000" },
+  { id: 2, solucionador: "Ana Rodríguez",  oficio: "Plomero", descripcion: "Instalación de toma corrientes cocina",  horario: "Mañana 10:00 hs", etapaActual: 1, totalEtapas: 3, progreso: 20, color: "#B84030", monto: "$15.000" },
+  { id: 3, solucionador: "Carlos Mendoza", oficio: "Pintor",  descripcion: "Pintura living y comedor",               horario: "Vie 09:00 hs",    etapaActual: 3, totalEtapas: 4, progreso: 75, color: "#8C6820", monto: "$48.000" },
 ];
 
 const BUSQUEDAS_HOME = [
@@ -149,8 +149,8 @@ export default function HomeUsuario() {
                   <div className={styles.progresoBarra} style={{ width: `${t.progreso}%`, background: t.color }} />
                 </div>
                 <div className={styles.progresoLabels}>
-                  <span className={styles.progresoTexto}>Etapa {t.etapaActual} de {t.totalEtapas}</span>
-                  <span className={styles.progresoPct}>{t.progreso}%</span>
+                  <span className={styles.progresoTexto}>Avance de obra: {t.progreso}%</span>
+                  <span className={styles.progresoMonto}>{t.monto}</span>
                 </div>
               </section>
             ))
@@ -185,6 +185,9 @@ export default function HomeUsuario() {
 
         {/* Acciones rápidas 2x2 */}
         <section>
+          <div className={styles.seccionHeader}>
+            <h2 className={styles.seccionTitulo}>Mi actividad</h2>
+          </div>
           <div className={styles.accionesGrid}>
             {ACCIONES.map(item => (
               <button key={item.titulo} type="button" className={styles.btnSecundario} onClick={() => navigate(item.ruta)}>

@@ -10,6 +10,13 @@
   /* overflow-x: hidden removido — rompía position: sticky en headers */
 }
 
+/* Panel admin — ancho completo, sin restricción de 430px */
+.appAdmin {
+  width: 100%;
+  min-height: 100vh;
+  background: var(--tp-crema-oscura);
+}
+
 @media (min-width: 430px) {
 
 /* ════════════════════════════════════════════

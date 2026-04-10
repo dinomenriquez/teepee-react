@@ -216,7 +216,8 @@
   position: relative;
   z-index: 1;
 }
-.progresoTexto { font-size: 11px; color: var(--tp-marron-suave); opacity: 0.6; }
+.progresoTexto { font-size: 11px; color: var(--tp-marron-suave); }
+.progresoMonto { font-size: 13px; font-weight: 800; color: var(--tp-marron); }
 .progresoPct { font-size: 11px; font-weight: 800; color: var(--tp-marron-suave); }
 
 /* ── SECCIONES ───────────────────────────────────── */

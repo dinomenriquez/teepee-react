@@ -94,6 +94,24 @@ export default function Bienvenida() {
           <Info size={14} /> ¿Cómo funciona TeePee?
         </button>
 
+        {/* ── ACCESO RÁPIDO ADMIN (solo testing — eliminar en producción) ── */}
+        <button
+          type="button"
+          className={styles.btnAdminDev}
+          onClick={() => {
+            login({
+              nombre: "Admin TeePee",
+              email: "admin@teepee.com.ar",
+              roles: ["admin"],
+              rolActivo: "admin",
+              token: "admin-dev-token",
+            });
+            navigate("/admin");
+          }}
+        >
+          🔧 Entrar como Admin (dev)
+        </button>
+
         {/* Modal primeros pasos */}
         {modalPasos && (
           <div className={styles.modalOverlay} onClick={() => setModalPasos(false)}>

@@ -99,19 +99,21 @@ function Formulario({ solicitud, onVolver, onEnviar, navigate }) {
 
   return (
     <div className={styles.formWrapper}>
-      {/* Header formulario */}
-      <div className={styles.formHeader}>
-        <button className={styles.formBtnVolver} onClick={paso === 2 ? () => setPaso(1) : onVolver}>
-          <IconoVolver size={20} />
-        </button>
-        <div className={styles.formHeaderInfo}>
-          <p className={styles.formHeaderTitulo}>{paso === 1 ? "Armar presupuesto" : "Condiciones"}</p>
-          <p className={styles.formHeaderSub}>Paso {paso} de 2 · {solicitud.cliente}</p>
+      {/* Header formulario — wrapper fijo */}
+      <div className={styles.headerWrapper}>
+        <div className={styles.formHeader}>
+          <button className={styles.formBtnVolver} onClick={paso === 2 ? () => setPaso(1) : onVolver}>
+            <IconoVolver size={20} />
+          </button>
+          <div className={styles.formHeaderInfo}>
+            <p className={styles.formHeaderTitulo}>{paso === 1 ? "Armar presupuesto" : "Condiciones"}</p>
+            <p className={styles.formHeaderSub}>Paso {paso} de 2 · {solicitud.cliente}</p>
+          </div>
+          <button type="button" className={styles.formBtnConsultar}
+            onClick={() => navigate(`/chat-s?usuarioId=1&nombre=${encodeURIComponent(solicitud.cliente)}&inicial=${solicitud.inicial}&desde=presupuestos-s&solicitudId=${solicitud.id || 1}&volverPaso=1`)}>
+            <MessageCircle size={14} /> Consultar sobre el problema
+          </button>
         </div>
-        <button type="button" className={styles.formBtnConsultar}
-          onClick={() => navigate(`/chat-s?usuarioId=1&nombre=${encodeURIComponent(solicitud.cliente)}&inicial=${solicitud.inicial}&desde=presupuestos-s&solicitudId=${solicitud.id || 1}&volverPaso=1`)}>
-          <MessageCircle size={14} /> Consultar sobre el problema
-        </button>
       </div>
 
       {/* Barra de progreso */}
@@ -579,17 +581,19 @@ export default function PresupuestosS() {
 
   return (
     <div className={styles.pantalla}>
-      {/* Header */}
-      <header className={styles.header}>
-        <button className={styles.btnVolver} onClick={() => navigate(-1)}>
-          <IconoVolver size={20} />
-        </button>
-        <span className={styles.headerTitulo}>Presupuestos</span>
-        <button type="button" className={styles.btnNuevo}
-          onClick={() => setFormulario({ cliente: "", servicio: "", inicial: "C", color: "#B84030", monto: null })}>
-          <Plus size={18} />
-        </button>
-      </header>
+      {/* Header wrapper fijo */}
+      <div className={styles.headerWrapper}>
+        <header className={styles.header}>
+          <button className={styles.btnVolver} onClick={() => navigate(-1)}>
+            <IconoVolver size={20} />
+          </button>
+          <span className={styles.headerTitulo}>Presupuestos</span>
+          <button type="button" className={styles.btnNuevo}
+            onClick={() => setFormulario({ cliente: "", servicio: "", inicial: "C", color: "#B84030", monto: null })}>
+            <Plus size={18} />
+          </button>
+        </header>
+      </div>
 
       {/* Filtros */}
       <div className={styles.filtros}>

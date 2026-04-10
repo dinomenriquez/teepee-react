@@ -72,15 +72,29 @@ export default function HomeSolucionador() {
   const [toast, setToast] = useState(null);
   const [mostrarEstados, setMostrarEstados] = useState(false);
   const [dropdownRol, setDropdownRol] = useState(false);
+  const [dropPos, setDropPos] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef(null);
+  const btnEstadoRef = useRef(null);
 
   useEffect(() => {
     function handler(e) {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownRol(false);
+      if (btnEstadoRef.current && !btnEstadoRef.current.contains(e.target) &&
+          dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setMostrarEstados(false);
+      }
     }
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  function toggleEstados() {
+    if (!mostrarEstados && btnEstadoRef.current) {
+      const rect = btnEstadoRef.current.getBoundingClientRect();
+      setDropPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right });
+    }
+    setMostrarEstados(v => !v);
+  }
 
   function mostrarToast(mensaje) { setToast(mensaje); setTimeout(() => setToast(null), 2500); }
   function cambiarEstado(estado) { setEstadoActivo(estado.id); setMostrarEstados(false); mostrarToast("Estado: " + estado.label); }
@@ -96,8 +110,8 @@ export default function HomeSolucionador() {
           <LogoTeePee size={32} />
           <LogoTexto size={16} />
         </div>
-        <button className={styles.estadoToggle} style={{ borderColor: estadoActual.color }}
-          onClick={() => setMostrarEstados(!mostrarEstados)}>
+        <button ref={btnEstadoRef} className={styles.estadoToggle} style={{ borderColor: estadoActual.color }}
+          onClick={toggleEstados}>
           <span>{estadoActual.icono}</span>
           <span className={styles.estadoToggleLabel} style={{ color: estadoActual.color }}>{estadoActual.label}</span>
           <span className={styles.estadoToggleFlecha}>{mostrarEstados ? "▲" : "▼"}</span>
@@ -108,9 +122,10 @@ export default function HomeSolucionador() {
         </button>
       </header>
 
-      {/* Dropdown estados */}
+      {/* Dropdown estados — fixed, aparece donde está el botón */}
       {mostrarEstados && (
-        <div className={styles.estadosDropdown}>
+        <div ref={dropdownRef} className={styles.estadosDropdown}
+          style={{ top: dropPos.top, right: dropPos.right }}>
           {ESTADO_OPCIONES.map(estado => (
             <button key={estado.id}
               className={`${styles.estadoOpcion} ${estadoActivo === estado.id ? styles.estadoOpcionActiva : ""}`}
@@ -192,43 +207,47 @@ export default function HomeSolucionador() {
 
         {/* Trabajos activos */}
         {TRABAJOS_ACTIVOS_S.length > 0 && (
-          <div className={styles.seccionHeaderMb}>
-            <h2 className={styles.seccionTitulo}>
-              Trabajos en curso
-              <span className={styles.seccionBadge}>{TRABAJOS_ACTIVOS_S.length}</span>
-            </h2>
-            <button type="button" className={styles.seccionVerTodo} onClick={() => navigate("/trabajos-s")}>
-              Ver todos →
-            </button>
-          </div>
-        )}
-        {TRABAJOS_ACTIVOS_S.slice(0, 2).map((t, idx) => (
-          <section key={t.id} className={`${styles.trabajoActivo} ${idx < TRABAJOS_ACTIVOS_S.length - 1 ? styles.trabajoActivoMb : ""}`}>
-            <div className={styles.trabajoActivoHeader}>
-              <div className={styles.trabajoActivoLabel}>
-                <div className={styles.puntoActivo} style={{ background: t.color }}></div>
-                Trabajo en curso
-              </div>
-              <button className={styles.trabajoActivoBtn}
-                onClick={() => navigate(`/seguimiento-s?solId=${t.usuarioId}&trabajoId=${t.id}`)}>
-                Ver detalle →
+          <section>
+            <div className={styles.seccionHeader}>
+              <h2 className={styles.seccionTitulo}>
+                Trabajos en curso
+                <span className={styles.seccionBadge}>{TRABAJOS_ACTIVOS_S.length}</span>
+              </h2>
+              <button type="button" className={styles.seccionVerTodo} onClick={() => navigate("/trabajos-s")}>
+                Ver todos →
               </button>
             </div>
-            <h2 className={styles.trabajoActivoDesc}>{t.descripcion}</h2>
-            <div className={styles.trabajoActivoMeta}>
-              <span className={styles.trabajoActivoMetaItem}><IconoPerfil size={12} /> {t.usuario}</span>
-              <span className={styles.trabajoActivoMetaItem}><IconoUbicacion size={12} /> {t.distancia}</span>
-              <span className={styles.trabajoActivoMetaItem}><IconoReloj size={12} /> {t.horario}</span>
-            </div>
-            <div className={styles.progreso}>
-              <div className={styles.progresoBarra} style={{ width: `${t.progreso}%`, background: t.color }} />
-            </div>
-            <div className={styles.progresoLabels}>
-              <span className={styles.progresoTexto}>Avance de obra: {t.progreso}%</span>
-              <span className={styles.progresoMonto}>{t.monto}</span>
+            <div className={styles.solicitudesLista}>
+              {TRABAJOS_ACTIVOS_S.slice(0, 2).map((t) => (
+                <section key={t.id} className={styles.trabajoActivo}>
+                  <div className={styles.trabajoActivoHeader}>
+                    <div className={styles.trabajoActivoLabel}>
+                      <div className={styles.puntoActivo} style={{ background: t.color }}></div>
+                      Trabajo en curso
+                    </div>
+                    <button className={styles.trabajoActivoBtn}
+                      onClick={() => navigate(`/seguimiento-s?solId=${t.usuarioId}&trabajoId=${t.id}`)}>
+                      Ver detalle →
+                    </button>
+                  </div>
+                  <h2 className={styles.trabajoActivoDesc}>{t.descripcion}</h2>
+                  <div className={styles.trabajoActivoMeta}>
+                    <span className={styles.trabajoActivoMetaItem}><IconoPerfil size={12} /> {t.usuario}</span>
+                    <span className={styles.trabajoActivoMetaItem}><IconoUbicacion size={12} /> {t.distancia}</span>
+                    <span className={styles.trabajoActivoMetaItem}><IconoReloj size={12} /> {t.horario}</span>
+                  </div>
+                  <div className={styles.progreso}>
+                    <div className={styles.progresoBarra} style={{ width: `${t.progreso}%`, background: t.color }} />
+                  </div>
+                  <div className={styles.progresoLabels}>
+                    <span className={styles.progresoTexto}>Avance de obra: {t.progreso}%</span>
+                    <span className={styles.progresoMonto}>{t.monto}</span>
+                  </div>
+                </section>
+              ))}
             </div>
           </section>
-        ))}
+        )}
 
         {/* Solicitudes nuevas */}
         <section>
@@ -309,17 +328,33 @@ export default function HomeSolucionador() {
         </button>
 
         {/* Reputación */}
-        <section className={styles.reputacionCard}>
-          <div className={styles.reputacionIcono}>⭐</div>
-          <div className={styles.reputacionInfo}>
-            <p className={styles.reputacionTitulo}>Tu reputación</p>
-            <p className={styles.reputacionScore}>{SOLUCIONADOR.reputacion} <span>/ 5.0</span></p>
-            <p className={styles.reputacionDesc}>{SOLUCIONADOR.totalTrabajos} trabajos · Nivel {SOLUCIONADOR.nivel}</p>
-            <div className={styles.repBarraContainer}>
-              <div className={styles.repBarra} style={{ width: `${(SOLUCIONADOR.reputacion / 5) * 100}%` }} />
-            </div>
-          </div>
-        </section>
+        {(() => {
+          const PENDIENTES_CALIF = [
+            { id: 5, cliente: "Carlos Ruiz",  inicial: "C", trabajo: "Cambio de cerradura" },
+            { id: 6, cliente: "Sofía Torres", inicial: "S", trabajo: "Reparación persiana" },
+          ];
+          return (
+            <section className={styles.reputacionCard}>
+              <div className={styles.reputacionIcono}>⭐</div>
+              <div className={styles.reputacionInfo}>
+                <p className={styles.reputacionTitulo}>Tu reputación</p>
+                <p className={styles.reputacionScore}>{SOLUCIONADOR.reputacion} <span>/ 5.0</span></p>
+                <p className={styles.reputacionDesc}>{SOLUCIONADOR.totalTrabajos} trabajos · Nivel {SOLUCIONADOR.nivel}</p>
+                <div className={styles.repBarraContainer}>
+                  <div className={styles.repBarra} style={{ width: `${(SOLUCIONADOR.reputacion / 5) * 100}%` }} />
+                </div>
+                {PENDIENTES_CALIF.length > 0 && (
+                  <button
+                    type="button"
+                    className={styles.repCalificChip}
+                    onClick={() => navigate("/trabajos-s?tab=finalizados")}>
+                    ⭐ {PENDIENTES_CALIF.length} calificación{PENDIENTES_CALIF.length > 1 ? "es" : ""} pendiente{PENDIENTES_CALIF.length > 1 ? "s" : ""} →
+                  </button>
+                )}
+              </div>
+            </section>
+          );
+        })()}
 
       </main>
 

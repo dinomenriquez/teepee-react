@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import ScrollToTop from "./ScrollToTop";
 import "./App.css";
 import { AuthProvider, useAuth } from "./AuthContext";
@@ -17,7 +17,7 @@ import Cancelacion from "./Cancelacion";
 import Agenda from "./Agenda";
 import PerfilUsuario from "./PerfilUsuario";
 import Presupuestos from "./Presupuestos";
-import MisBusquedas from './MisBusquedas';
+import MisBusquedas from "./MisBusquedas";
 import MisTrabajosU from "./MisTrabajosU";
 import MisTrabajosS from "./MisTrabajosS";
 import PerfilSolucionadorEdit from "./PerfilSolucionadorEdit";
@@ -32,8 +32,20 @@ import PerfilUsuarioPublico from "./PerfilUsuarioPublico";
 import PresupuestosS from "./PresupuestosS";
 import AcuerdoDigital from "./AcuerdoDigital";
 
+// Admin
+import RutaAdmin from "./admin/RutaAdmin";
+import AdminLayout from "./admin/AdminLayout";
+import AdminDashboard from "./admin/AdminDashboard";
+import AdminAprobaciones from "./admin/AdminAprobaciones";
+import AdminReclamos from "./admin/AdminReclamos";
+import AdminUsuarios from "./admin/AdminUsuarios";
+import AdminSolucionadores from "./admin/AdminSolucionadores";
+import AdminPagos from "./admin/AdminPagos";
+import AdminComisiones from "./admin/AdminComisiones";
+import AdminReportes from "./admin/AdminReportes";
+import AdminAntifraude from "./admin/AdminAntifraude";
+
 // ── RUTA PROTEGIDA ────────────────────────────
-// Si no hay sesión → /bienvenida
 function RutaProtegida({ children }) {
   const { sesion, cargando } = useAuth();
   if (cargando) return null;
@@ -55,42 +67,57 @@ function RutaInicial() {
   const { sesion, cargando } = useAuth();
   if (cargando) return null;
   if (!sesion) return <Navigate to="/bienvenida" replace />;
+  if (sesion.rolActivo === "admin")       return <Navigate to="/admin" replace />;
   if (sesion.rolActivo === "solucionador") return <Navigate to="/home-solucionador" replace />;
   return <Navigate to="/home" replace />;
+}
+
+// ── WRAPPER ADMIN: layout + ruta protegida ────
+function AdminPage({ children }) {
+  return (
+    <RutaAdmin>
+      <AdminLayout>{children}</AdminLayout>
+    </RutaAdmin>
+  );
 }
 
 function AppRoutes() {
   return (
     <Routes>
-      {/* Raíz — detecta sesión y redirige */}
+      {/* Raíz */}
       <Route path="/" element={<RutaInicial />} />
 
-      {/* Bienvenida — siempre accesible */}
+      {/* Bienvenida */}
       <Route path="/bienvenida" element={<Bienvenida />} />
 
-      {/* Homes */}
-      <Route path="/home" element={
-        <RutaProtegida><HomeUsuario /></RutaProtegida>
-      } />
-      <Route path="/home-solucionador" element={
-        <RutaProtegida><HomeSolucionador /></RutaProtegida>
-      } />
+      {/* ── PANEL ADMIN ── */}
+      <Route path="/admin"                element={<AdminPage><AdminDashboard /></AdminPage>} />
+      <Route path="/admin/aprobaciones"   element={<AdminPage><AdminAprobaciones /></AdminPage>} />
+      <Route path="/admin/reclamos"       element={<AdminPage><AdminReclamos /></AdminPage>} />
+      <Route path="/admin/usuarios"       element={<AdminPage><AdminUsuarios /></AdminPage>} />
+      <Route path="/admin/solucionadores" element={<AdminPage><AdminSolucionadores /></AdminPage>} />
+      <Route path="/admin/pagos"          element={<AdminPage><AdminPagos /></AdminPage>} />
+      <Route path="/admin/comisiones"     element={<AdminPage><AdminComisiones /></AdminPage>} />
+      <Route path="/admin/reportes"       element={<AdminPage><AdminReportes /></AdminPage>} />
+      <Route path="/admin/antifraude"     element={<AdminPage><AdminAntifraude /></AdminPage>} />
 
-      {/* Rutas comunes */}
+      {/* ── APP USUARIO / SOLUCIONADOR ── */}
+      <Route path="/home" element={<RutaProtegida><HomeUsuario /></RutaProtegida>} />
+      <Route path="/home-solucionador" element={<RutaProtegida><HomeSolucionador /></RutaProtegida>} />
       <Route path="/busqueda" element={<RutaProtegida><Busqueda /></RutaProtegida>} />
       <Route path="/perfil" element={<RutaProtegida><PerfilSolucionador /></RutaProtegida>} />
       <Route path="/chat" element={<RutaProtegida><Chat /></RutaProtegida>} />
       <Route path="/seguimiento" element={<RutaProtegida><Seguimiento /></RutaProtegida>} />
       <Route path="/seguimiento-s" element={<RutaProtegida><SeguimientoS /></RutaProtegida>} />
       <Route path="/calificacion-s" element={<CalificacionS />} />
-        <Route path="/pago" element={<RutaProtegida><Pago /></RutaProtegida>} />
+      <Route path="/pago" element={<RutaProtegida><Pago /></RutaProtegida>} />
       <Route path="/calificacion" element={<RutaProtegida><Calificacion /></RutaProtegida>} />
       <Route path="/cancelacion" element={<RutaProtegida><Cancelacion /></RutaProtegida>} />
       <Route path="/agenda" element={<RutaProtegida><Agenda /></RutaProtegida>} />
       <Route path="/perfil-usuario" element={<RutaProtegida><PerfilUsuario /></RutaProtegida>} />
       <Route path="/presupuestos" element={<RutaProtegida><Presupuestos /></RutaProtegida>} />
       <Route path="/mis-busquedas" element={<MisBusquedas />} />
-        <Route path="/trabajos" element={<RutaProtegida><MisTrabajosU /></RutaProtegida>} />
+      <Route path="/trabajos" element={<RutaProtegida><MisTrabajosU /></RutaProtegida>} />
       <Route path="/trabajos-s" element={<RutaProtegida><MisTrabajosS /></RutaProtegida>} />
       <Route path="/perfil-solucionador" element={<RutaProtegida><PerfilSolucionadorEdit /></RutaProtegida>} />
       <Route path="/notificaciones" element={<RutaProtegida><Notificaciones /></RutaProtegida>} />
@@ -109,14 +136,22 @@ function AppRoutes() {
   );
 }
 
+function AppWrapper() {
+  const location = useLocation();
+  const esAdmin  = location.pathname.startsWith("/admin");
+  return (
+    <div className={esAdmin ? "appAdmin" : "app"}>
+      <AppRoutes />
+    </div>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
       <AuthProvider>
-        <div className="app">
-          <AppRoutes />
-        </div>
+        <AppWrapper />
       </AuthProvider>
     </BrowserRouter>
   );

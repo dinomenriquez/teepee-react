@@ -2,15 +2,23 @@
 
 /* ── PANTALLAS ───────────────────────────────── */
 .pantalla     { min-height: 100vh; background: var(--tp-crema); display: flex; flex-direction: column; font-family: var(--fuente); padding-top: 49px; }
-.formPantalla {
-  padding-top: 49px; min-height: 100vh; background: var(--tp-crema); padding-bottom: 90px; padding-left: 16px; padding-right: 16px; font-family: var(--fuente); }
+.formPantalla { min-height: 100vh; background: var(--tp-crema); padding-top: 49px; padding-bottom: 90px; font-family: var(--fuente); }
 
-/* ── HEADER ─────────────────────────────────── */
-.header { position: fixed;
+/* ── HEADER WRAPPER FIJO ─────────────────────── */
+.headerWrapper {
+  position: fixed;
+  top: 0;
   left: 50%;
   transform: translateX(-50%);
   width: 100%;
-  max-width: 430px; top: 0; z-index: 100; background: var(--tp-crema); border-bottom: 1px solid rgba(61,31,31,0.08); padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+  max-width: 430px;
+  z-index: 100;
+  background: var(--tp-crema);
+  display: flex;
+  flex-direction: column;
+}
+
+.header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--tp-crema); border-bottom: 1px solid rgba(61,31,31,0.08); }
 .btnVolver { border: none; background: none; cursor: pointer; padding: 4px; display: flex; color: var(--tp-marron-suave); transition: color var(--trans); }
 .btnVolver:hover { color: var(--tp-rojo); }
 .headerTitulo { font-size: 16px; font-weight: 800; color: var(--tp-marron); flex: 1; font-family: var(--fuente); }
@@ -47,8 +55,8 @@
 .pCardAcordado { padding: 7px 12px; border-radius: var(--r-full); background: var(--verde-suave); color: var(--verde); font-size: 12px; font-weight: 700; }
 
 /* ── FORMULARIO ──────────────────────────────── */
-.formWrapper { font-family: var(--fuente); }
-.formHeader { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }
+.formWrapper { font-family: var(--fuente); min-height: 100vh; background: var(--tp-crema); padding-top: 62px; padding-bottom: 90px; }
+.formHeader { display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: var(--tp-crema); border-bottom: 1px solid rgba(61,31,31,0.08); }
 .formBtnVolver { border: none; background: none; cursor: pointer; color: var(--tp-marron-suave); display: flex; }
 .formHeaderInfo { flex: 1; }
 .formHeaderTitulo { font-size: 15px; font-weight: 800; color: var(--tp-marron); margin: 0; }
